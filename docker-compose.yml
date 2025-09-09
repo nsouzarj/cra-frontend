@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - cra-network
+    depends_on:
+      - backend
+    # Add a restart policy to handle temporary failures
+    restart: unless-stopped
+
+  backend:
+    image: craweb/cra-backend:latest
+    ports:
+      - "8081:8080"  # Changed from 8080:8080 to avoid port conflicts
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    networks:
+      - cra-network
+    depends_on:
+      - database
+    # Add a restart policy to handle temporary failures
+    restart: unless-stopped
+
+  database:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=cra_db
+      - POSTGRES_USER=cra_user
+      - POSTGRES_PASSWORD=cra_password
+    ports:
+      - "5432:5432"
+    networks:
+      - cra-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Add a restart policy to handle temporary failures
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  cra-network:
+    driver: bridge

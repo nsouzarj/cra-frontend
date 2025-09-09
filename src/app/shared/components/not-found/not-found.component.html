@@ -1,0 +1,20 @@
+<div class="not-found-container">
+  <mat-card class="not-found-card">
+    <mat-card-content>
+      <div class="content">
+        <mat-icon class="error-icon">error_outline</mat-icon>
+        <h1>404</h1>
+        <h2>Página Não Encontrada</h2>
+        <p>A página que você está procurando não existe ou foi movida.</p>
+        <div class="actions">
+          <button mat-raised-button color="primary" (click)="goToDashboard()">
+            Ir para Dashboard
+          </button>
+          <button mat-button (click)="goBack()">
+            Voltar
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

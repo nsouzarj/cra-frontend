@@ -1,0 +1,175 @@
+.sidenav-list {
+  padding: 0;
+  height: 100%;
+}
+
+.nav-header {
+  display: flex;
+  align-items: center;
+  padding: 20px 16px;
+  background-color: #3f51b5;
+  color: white;
+  gap: 12px;
+}
+
+.nav-logo {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.nav-title {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.nav-divider {
+  margin: 0;
+}
+
+.nav-item {
+  border-radius: 0;
+  padding: 12px 16px;
+  margin: 0;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.nav-item:hover {
+  background-color: #f0f0f0;
+}
+
+.nav-item.active-link {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border-right: 3px solid #1976d2;
+}
+
+.nav-group-header {
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.expand-icon {
+  transition: transform 0.2s ease;
+}
+
+.expand-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.nav-children {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background-color: #f8f8f8;
+}
+
+.nav-children.expanded {
+  max-height: 500px;
+}
+
+.nav-child-item {
+  padding-left: 56px;
+  border-radius: 0;
+  color: #555;
+}
+
+.nav-child-item:hover {
+  background-color: #ebebeb;
+}
+
+.nav-child-item.active-link {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+mat-icon[matListItemIcon] {
+  color: inherit;
+}
+
+/* Dark Theme Overrides */
+.dark-theme .sidenav-list {
+  background-color: #303030;
+}
+
+.dark-theme .nav-header {
+  background-color: #212121;
+}
+
+.dark-theme .nav-item {
+  color: #ffffff !important;
+}
+
+.dark-theme .nav-item:hover {
+  background-color: #424242 !important;
+}
+
+.dark-theme .nav-item.active-link {
+  background-color: #424242 !important;
+  color: #7986cb !important;
+  border-right: 3px solid #7986cb !important;
+}
+
+.dark-theme .nav-children {
+  background-color: #303030;
+}
+
+.dark-theme .nav-child-item {
+  color: #ffffff !important;
+}
+
+.dark-theme .nav-child-item:hover {
+  background-color: #424242 !important;
+}
+
+.dark-theme .nav-child-item.active-link {
+  background-color: #424242 !important;
+  color: #7986cb !important;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .nav-header {
+    padding: 16px 12px;
+  }
+  
+  .nav-title {
+    font-size: 16px;
+  }
+  
+  .nav-item {
+    padding: 10px 12px;
+  }
+  
+  .nav-child-item {
+    padding-left: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-header {
+    padding: 12px 8px;
+  }
+  
+  .nav-logo {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+  
+  .nav-title {
+    font-size: 14px;
+  }
+  
+  .nav-item {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+  
+  .nav-child-item {
+    padding-left: 32px;
+    font-size: 13px;
+  }
+}

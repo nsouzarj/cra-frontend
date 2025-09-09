@@ -1,0 +1,192 @@
+<div class="request-detail-container" *ngIf="!loading">
+  <div class="page-header">
+    <button mat-icon-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-content">
+      <h1>Minha Solicitação: {{ solicitacao?.id }}</h1>
+      <div class="header-badges">
+        <mat-chip [ngClass]="getStatusClass(solicitacao?.statusSolicitacao?.status)">
+          {{ getStatusText(solicitacao?.statusSolicitacao?.status) }}
+        </mat-chip>
+      </div>
+    </div>
+    <button mat-icon-button (click)="refreshData()" matTooltip="Atualizar dados">
+      <mat-icon>refresh</mat-icon>
+    </button>
+    <!-- Status change buttons for correspondents, admins and lawyers -->
+    <div *ngIf="canChangeStatus()" class="status-buttons">
+      <!-- Show buttons for correspondents only if status is not "Finalizada" -->
+      <ng-container *ngIf="canCorrespondentChangeStatus() || canAdminOrLawyerChangeStatus() || solicitacao?.statusSolicitacao?.status === 'Concluído' || solicitacao?.statusSolicitacao?.status === 'Aguardando Confirmação'">
+        <button mat-raised-button 
+                color="primary" 
+                (click)="updateStatus('Em Produção')"
+                [disabled]="solicitacao?.statusSolicitacao?.status === 'Em Produção' || solicitacao?.statusSolicitacao?.status === 'Concluído' || solicitacao?.statusSolicitacao?.status === 'Finalizada'">
+          Iniciar Trabalho
+        </button>
+        <button mat-raised-button 
+                color="accent" 
+                (click)="updateStatus('Finalizada')"
+                [disabled]="solicitacao?.statusSolicitacao?.status === 'Concluído' || solicitacao?.statusSolicitacao?.status === 'Finalizada' || solicitacao?.statusSolicitacao?.status === 'Aguardando Confirmação'">
+          Concluir Trabalho
+        </button>
+      </ng-container>
+      
+      <!-- Special case: Show "Reabrir" button for admins/lawyers when status is "Finalizada" or "Concluído" -->
+      <button mat-raised-button 
+              color="warn" 
+              (click)="updateStatus('Em Andamento')"
+              *ngIf="canAdminOrLawyerChangeStatus() && (solicitacao?.statusSolicitacao?.status === 'Finalizada' || solicitacao?.statusSolicitacao?.status === 'Concluído')"
+              [disabled]="shouldDisableAllButtons()">
+        Reabrir Solicitação
+      </button>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <!-- Basic Information -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>description</mat-icon>
+          Informações da Solicitação
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-label">ID:</span>
+            <span class="info-value">{{ solicitacao?.id || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Tipo de Solicitação:</span>
+            <span class="info-value">{{ solicitacao?.tipoSolicitacao?.especie ? (solicitacao?.tipoSolicitacao?.especie + ' - ' + solicitacao?.tipoSolicitacao?.tipo) : 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Descrição:</span>
+            <span class="info-value">{{ solicitacao?.complemento || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Status:</span>
+            <span class="info-value" [ngClass]="'status-' + (solicitacao?.statusSolicitacao?.status || '').toLowerCase().replace('_', '-')">
+              {{ getStatusText(solicitacao?.statusSolicitacao?.status) }}
+            </span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Data de Solicitação:</span>
+            <span class="info-value">{{ solicitacao?.dataSolicitacao ? (solicitacao?.dataSolicitacao | date:'dd/MM/yyyy') : 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Data de Prazo:</span>
+            <span class="info-value">{{ solicitacao?.dataPrazo ? (solicitacao?.dataPrazo | date:'dd/MM/yyyy') : 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Data de Conclusão:</span>
+            <span class="info-value">{{ solicitacao?.dataConclusao ? (solicitacao?.dataConclusao | date:'dd/MM/yyyy') : 'Não informado' }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Process Information -->
+    <mat-card class="info-card" *ngIf="solicitacao?.processo">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>folder</mat-icon>
+          Informações do Processo
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-label">Número do Processo:</span>
+            <span class="info-value">{{ solicitacao?.processo?.numeroprocesso || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Parte:</span>
+            <span class="info-value">{{ solicitacao?.processo?.parte || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Parte Adversa:</span>
+            <span class="info-value">{{ solicitacao?.processo?.adverso || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Status:</span>
+            <span class="info-value" [ngClass]="'status-' + (solicitacao?.processo?.status || '').toLowerCase().replace('_', '-') + '-text'">
+              {{ getProcessStatusText(solicitacao?.processo?.status) }}
+            </span>
+          </div>
+          <div class="info-item" *ngIf="solicitacao?.processo?.comarca">
+            <span class="info-label">Comarca:</span>
+            <span class="info-value">{{ solicitacao?.processo?.comarca?.nome }} - {{ solicitacao?.processo?.comarca?.uf?.sigla }}</span>
+          </div>
+          <div class="info-item" *ngIf="solicitacao?.processo?.orgao">
+            <span class="info-label">Órgão:</span>
+            <span class="info-value">{{ solicitacao?.processo?.orgao?.descricao }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Processo Eletrônico:</span>
+            <span class="info-value">{{ solicitacao?.processo?.proceletronico === 'S' ? 'SIM' : (solicitacao?.processo?.proceletronico === 'N' ? 'NÃO' : 'Não informado') }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Observação:</span>
+            <span class="info-value">{{ solicitacao?.processo?.observacao || 'Não informado' }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Correspondent Information -->
+    <mat-card class="info-card" *ngIf="solicitacao?.correspondente">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>person</mat-icon>
+          Seus Dados como Correspondente
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-label">Nome:</span>
+            <span class="info-value">{{ solicitacao?.correspondente?.nome || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">OAB:</span>
+            <span class="info-value">{{ solicitacao?.correspondente?.oab || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">CPF/CNPJ:</span>
+            <span class="info-value">{{ solicitacao?.correspondente?.cpfcnpj || 'Não informado' }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Additional Information -->
+    <mat-card class="info-card" *ngIf="solicitacao?.observacao || solicitacao?.instrucoes">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>notes</mat-icon>
+          Informações Adicionais
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-list">
+          <div class="info-item" *ngIf="solicitacao?.observacao">
+            <span class="info-label">Observação:</span>
+            <span class="info-value">{{ solicitacao?.observacao }}</span>
+          </div>
+          <div class="info-item" *ngIf="solicitacao?.instrucoes">
+            <span class="info-label">Instruções:</span>
+            <span class="info-value">{{ solicitacao?.instrucoes }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+
+<div class="loading-container" *ngIf="loading">
+  <mat-spinner></mat-spinner>
+  <p>Carregando solicitação...</p>
+</div>

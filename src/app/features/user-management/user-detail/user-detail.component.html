@@ -1,0 +1,180 @@
+<div class="user-detail-container">
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner></mat-spinner>
+    <p>Carregando informações...</p>
+  </div>
+
+  <!-- User Details -->
+  <div class="user-details" *ngIf="!loading && user">
+    <!-- Header -->
+    <div class="page-header">
+      <button mat-icon-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-content">
+        <h1>{{ user.nomecompleto }}</h1>
+        <div class="header-badges">
+          <mat-chip [class]="getUserTypeClass(user.tipo)">
+            {{ getUserTypeText(user.tipo) }}
+          </mat-chip>
+          <mat-chip [class]="user.ativo ? 'status-active' : 'status-inactive'">
+            {{ user.ativo ? 'Ativo' : 'Inativo' }}
+          </mat-chip>
+        </div>
+      </div>
+      <button mat-raised-button color="primary" (click)="editUser()" *ngIf="permissionService.canManageUsers()">
+        <mat-icon>edit</mat-icon>
+        Editar
+      </button>
+    </div>
+
+    <div class="content-grid">
+      <!-- User Info Card -->
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>info</mat-icon>
+            Informações Pessoais
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-list">
+            <div class="info-item">
+              <span class="info-label">ID:</span>
+              <span class="info-value">{{ user.id }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Login:</span>
+              <span class="info-value">{{ user.login }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Nome Completo:</span>
+              <span class="info-value">{{ user.nomecompleto }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Tipo de Usuário:</span>
+              <span class="info-value" [class]="getUserTypeClass(user.tipo) + '-text'">
+                {{ getUserTypeText(user.tipo) }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Status:</span>
+              <span class="info-value" [class.active-status]="user.ativo" [class.inactive-status]="!user.ativo">
+                {{ user.ativo ? 'Ativo' : 'Inativo' }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Data de Entrada:</span>
+              <span class="info-value">{{ user.dataEntrada ? (user.dataEntrada | date:'dd/MM/yyyy HH:mm') : 'Não informado' }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Correspondent Information (only for Correspondente type users) -->
+      <mat-card class="info-card" *ngIf="user.tipo === 3 && user.correspondentId">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>business</mat-icon>
+            Informações do Correspondente
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-list">
+            <div class="info-item" *ngFor="let info of getCorrespondentInfo()">
+              <span class="info-label">{{ info.label }}:</span>
+              <span class="info-value">{{ info.value }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Contact Information -->
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>email</mat-icon>
+            Informações de Contato
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-list">
+            <div class="info-item">
+              <span class="info-label">Email Principal:</span>
+              <span class="info-value">{{ user.emailprincipal || 'Não informado' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Email Secundário:</span>
+              <span class="info-value">{{ user.emailsecundario || 'Não informado' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Email Responsável:</span>
+              <span class="info-value">{{ user.emailresponsavel || 'Não informado' }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Permissions -->
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>security</mat-icon>
+            Permissões e Acesso
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="permissions-list">
+            <div class="permission-item" *ngFor="let permission of getUserPermissions()">
+              <mat-icon class="permission-icon">{{ permission.icon }}</mat-icon>
+              <div class="permission-content">
+                <span class="permission-title">{{ permission.title }}</span>
+                <span class="permission-description">{{ permission.description }}</span>
+              </div>
+              <mat-icon class="permission-status" [class.allowed]="permission.allowed">
+                {{ permission.allowed ? 'check_circle' : 'cancel' }}
+              </mat-icon>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Admin Actions (only visible to admins) -->
+      <mat-card class="info-card" *ngIf="permissionService.canManageUsers() && user?.id !== currentUserId">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>admin_panel_settings</mat-icon>
+            Ações Administrativas
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="actions-list">
+            <button mat-stroked-button 
+                    color="accent" 
+                    (click)="toggleUserStatus()"
+                    [disabled]="user.id === currentUserId">
+              <mat-icon>{{ user.ativo ? 'block' : 'check_circle' }}</mat-icon>
+              {{ user.ativo ? 'Desativar' : 'Ativar' }} Usuário
+            </button>
+            
+            <button mat-stroked-button 
+                    color="accent" 
+                    (click)="resetPassword()">
+              <mat-icon>lock_reset</mat-icon>
+              Redefinir Senha
+            </button>
+            
+            <button mat-stroked-button 
+                    color="warn" 
+                    (click)="deleteUser()"
+                    [disabled]="user.id === currentUserId">
+              <mat-icon>delete</mat-icon>
+              Excluir Usuário
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

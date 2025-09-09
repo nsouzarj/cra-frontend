@@ -1,0 +1,197 @@
+<div class="user-list-container">
+  <div class="page-header">
+    <h1>Gerenciamento de Usuários</h1>
+    <button mat-raised-button color="primary" 
+            routerLink="/usuarios/novo"
+            *ngIf="authService.isAdmin()">
+      <mat-icon>add</mat-icon>
+      Novo Usuário
+    </button>
+  </div>
+
+  <!-- Search and Filters -->
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <div class="search-container">
+        <mat-form-field class="search-field" appearance="outline">
+          <mat-label>Buscar usuários</mat-label>
+          <input matInput [formControl]="searchControl" placeholder="Nome, login...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+          <mat-label>Tipo de Usuário</mat-label>
+          <mat-select [formControl]="typeFilterControl">
+            <mat-option value="">Todos</mat-option>
+            <mat-option [value]="UserType.ADMIN">Administrador</mat-option>
+            <mat-option [value]="UserType.ADVOGADO">Advogado</mat-option>
+            <mat-option [value]="UserType.CORRESPONDENTE">Correspondente</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select [formControl]="statusFilterControl">
+            <mat-option value="">Todos</mat-option>
+            <mat-option value="true">Ativo</mat-option>
+            <mat-option value="false">Inativo</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="filter-actions">
+          <button mat-raised-button color="primary" class="button-align" (click)="clearFilters()">
+            <mat-icon>clear</mat-icon>
+            Limpar
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Users Table -->
+  <mat-card class="table-card">
+    <mat-card-content>
+      <div class="table-header">
+        <span class="total-count">Total: {{ dataSource.data.length }} usuário(s)</span>
+      </div>
+
+      <div class="table-container" *ngIf="!loading">
+        <table mat-table [dataSource]="dataSource" matSort class="users-table">
+          <!-- ID Column -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+            <td mat-cell *matCellDef="let user">{{ user.id }}</td>
+          </ng-container>
+
+          <!-- Login Column -->
+          <ng-container matColumnDef="login">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Login</th>
+            <td mat-cell *matCellDef="let user">{{ user.login }}</td>
+          </ng-container>
+
+          <!-- Nome Column -->
+          <ng-container matColumnDef="nomeCompleto">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Nome Completo</th>
+            <td mat-cell *matCellDef="let user">{{ user.nomecompleto }}</td>
+          </ng-container>
+
+          <!-- Email Column -->
+          <ng-container matColumnDef="emailPrincipal">
+            <th mat-header-cell *matHeaderCellDef>Email</th>
+            <td mat-cell *matCellDef="let user">{{ user.emailprincipal || '-' }}</td>
+          </ng-container>
+
+          <!-- Correspondente Column -->
+          <ng-container matColumnDef="correspondente">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Correspondente</th>
+            <td mat-cell *matCellDef="let user">
+              <span *ngIf="user.tipo === UserType.CORRESPONDENTE && user.correspondente">
+                {{ user.correspondente.nome }}
+              </span>
+              <span *ngIf="user.tipo === UserType.CORRESPONDENTE && !user.correspondente">
+                Carregando...
+              </span>
+              <!-- For non-correspondent users, the cell will be blank -->
+            </td>
+          </ng-container>
+
+          <!-- Tipo Column -->
+          <ng-container matColumnDef="tipo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo</th>
+            <td mat-cell *matCellDef="let user">
+              <mat-chip [class]="getUserTypeClass(user.tipo)">
+                {{ getUserTypeText(user.tipo) }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="ativo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <td mat-cell *matCellDef="let user">
+              <mat-chip [class]="user.ativo ? 'status-active' : 'status-inactive'">
+                {{ user.ativo ? 'Ativo' : 'Inativo' }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Data Entrada Column -->
+          <ng-container matColumnDef="dataEntrada">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Data de Entrada</th>
+            <td mat-cell *matCellDef="let user">
+              {{ user.dataEntrada ? (user.dataEntrada | date:'dd/MM/yyyy') : '-' }}
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Ações</th>
+            <td mat-cell *matCellDef="let user">
+              <div class="action-buttons">
+                <button mat-icon-button (click)="viewUser(user)" matTooltip="Visualizar">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                
+                <button mat-icon-button 
+                        (click)="editUser(user)"
+                        *ngIf="permissionService.canManageUsers()"
+                        matTooltip="Editar">
+                  <mat-icon>edit</mat-icon>
+                </button>
+
+                <button mat-icon-button 
+                        [matMenuTriggerFor]="userMenu"
+                        *ngIf="permissionService.canManageUsers()"
+                        matTooltip="Mais ações">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+
+                <mat-menu #userMenu="matMenu">
+                  <button mat-menu-item 
+                          (click)="toggleUserStatus(user)"
+                          [disabled]="user.id === currentUserId">
+                    <mat-icon>{{ user.ativo ? 'block' : 'check_circle' }}</mat-icon>
+                    <span>{{ user.ativo ? 'Desativar' : 'Ativar' }}</span>
+                  </button>
+                  <button mat-menu-item 
+                          (click)="deleteUser(user)"
+                          [disabled]="user.id === currentUserId"
+                          class="delete-action">
+                    <mat-icon>delete</mat-icon>
+                    <span>Excluir</span>
+                  </button>
+                </mat-menu>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <mat-paginator [pageSizeOptions]="[5, 10, 20, 50]" 
+                       showFirstLastButtons
+                       aria-label="Selecionar página de usuários">
+        </mat-paginator>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading-container" *ngIf="loading">
+        <mat-spinner></mat-spinner>
+        <p>Carregando usuários...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="!loading && dataSource.data.length === 0">
+        <mat-icon>people_outline</mat-icon>
+        <h3>Nenhum usuário encontrado</h3>
+        <p>Não há usuários que correspondam aos critérios de busca.</p>
+        <button mat-raised-button color="primary" 
+                routerLink="/usuarios/novo"
+                *ngIf="permissionService.canManageUsers()">
+          Criar Primeiro Usuário
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

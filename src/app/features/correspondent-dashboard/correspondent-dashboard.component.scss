@@ -1,0 +1,276 @@
+// Correspondent dashboard - minimal styles
+.dashboard-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-header {
+  margin-bottom: 30px;
+}
+
+.dashboard-header h1 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.dashboard-header p {
+  color: #666;
+  font-size: 1.1em;
+}
+
+.charts-section {
+  margin-bottom: 30px;
+}
+
+.charts-section h2 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.charts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.chart-card {
+  padding: 20px;
+}
+
+.chart-card mat-card-header {
+  margin-bottom: 15px;
+}
+
+.chart-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  width: 100%;
+  padding: 20px 0;
+  overflow: visible;
+}
+
+.bar-chart {
+  width: 100%;
+  height: 250px;
+  padding: 20px 10px;
+  border-bottom: 1px solid #eee;
+  border-left: 1px solid #eee;
+  background-color: #f9f9f9;
+}
+
+// Ensure responsive bar chart has the same styles
+.bar-chart.responsive-bar-chart {
+  height: 250px;
+  padding: 20px 10px;
+  border-bottom: 1px solid #eee;
+  border-left: 1px solid #eee;
+  background-color: #f9f9f9;
+}
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  height: 100%;
+  gap: 15px;
+  padding: 0 10px;
+  justify-content: center;
+}
+
+.bar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+  flex: 1;
+}
+
+.bar {
+  width: 100%;
+  min-height: 5px;
+  border-radius: 4px 4px 0 0;
+  background-color: #4facfe;
+  box-shadow: 0 0 1px rgba(0,0,0,0.1);
+}
+
+.bar-value {
+  margin-top: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #333;
+}
+
+.bar-label {
+  margin-top: 10px;
+  font-size: 11px;
+  text-align: center;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+}
+
+.pie-chart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.pie-chart-container {
+  position: relative;
+  width: 250px;
+  height: 250px;
+  flex-shrink: 0;
+}
+
+.pie-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.pie-segment {
+  transition: stroke-width 0.2s ease;
+}
+
+.pie-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.pie-total {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+}
+
+.pie-label {
+  font-size: 14px;
+  color: #666;
+}
+
+// Updated legend styles to be on the side
+.pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 250px;
+  flex-shrink: 0;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid #ddd;
+  background-color: #4facfe;
+}
+
+.legend-label {
+  font-size: 12px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.action-card {
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.action-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.action-card mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #3f51b5;
+  margin-bottom: 12px;
+}
+
+.action-card h3 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.action-card p {
+  margin: 0 0 16px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 15px;
+  }
+  
+  .chart-card {
+    padding: 15px;
+  }
+  
+  // Stack pie chart and legend on mobile
+  .pie-chart {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .pie-legend {
+    max-width: 100%;
+    align-items: center;
+  }
+  
+  .pie-chart-container {
+    width: 200px;
+    height: 200px;
+  }
+  
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .action-card mat-icon {
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pie-chart-container {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .pie-total {
+    font-size: 20px;
+  }
+}

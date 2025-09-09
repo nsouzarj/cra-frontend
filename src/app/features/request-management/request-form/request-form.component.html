@@ -1,0 +1,99 @@
+<div class="request-form-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ isEditMode ? 'Editar Solicitação' : 'Nova Solicitação' }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="requestForm" (ngSubmit)="onSubmit()">
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Descrição *</mat-label>
+          <textarea matInput formControlName="complemento" rows="4"></textarea>
+          <mat-error *ngIf="requestForm.get('complemento')?.hasError('required')">
+            Descrição é obrigatória
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Tipo de Solicitação</mat-label>
+          <mat-select formControlName="tipoSolicitacao">
+            <mat-option *ngFor="let tipo of tiposSolicitacao" [value]="tipo.idtiposolicitacao">
+              {{ tipo.especie }} - {{ tipo.tipo }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option *ngFor="let status of statuses" [value]="status.idstatus">
+              {{ status.status }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Processo</mat-label>
+          <mat-select formControlName="processo">
+            <mat-option *ngFor="let processo of filteredProcessos" [value]="processo.id">
+              {{ processo.numeroprocesso }} - {{ processo.parte }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Correspondente</mat-label>
+          <mat-select formControlName="correspondente">
+            <mat-option *ngFor="let correspondente of filteredCorrespondentes" [value]="correspondente.id">
+              {{ correspondente.nome }} - {{ correspondente.oab }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Comarca</mat-label>
+          <mat-select formControlName="comarca">
+            <mat-option *ngFor="let comarca of comarcas" [value]="comarca.id">
+              {{ comarca.nome }} - {{ comarca.uf.sigla }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Usuário</mat-label>
+          <mat-select formControlName="usuario">
+            <mat-option *ngFor="let usuario of usuarios" [value]="usuario.id">
+              {{ usuario.nomecompleto }} ({{ usuario.login }})
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Data Prazo</mat-label>
+          <input matInput [matDatepicker]="prazoPicker" formControlName="dataPrazo">
+          <mat-datepicker-toggle matSuffix [for]="prazoPicker"></mat-datepicker-toggle>
+          <mat-datepicker #prazoPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Observação</mat-label>
+          <textarea matInput formControlName="observacao" rows="3"></textarea>
+        </mat-form-field>
+
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Instruções</mat-label>
+          <textarea matInput formControlName="instrucoes" rows="3"></textarea>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-button type="button" (click)="onCancel()" [disabled]="loading">
+            Cancelar
+          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="requestForm.invalid || loading">
+            <span *ngIf="!loading">{{ isEditMode ? 'Atualizar' : 'Criar' }}</span>
+            <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,159 @@
+.requests-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.requests-card {
+  margin-bottom: 20px;
+}
+
+.requests-card mat-card-header {
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.requests-card h2 {
+  margin: 0;
+  color: #1526de;
+}
+
+.subtitle {
+  margin: 5px 0 0 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.filters-container {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.filter-field {
+  flex: 1;
+  min-width: 150px;
+}
+
+.clear-filters-btn {
+  height: 56px;
+  white-space: nowrap;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px;
+  gap: 20px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.requests-table {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.status-pendente {
+  background-color: #ffeb3b !important;
+  color: #333 !important;
+}
+
+.status-andamento {
+  background-color: #2196f3 !important;
+  color: white !important;
+}
+
+.status-finalizada {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+.status-cancelada {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.empty-state mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 15px;
+  color: #ccc;
+}
+
+.empty-state h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.empty-state p {
+  margin: 0;
+}
+
+.mat-row {
+  cursor: pointer;
+}
+
+.mat-row:hover {
+  background-color: #f5f5f5;
+}
+
+.mat-paginator {
+  display: block !important;
+  margin-top: 20px !important;
+  border-top: 1px solid #e0e0e0 !important;
+  padding-top: 20px !important;
+}
+
+.tipo-descricao {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+
+
+.button-align{
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  bottom: 10px !important;
+  color: #1526de;
+}
+
+@media (max-width: 768px) {
+  .requests-container {
+    padding: 10px;
+  }
+  
+  .filters-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-field {
+    min-width: auto;
+    width: 100%;
+  }
+  
+  .clear-filters-btn {
+    width: 100%;
+    height: auto;
+  }
+}

@@ -1,0 +1,107 @@
+<div class="process-detail-container" *ngIf="!loading">
+  <div class="page-header">
+    <button mat-icon-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-content">
+      <h1>Processo: {{ processo?.numeroprocesso }}</h1>
+      <div class="header-badges">
+        <mat-chip [class]="getStatusClass(processo?.status)">
+          <ng-container [ngSwitch]="processo?.status">
+            <span *ngSwitchCase="'EM_ANDAMENTO'">Em Andamento</span>
+            <span *ngSwitchCase="'SUSPENSO'">Suspenso</span>
+            <span *ngSwitchCase="'ARQUIVADO'">Arquivado</span>
+            <span *ngSwitchCase="'FINALIZADO'">Finalizado</span>
+            <span *ngSwitchDefault>{{ processo?.status || 'Não informado' }}</span>
+          </ng-container>
+        </mat-chip>
+      </div>
+    </div>
+    <button *ngIf="permissionService.canEditRequests()" mat-raised-button color="primary" (click)="editProcess()">
+      <mat-icon>edit</mat-icon>
+      Editar
+    </button>
+  </div>
+
+  <div class="content-grid">
+    <!-- Basic Information -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>description</mat-icon>
+          Informações do Processo
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-label">Número do Processo:</span>
+            <span class="info-value">{{ processo?.numeroprocesso || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Parte:</span>
+            <span class="info-value">{{ processo?.parte || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Parte Adversa:</span>
+            <span class="info-value">{{ processo?.adverso || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Cartório:</span>
+            <span class="info-value">{{ processo?.cartorio || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Assunto:</span>
+            <span class="info-value">{{ processo?.assunto || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Localização:</span>
+            <span class="info-value">{{ processo?.localizacao || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Processo Eletrônico:</span>
+            <span class="info-value">{{ processo?.proceletronico === 'S' ? 'SIM' : (processo?.proceletronico === 'N' ? 'NÃO' : processo?.proceletronico || 'Não informado') }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Órgão:</span>
+            <span class="info-value">{{ processo?.orgao?.descricao || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Comarca:</span>
+            <span class="info-value">{{ processo?.comarca?.nome ? (processo?.comarca?.nome + ' - ' + (processo?.comarca?.uf?.sigla || '')) : 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Status:</span>
+            <span class="info-value">
+              <ng-container [ngSwitch]="processo?.status">
+                <span *ngSwitchCase="'EM_ANDAMENTO'">Em Andamento</span>
+                <span *ngSwitchCase="'SUSPENSO'">Suspenso</span>
+                <span *ngSwitchCase="'ARQUIVADO'">Arquivado</span>
+                <span *ngSwitchCase="'FINALIZADO'">Finalizado</span>
+                <span *ngSwitchDefault>{{ processo?.status || 'Não informado' }}</span>
+              </ng-container>
+            </span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Observations -->
+    <mat-card class="info-card" *ngIf="processo?.observacao">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>notes</mat-icon>
+          Observações
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="observations">{{ processo?.observacao }}</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+
+<div class="loading-container" *ngIf="loading">
+  <mat-spinner></mat-spinner>
+  <p>Carregando processo...</p>
+</div>

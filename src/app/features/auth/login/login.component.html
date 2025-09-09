@@ -1,0 +1,46 @@
+<div class="login-container">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title>Sistema SCB</mat-card-title>
+      <mat-card-subtitle>Entre com suas credenciais</mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label>Login</mat-label>
+          <input matInput formControlName="login" autocomplete="username">
+          <mat-error *ngIf="loginForm.get('login')?.hasError('required')">
+            Login é obrigatório
+          </mat-error>
+          <mat-error *ngIf="loginForm.get('login')?.hasError('minlength')">
+            Login deve ter pelo menos 3 caracteres
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label>Senha</mat-label>
+          <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="senha" autocomplete="current-password">
+          <button mat-icon-button matSuffix (click)="togglePasswordVisibility()" type="button">
+            <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="loginForm.get('senha')?.hasError('required')">
+            Senha é obrigatória
+          </mat-error>
+          <mat-error *ngIf="loginForm.get('senha')?.hasError('minlength')">
+            Senha deve ter pelo menos 6 caracteres
+          </mat-error>
+        </mat-form-field>
+
+        <div class="button-container">
+          <button mat-raised-button color="primary" type="submit" 
+                  [disabled]="loginForm.invalid || loading">
+            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+            <span *ngIf="!loading">Entrar</span>
+            <span *ngIf="loading">Entrando...</span>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,217 @@
+.correspondent-list-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.page-header h1 {
+  margin: 0;
+  color: #1526de;
+}
+
+.filters-card {
+  margin-bottom: 20px;
+}
+
+.search-container {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-field {
+  flex: 1;
+  min-width: 300px;
+}
+
+.filter-actions {
+  display: flex;
+  align-items: center;
+}
+
+.filter-actions button {
+  height: 40px;
+  padding: 0 16px;
+  font-size: 14px;
+  white-space: nowrap;
+  margin: 0;
+  border-radius: 4px;
+}
+
+.button-align {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  bottom: 10px !important;
+}
+
+.filter-actions mat-icon {
+  margin-right: 6px;
+}
+
+.table-card {
+  overflow: hidden;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.total-count {
+  font-weight: 500;
+  color: #666;
+}
+
+.view-options {
+  display: flex;
+  gap: 8px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.correspondents-table {
+  width: 100%;
+  min-width: 1000px;
+}
+
+.name-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.name {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.type-badge {
+  font-size: 10px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.city-cell {
+  display: flex;
+  align-items: center;
+}
+
+.city {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.contact-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+}
+
+.mobile {
+  color: #666;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.delete-action {
+  color: #f44336 !important;
+}
+
+.loading-container, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 20px;
+  text-align: center;
+}
+
+.empty-state mat-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  color: #ccc;
+  margin-bottom: 20px;
+}
+
+.empty-state h3 {
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.empty-state p {
+  color: #999;
+  margin-bottom: 24px;
+}
+
+/* Status chips */
+.status-active {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+.status-inactive {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+// Consolidated responsive design
+@media (max-width: 768px) {
+  .correspondent-list-container {
+    padding: 16px;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  .search-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-field {
+    min-width: unset;
+  }
+  
+  .filter-actions {
+    width: 100%;
+    margin-top: 8px;
+  }
+  
+  .filter-actions button {
+    width: 100%;
+  }
+}
+
+// Paginator styling - consolidated
+.mat-paginator, mat-paginator {
+  display: block;
+  margin-top: 20px;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 20px;
+}

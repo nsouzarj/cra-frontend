@@ -1,0 +1,103 @@
+<div class="process-form-container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>{{ isEditMode ? 'Editar Processo' : 'Novo Processo' }}</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="processForm" (ngSubmit)="onSubmit()">
+        <div class="form-row">
+          <mat-form-field class="form-field" appearance="outline">
+            <mat-label>Número do Processo *</mat-label>
+            <input matInput formControlName="numeroprocesso">
+            <mat-error *ngIf="processForm.get('numeroprocesso')?.hasError('required')">
+              Número do processo é obrigatório
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="form-field" appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="status">
+              <mat-option value="EM_ANDAMENTO">Em Andamento</mat-option>
+              <mat-option value="SUSPENSO">Suspenso</mat-option>
+              <mat-option value="ARQUIVADO">Arquivado</mat-option>
+              <mat-option value="FINALIZADO">Finalizado</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field class="form-field" appearance="outline">
+            <mat-label>Parte</mat-label>
+            <input matInput formControlName="parte">
+          </mat-form-field>
+
+          <mat-form-field class="form-field" appearance="outline">
+            <mat-label>Parte Adversa</mat-label>
+            <input matInput formControlName="adverso">
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field class="form-field" appearance="outline">
+            <mat-label>Cartório</mat-label>
+            <input matInput formControlName="cartorio">
+          </mat-form-field>
+
+          <mat-form-field class="form-field" appearance="outline">
+            <mat-label>Localização</mat-label>
+            <input matInput formControlName="localizacao">
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field class="form-field" appearance="outline">
+            <mat-label>Processo Eletrônico</mat-label>
+            <mat-select formControlName="proceletronico">
+              <mat-option value="S">SIM</mat-option>
+              <mat-option value="N">NÃO</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field class="form-field" appearance="outline">
+            <mat-label>Órgão</mat-label>
+            <mat-select formControlName="orgao">
+              <mat-option *ngFor="let orgao of orgaos" [value]="orgao.id">
+                {{ orgao.descricao }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field class="form-field" appearance="outline">
+            <mat-label>Comarca</mat-label>
+            <mat-select formControlName="comarca">
+              <mat-option *ngFor="let comarca of filteredComarcas" [value]="comarca.id">
+                {{ comarca.nome }} - {{ comarca.uf.sigla }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field class="form-field full-width" appearance="outline">
+          <mat-label>Assunto</mat-label>
+          <input matInput formControlName="assunto">
+        </mat-form-field>
+
+        <mat-form-field class="form-field full-width" appearance="outline">
+          <mat-label>Observações</mat-label>
+          <textarea matInput formControlName="observacoes" rows="4"></textarea>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-button type="button" (click)="onCancel()">Cancelar</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="processForm.invalid || loading">
+            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+            <span *ngIf="!loading">{{ isEditMode ? 'Atualizar' : 'Criar' }}</span>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,328 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>Dashboard</h1>
+    <p>Bem-vindo ao Sistema CRA, {{ currentUser?.nomecompleto }}!</p>
+  </div>
+
+  <div class="stats-grid" *ngIf="!loading">
+    <!-- Users Stats (Admin/Advogado only) -->
+    <mat-card class="stat-card" *ngIf="canViewUsers()">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon users">
+            <mat-icon>people</mat-icon>
+          </div>
+          <div class="stat-details">
+            <h3>Usuários</h3>
+            <div class="stat-numbers">
+              <span class="primary-number">{{ stats.totalUsers }}</span>
+              <span class="secondary-number">{{ stats.activeUsers }} ativos</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Correspondentes Stats -->
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon correspondentes">
+            <mat-icon>business</mat-icon>
+          </div>
+          <div class="stat-details">
+            <h3>Correspondentes</h3>
+            <div class="stat-numbers">
+              <span class="primary-number">{{ stats.totalCorrespondentes }}</span>
+              <span class="secondary-number">{{ stats.activeCorrespondentes }} ativos</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Processos Stats -->
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon processos">
+            <mat-icon>folder</mat-icon>
+          </div>
+          <div class="stat-details">
+            <h3>Processos</h3>
+            <div class="stat-numbers">
+              <span class="primary-number">{{ stats.totalProcessos }}</span>
+              <span class="secondary-number">{{ stats.processosEmAndamento }} em andamento</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Solicitações Stats -->
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon solicitacoes">
+            <mat-icon>assignment</mat-icon>
+          </div>
+          <div class="stat-details">
+            <h3>Solicitações</h3>
+            <div class="stat-numbers">
+              <span class="primary-number">{{ stats.totalSolicitacoes }}</span>
+              <span class="secondary-number">{{ stats.solicitacoesPendentes }} pendentes</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="charts-section" *ngIf="!loading">
+    <h2>Estatísticas Visuais</h2>
+    <div class="charts-grid">
+      <!-- Entity Type Chart -->
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Distribuição de Entidades</mat-card-title>
+          <mat-card-subtitle>Quantidade total de cada tipo</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container">
+            <div class="bar-chart">
+              <div class="chart-bars">
+                <div 
+                  *ngFor="let value of entityTypeChart.values; let i = index" 
+                  class="bar-container"
+                  [attr.data-index]="i"
+                  [attr.data-value]="value"
+                >
+                  <div 
+                    class="bar" 
+                    [ngStyle]="{
+                      'height': getBarHeight(value, getMaxValue(entityTypeChart.values)),
+                      'background-color': entityTypeChart.colors[i]
+                    }"
+                    [attr.data-color]="entityTypeChart.colors[i]"
+                    [attr.data-height]="getBarHeight(value, getMaxValue(entityTypeChart.values))"
+                  ></div>
+                  <div class="bar-label">{{ entityTypeChart.labels[i] }}</div>
+                  <div class="bar-value">{{ value }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Entity Status Chart -->
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Status das Entidades</mat-card-title>
+          <mat-card-subtitle>Ativos, inativos, em andamento e pendentes</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container">
+            <div class="pie-chart">
+              <div class="pie-chart-container">
+                <svg viewBox="0 0 100 100" class="pie-svg">
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#eee" stroke-width="20" />
+                  <ng-container *ngFor="let value of entityStatusChart.values; let i = index">
+                    <circle 
+                      *ngIf="value > 0"
+                      cx="50" 
+                      cy="50" 
+                      r="40" 
+                      fill="none" 
+                      [attr.stroke]="entityStatusChart.colors[i]"
+                      stroke-width="20"
+                      [attr.stroke-dasharray]="getPieStrokeDasharray(value, entityStatusChart.values)"
+                      [attr.stroke-dashoffset]="getPieStrokeDashoffset(i, entityStatusChart.values)"
+                      class="pie-segment"
+                    />
+                  </ng-container>
+                </svg>
+                <div class="pie-center">
+                  <div class="pie-total">{{ getTotalEntities() }}</div>
+                  <div class="pie-label">Total</div>
+                </div>
+              </div>
+              <div class="pie-legend">
+                <div 
+                  *ngFor="let label of entityStatusChart.labels; let i = index" 
+                  class="legend-item"
+                >
+                  <div 
+                    class="legend-color" 
+                    [ngStyle]="{'background-color': entityStatusChart.colors[i]}"
+                  ></div>
+                  <div class="legend-label">{{ label }}: {{ entityStatusChart.values[i] }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Solicitações por Status Chart (Bar Chart) -->
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Solicitações por Status</mat-card-title>
+          <mat-card-subtitle>Distribuição das solicitações por status</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container">
+            <div class="bar-chart responsive-bar-chart">
+              <div class="chart-bars">
+                <div 
+                  *ngFor="let value of solicitacoesPorStatusChart.values; let i = index" 
+                  class="bar-container"
+                >
+                  <div 
+                    class="bar" 
+                    [ngStyle]="{
+                      'height': getBarHeight(value, getMaxValue(solicitacoesPorStatusChart.values)),
+                      'background-color': solicitacoesPorStatusChart.colors[i]
+                    }"
+                    [attr.data-color]="solicitacoesPorStatusChart.colors[i]"
+                    [attr.data-height]="getBarHeight(value, getMaxValue(solicitacoesPorStatusChart.values))"
+                  ></div>
+                  <div class="bar-label">{{ solicitacoesPorStatusChart.labels[i] }}</div>
+                  <div class="bar-value">{{ value }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Solicitações por Status Chart (Pie Chart) -->
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Distribuição de Solicitações</mat-card-title>
+          <mat-card-subtitle>Proporção de solicitações por status</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container">
+            <div class="pie-chart">
+              <div class="pie-chart-container">
+                <svg viewBox="0 0 100 100" class="pie-svg">
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#eee" stroke-width="20" />
+                  <ng-container *ngFor="let value of solicitacoesPorStatusChart.values; let i = index">
+                    <circle 
+                      *ngIf="value > 0"
+                      cx="50" 
+                      cy="50" 
+                      r="40" 
+                      fill="none" 
+                      [attr.stroke]="solicitacoesPorStatusChart.colors[i]"
+                      stroke-width="20"
+                      [attr.stroke-dasharray]="getPieStrokeDasharray(value, solicitacoesPorStatusChart.values)"
+                      [attr.stroke-dashoffset]="getPieStrokeDashoffset(i, solicitacoesPorStatusChart.values)"
+                      class="pie-segment"
+                    />
+                  </ng-container>
+                </svg>
+                <div class="pie-center">
+                  <div class="pie-total">{{ getTotalSolicitacoes() }}</div>
+                  <div class="pie-label">Total</div>
+                </div>
+              </div>
+              <div class="pie-legend">
+                <div 
+                  *ngFor="let label of solicitacoesPorStatusChart.labels; let i = index" 
+                  class="legend-item"
+                >
+                  <div 
+                    class="legend-color" 
+                    [ngStyle]="{'background-color': solicitacoesPorStatusChart.colors[i]}"
+                  ></div>
+                  <div class="legend-label">{{ label }}: {{ solicitacoesPorStatusChart.values[i] }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner></mat-spinner>
+    <p>Carregando estatísticas...</p>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions" *ngIf="!loading">
+    <h2>Ações Rápidas</h2>
+    <div class="actions-grid">
+      <mat-card class="action-card" *ngIf="authService.isAdmin()">
+        <mat-card-content>
+          <mat-icon>person_add</mat-icon>
+          <h3>Cadastrar Usuário</h3>
+          <p>Adicionar novo usuário ao sistema</p>
+          <button mat-raised-button color="primary" routerLink="/register">
+            Cadastrar
+          </button>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="action-card">
+        <mat-card-content>
+          <mat-icon>business</mat-icon>
+          <h3>Novo Correspondente</h3>
+          <p>Cadastrar correspondente</p>
+          <button mat-raised-button color="primary" routerLink="/correspondentes/novo">
+            Cadastrar
+          </button>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="action-card">
+        <mat-card-content>
+          <mat-icon>folder_open</mat-icon>
+          <h3>Novo Processo</h3>
+          <p>Registrar novo processo</p>
+          <button mat-raised-button color="primary" routerLink="/processos/novo">
+            Cadastrar
+          </button>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="action-card">
+        <mat-card-content>
+          <mat-icon>assignment_add</mat-icon>
+          <h3>Nova Solicitação</h3>
+          <p>Criar solicitação</p>
+          <button mat-raised-button color="primary" routerLink="/solicitacoes/novo">
+            Criar
+          </button>
+        </mat-card-content>
+      </mat-card>
+      
+      <!-- Correspondent Dashboard Action -->
+      <mat-card class="action-card" *ngIf="authService.isCorrespondente()">
+        <mat-card-content>
+          <mat-icon>dashboard</mat-icon>
+          <h3>Meu Dashboard</h3>
+          <p>Visualizar minhas estatísticas</p>
+          <button mat-raised-button color="primary" routerLink="/correspondent-dashboard">
+            Acessar
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Recent Activity (Future Enhancement) -->
+  <div class="recent-activity" *ngIf="!loading">
+    <h2>Atividade Recente</h2>
+    <mat-card>
+      <mat-card-content>
+        <p class="coming-soon">Funcionalidade em desenvolvimento...</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

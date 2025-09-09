@@ -1,0 +1,209 @@
+<div class="correspondent-list-container">
+  <div class="page-header">
+    <h1>Gerenciamento de Correspondentes</h1>
+    <button mat-raised-button color="primary" routerLink="/correspondentes/novo">
+      <mat-icon>add</mat-icon>
+      Novo Correspondente
+    </button>
+  </div>
+
+  <!-- Search and Filters -->
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <div class="search-container">
+        <mat-form-field class="search-field" appearance="outline">
+          <mat-label>Buscar correspondentes</mat-label>
+          <input matInput [formControl]="searchControl" placeholder="Nome, CPF/CNPJ, OAB...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+          <mat-label>Tipo</mat-label>
+          <mat-select [formControl]="typeFilterControl">
+            <mat-option value="">Todos</mat-option>
+            <mat-option value="PESSOA_FISICA">Pessoa Física</mat-option>
+            <mat-option value="PESSOA_JURIDICA">Pessoa Jurídica</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select [formControl]="statusFilterControl">
+            <mat-option value="">Todos</mat-option>
+            <mat-option value="true">Ativo</mat-option>
+            <mat-option value="false">Inativo</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="filter-actions">
+          <button mat-raised-button color="primary" class="button-align" (click)="clearFilters()">
+            <mat-icon>clear</mat-icon>
+            Limpar
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Correspondents Table -->
+  <mat-card class="table-card">
+    <mat-card-content>
+      <div class="table-header">
+        <span class="total-count">Total: {{ dataSource.data.length }} correspondente(s)</span>
+        <div class="view-options">
+          <button mat-icon-button (click)="exportData()" matTooltip="Exportar">
+            <mat-icon>download</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="table-container" *ngIf="!loading">
+        <table mat-table [dataSource]="dataSource" matSort class="correspondents-table">
+          <!-- ID Column -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+            <td mat-cell *matCellDef="let correspondent">{{ correspondent.id }}</td>
+          </ng-container>
+
+          <!-- Nome Column -->
+          <ng-container matColumnDef="nome">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Nome</th>
+            <td mat-cell *matCellDef="let correspondent">
+              <div class="name-cell">
+                <span class="name">{{ correspondent.nome }}</span>
+                <span class="type-badge" *ngIf="correspondent.tipo">{{ getFormattedType(correspondent?.tipo) }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- CPF/CNPJ Column -->
+          <ng-container matColumnDef="cpfcnpj">
+            <th mat-header-cell *matHeaderCellDef>CPF/CNPJ</th>
+            <td mat-cell *matCellDef="let correspondent">
+              {{ correspondent.cpfcnpj || '-' }}
+            </td>
+          </ng-container>
+
+          <!-- OAB Column -->
+          <ng-container matColumnDef="oab">
+            <th mat-header-cell *matHeaderCellDef>OAB</th>
+            <td mat-cell *matCellDef="let correspondent">
+              {{ correspondent.oab || '-' }}
+            </td>
+          </ng-container>
+
+          <!-- Email Column -->
+          <ng-container matColumnDef="emailprimario">  <!-- Fixed column name -->
+            <th mat-header-cell *matHeaderCellDef>Email</th>
+            <td mat-cell *matCellDef="let correspondent">
+              {{ correspondent.emailprimario || '-' }}  <!-- Fixed field name -->
+            </td>
+          </ng-container>
+
+          <!-- Telefone Column -->
+          <ng-container matColumnDef="telefoneprimario">  <!-- Fixed column name -->
+            <th mat-header-cell *matHeaderCellDef>Contato</th>
+            <td mat-cell *matCellDef="let correspondent">
+              <div class="contact-cell">
+                <span *ngIf="correspondent.telefoneoprimario">{{ correspondent.telefoneprimario }}</span>  <!-- Fixed field name -->
+                <span *ngIf="correspondent.telefonecelularprimario" class="mobile">{{ correspondent.telefonecelularprimario }}</span>  <!-- Fixed field name -->
+                <span *ngIf="!correspondent.telefonePrimario && !correspondent.telefonecelularprimario">-</span>  <!-- Fixed field names -->
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Cidade Column -->
+          <ng-container matColumnDef="cidade">
+            <th mat-header-cell *matHeaderCellDef>Cidade</th>
+            <td mat-cell *matCellDef="let correspondent">
+              <div class="city-cell" *ngIf="correspondent.endereco">
+                <span class="city" [title]="correspondent.endereco.cidade + (correspondent.endereco.uf ? '/' + correspondent.endereco.uf.sigla : '')">
+                  {{ correspondent.endereco.cidade || '-' }}
+                  <span *ngIf="correspondent.endereco.uf">/{{ correspondent.endereco.uf.sigla }}</span>
+                </span>
+              </div>
+              <span *ngIf="!correspondent.endereco">-</span>
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="ativo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <td mat-cell *matCellDef="let correspondent">
+              <mat-chip [class]="correspondent.ativo ? 'status-active' : 'status-inactive'">
+                {{ correspondent.ativo ? 'Ativo' : 'Inativo' }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Data Inclusão Column -->
+          <ng-container matColumnDef="dataInclusao">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Data Cadastro</th>
+            <td mat-cell *matCellDef="let correspondent">
+              {{ correspondent.datacadastro != null ? (correspondent.datacadastro | date:'dd/MM/yyyy') : '-' }}
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Ações</th>
+            <td mat-cell *matCellDef="let correspondent">
+              <div class="action-buttons">
+                <button mat-icon-button (click)="viewCorrespondent(correspondent)" matTooltip="Visualizar">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                
+                <button *ngIf="permissionService.canEditRequests()" mat-icon-button (click)="editCorrespondent(correspondent)" matTooltip="Editar">
+                  <mat-icon>edit</mat-icon>
+                </button>
+
+                <button mat-icon-button [matMenuTriggerFor]="correspondentMenu" matTooltip="Mais ações">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+
+                <mat-menu #correspondentMenu="matMenu">
+                  <button mat-menu-item (click)="toggleCorrespondentStatus(correspondent)">
+                    <mat-icon>{{ correspondent.ativo ? 'block' : 'check_circle' }}</mat-icon>
+                    <span>{{ correspondent.ativo ? 'Desativar' : 'Ativar' }}</span>
+                  </button>
+                  <button mat-menu-item (click)="duplicateCorrespondent(correspondent)">
+                    <mat-icon>content_copy</mat-icon>
+                    <span>Duplicar</span>
+                  </button>
+                  <button mat-menu-item (click)="deleteCorrespondent(correspondent)" class="delete-action">
+                    <mat-icon>delete</mat-icon>
+                    <span>Excluir</span>
+                  </button>
+                </mat-menu>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <mat-paginator [pageSizeOptions]="[5, 10, 20, 50]" 
+                       showFirstLastButtons
+                       aria-label="Selecionar página de correspondentes">
+        </mat-paginator>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading-container" *ngIf="loading">
+        <mat-spinner></mat-spinner>
+        <p>Carregando correspondentes...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="!loading && dataSource.data.length === 0">
+        <mat-icon>business_center</mat-icon>
+        <h3>Nenhum correspondente encontrado</h3>
+        <p>Não há correspondentes que correspondam aos critérios de busca.</p>
+        <button mat-raised-button color="primary" routerLink="/correspondentes/novo">
+          Cadastrar Primeiro Correspondente
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

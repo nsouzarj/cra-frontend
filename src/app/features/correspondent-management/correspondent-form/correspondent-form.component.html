@@ -1,0 +1,184 @@
+<div class="correspondent-form-container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>
+        {{ isEditMode ? 'Editar Correspondente' : 'Novo Correspondente' }}
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ isEditMode ? 'Altere os dados do correspondente' : 'Preencha os dados do novo correspondente' }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="correspondentForm" (ngSubmit)="onSubmit()">
+        <!-- Basic Information -->
+        <div class="form-section">
+          <h3>Informações Básicas</h3>
+          
+          <div class="form-row">
+            <mat-form-field class="form-field" appearance="outline">
+              <mat-label>Nome *</mat-label>
+              <input matInput formControlName="nome">
+              <mat-error *ngIf="correspondentForm.get('nome')?.hasError('required')">
+                Nome é obrigatório
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="form-field" appearance="outline">
+              <mat-label>Tipo</mat-label>
+              <mat-select formControlName="tipo">
+                <mat-option value="PESSOA_FISICA">Pessoa Física</mat-option>
+                <mat-option value="PESSOA_JURIDICA">Pessoa Jurídica</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field class="form-field" appearance="outline">
+              <mat-label>CPF/CNPJ *</mat-label>
+              <input matInput formControlName="cpfcnpj" #cpfCnpjInput (input)="formatCpfCnpj()">
+              <mat-error *ngIf="correspondentForm.get('cpfcnpj')?.hasError('required')">
+                CPF/CNPJ é obrigatório
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="form-field" appearance="outline">
+              <mat-label>OAB</mat-label>
+              <input matInput formControlName="oab">
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="form-section">
+          <h3>Informações de Contato</h3>
+          
+          <mat-form-field class="form-field full-width" appearance="outline">
+            <mat-label>Email Principal *</mat-label>
+            <input matInput type="email" formControlName="emailprimario">  <!-- Changed from emailPrincipal -->
+            <mat-error *ngIf="correspondentForm.get('emailprimario')?.hasError('required')">  <!-- Changed from emailPrincipal -->
+              Email principal é obrigatório
+            </mat-error>
+            <mat-error *ngIf="correspondentForm.get('emailprimario')?.hasError('email')">  <!-- Changed from emailPrincipal -->
+              Email inválido
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="form-field full-width" appearance="outline">
+            <mat-label>Email Secundário</mat-label>
+            <input matInput type="email" formControlName="emailsecundario">
+            <mat-error *ngIf="correspondentForm.get('emailsecundario')?.hasError('email')">
+              Email inválido
+            </mat-error>
+          </mat-form-field>
+
+          <div class="form-row">
+            <mat-form-field class="form-field" appearance="outline">
+              <mat-label>Telefone</mat-label>
+              <input matInput formControlName="telefoneprimario">  <!-- Changed from telefone -->
+            </mat-form-field>
+
+            <mat-form-field class="form-field" appearance="outline">
+              <mat-label>Celular *</mat-label>
+              <input matInput formControlName="telefonecelularprimario">  <!-- Changed from celular -->
+              <mat-error *ngIf="correspondentForm.get('telefonecelularprimario')?.hasError('required')">  <!-- Changed from celular -->
+                Celular é obrigatório
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Address Information -->
+        <div class="form-section" formGroupName="endereco">
+          <h3>Endereço</h3>
+          
+          <div class="form-row">
+            <mat-form-field class="form-field flex-2" appearance="outline">
+              <mat-label>Logradouro *</mat-label>
+              <input matInput formControlName="logradouro">
+              <mat-error *ngIf="correspondentForm.get('endereco.logradouro')?.hasError('required')">
+                Logradouro é obrigatório
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="form-field" appearance="outline">
+              <mat-label>Número</mat-label>
+              <input matInput formControlName="numero">
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field class="form-field" appearance="outline">
+              <mat-label>Complemento</mat-label>
+              <input matInput formControlName="complemento">
+            </mat-form-field>
+
+            <mat-form-field class="form-field" appearance="outline">
+              <mat-label>Bairro *</mat-label>
+              <input matInput formControlName="bairro">
+              <mat-error *ngIf="correspondentForm.get('endereco.bairro')?.hasError('required')">
+                Bairro é obrigatório
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field class="form-field" appearance="outline">
+              <mat-label>Cidade *</mat-label>
+              <input matInput formControlName="cidade">
+              <mat-error *ngIf="correspondentForm.get('endereco.cidade')?.hasError('required')">
+                Cidade é obrigatória
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="form-field" appearance="outline">
+              <mat-label>UF *</mat-label>
+              <mat-select formControlName="uf">
+                <mat-option *ngFor="let uf of ufs" [value]="uf">
+                  {{ uf.sigla }} - {{ uf.nome }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="correspondentForm.get('endereco.uf')?.hasError('required')">
+                UF é obrigatória
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="form-field" appearance="outline">
+              <mat-label>CEP</mat-label>
+              <input matInput formControlName="cep">
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="form-section">
+          <h3>Informações Adicionais</h3>
+          
+          <mat-form-field class="form-field full-width" appearance="outline">
+            <mat-label>Observações</mat-label>
+            <textarea matInput formControlName="observacoes" rows="4"></textarea>
+          </mat-form-field>
+
+          <div *ngIf="isEditMode">
+            <mat-slide-toggle formControlName="ativo" color="primary">
+              {{ correspondentForm.get('ativo')?.value ? 'Correspondente Ativo' : 'Correspondente Inativo' }}
+            </mat-slide-toggle>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="form-actions">
+          <button mat-button type="button" (click)="onCancel()">
+            Cancelar
+          </button>
+          <button mat-raised-button color="primary" type="submit" 
+                  [disabled]="correspondentForm.invalid || loading">
+            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+            <span *ngIf="!loading">{{ isEditMode ? 'Atualizar' : 'Criar' }}</span>
+            <span *ngIf="loading">{{ isEditMode ? 'Atualizando...' : 'Criando...' }}</span>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,23 @@
+<div class="unauthorized-container">
+  <mat-card class="unauthorized-card">
+    <mat-card-content>
+      <div class="content">
+        <mat-icon class="error-icon">lock</mat-icon>
+        <h1>Acesso Negado</h1>
+        <p>Você não tem permissão para acessar esta página.</p>
+        <div class="user-info" *ngIf="authService.currentUserValue">
+          <p><strong>Usuário:</strong> {{ authService.currentUserValue.nomecompleto }}</p>
+          <p><strong>Tipo:</strong> {{ getUserRoleText() }}</p>
+        </div>
+        <div class="actions">
+          <button mat-raised-button color="primary" (click)="goToDashboard()">
+            Ir para Dashboard
+          </button>
+          <button mat-button (click)="goBack()">
+            Voltar
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

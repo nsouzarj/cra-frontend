@@ -1,0 +1,186 @@
+<div class="correspondent-detail-container" *ngIf="!loading">
+  <div class="page-header">
+    <button mat-icon-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-content">
+      <h1>{{ correspondent?.nome }}</h1>
+      <div class="header-badges">
+        <mat-chip class="type-chip" *ngIf="correspondent?.tipo">
+          <span  style="color:white">{{ getFormattedType(correspondent?.tipo) }}</span>
+        </mat-chip>
+        <mat-chip [class]="correspondent?.ativo ? 'status-active' : 'status-inactive'">
+          {{ correspondent?.ativo ? 'Ativo' : 'Inativo' }}
+        </mat-chip>
+      </div>
+    </div>
+    <button *ngIf="permissionService.canEditRequests()" mat-raised-button color="primary" (click)="editCorrespondent()">
+      <mat-icon>edit</mat-icon>
+      Editar
+    </button>
+  </div>
+
+  <div class="content-grid">
+    <!-- Basic Information -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>person</mat-icon>
+          Informações Básicas
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-label">ID:</span>
+            <span class="info-value">{{ correspondent?.id }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Nome:</span>
+            <span class="info-value">{{ correspondent?.nome }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Tipo:</span>
+            <span class="info-value">{{ getFormattedType(correspondent?.tipo) }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">CPF/CNPJ:</span>
+            <span class="info-value">{{ correspondent?.cpfcnpj || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">OAB:</span>
+            <span class="info-value">{{ correspondent?.oab || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Status:</span>
+            <span class="info-value" [class.active-status]="correspondent?.ativo" [class.inactive-status]="!correspondent?.ativo">
+              {{ correspondent?.ativo ? 'Ativo' : 'Inativo' }}
+            </span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Data de Cadastro:</span>
+            <span class="info-value">{{ correspondent?.datacadastro ? (correspondent?.datacadastro | date:'dd/MM/yyyy HH:mm') : 'Não informado' }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Contact Information -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>contact_phone</mat-icon>
+          Informações de Contato
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-label">Email Principal:</span>
+            <span class="info-value">{{ correspondent?.emailprimario || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Email Secundário:</span>
+            <span class="info-value">{{ correspondent?.emailsecundario || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Telefone:</span>
+            <span class="info-value">{{ correspondent?.telefoneprimario || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Celular:</span>
+            <span class="info-value">{{ correspondent?.telefonecelularprimario || 'Não informado' }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Address Information -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>location_on</mat-icon>
+          Endereço
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-label">Logradouro:</span>
+            <span class="info-value">{{ correspondent?.endereco?.logradouro || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Número:</span>
+            <span class="info-value">{{ correspondent?.endereco?.numero || 'S/N' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Complemento:</span>
+            <span class="info-value">{{ correspondent?.endereco?.complemento || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Bairro:</span>
+            <span class="info-value">{{ correspondent?.endereco?.bairro || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Cidade:</span>
+            <span class="info-value">{{ correspondent?.endereco?.cidade || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">UF:</span>
+            <span class="info-value">{{ correspondent?.endereco?.uf?.sigla || 'Não informado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">CEP:</span>
+            <span class="info-value">{{ correspondent?.endereco?.cep || 'Não informado' }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Observations -->
+    <mat-card class="info-card" *ngIf="correspondent?.observacoes">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>notes</mat-icon>
+          Observações
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="observations">{{ correspondent?.observacoes }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Actions -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>settings</mat-icon>
+          Ações
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="actions-list">
+          <button mat-stroked-button (click)="toggleCorrespondentStatus()">
+            <mat-icon>{{ correspondent?.ativo ? 'block' : 'check_circle' }}</mat-icon>
+            {{ correspondent?.ativo ? 'Desativar Correspondente' : 'Ativar Correspondente' }}
+          </button>
+
+          <button mat-stroked-button (click)="duplicateCorrespondent()" color="accent">
+            <mat-icon>content_copy</mat-icon>
+            Duplicar Correspondente
+          </button>
+
+          <button mat-stroked-button (click)="deleteCorrespondent()" color="warn">
+            <mat-icon>delete</mat-icon>
+            Excluir Correspondente
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+
+<div class="loading-container" *ngIf="loading">
+  <mat-spinner></mat-spinner>
+  <p>Carregando informações do correspondente...</p>
+</div>

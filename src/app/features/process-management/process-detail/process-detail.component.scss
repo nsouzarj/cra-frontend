@@ -1,0 +1,169 @@
+.process-detail-container {
+  padding: 20px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.header-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.header-content h1 {
+  margin: 0;
+  font-size: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-badges {
+  margin-top: 8px;
+}
+
+.header-badges mat-chip {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.content-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.info-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
+}
+
+.info-card mat-card-header {
+  padding: 16px;
+  border-bottom: 1px solid rgba(0,0,0,.12);
+}
+
+.info-card mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  margin: 0;
+}
+
+.info-card mat-card-content {
+  padding: 16px;
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-weight: 500;
+  color: #666;
+  min-width: 150px;
+  flex-shrink: 0;
+}
+
+.info-value {
+  flex: 1;
+  color: #333;
+  min-width: 0;
+}
+
+.info-value:not(:empty) {
+  word-break: break-word;
+}
+
+.observations {
+  margin: 0;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px;
+  gap: 20px;
+}
+
+/* Status chip colors */
+.status-em-andamento {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+.status-suspenso {
+  background-color: #ff9800 !important;
+  color: white !important;
+}
+
+.status-arquivado {
+  background-color: #2196f3 !important;
+  color: white !important;
+}
+
+.status-finalizado {
+  background-color: #9e9e9e !important;
+  color: white !important;
+}
+
+.status-default {
+  background-color: #757575 !important;
+  color: white !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .process-detail-container {
+    padding: 16px;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .header-content h1 {
+    font-size: 20px;
+  }
+  
+  .info-label {
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .info-item {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .info-label {
+    min-width: auto;
+    font-weight: 600;
+  }
+}

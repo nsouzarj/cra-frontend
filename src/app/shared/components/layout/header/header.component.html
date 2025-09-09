@@ -1,0 +1,52 @@
+<mat-toolbar class="app-header">
+  <div class="header-content">
+    <div class="header-left">
+      <button mat-icon-button (click)="onToggleSidenav()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span class="app-title">SCB - Sistema de Correspondentes</span>
+    </div>
+    
+    <div class="header-right">
+      <!-- Zoom Controls -->
+      <button mat-icon-button (click)="zoomOut()" matTooltip="Diminuir zoom (Ctrl+-)">
+        <mat-icon>zoom_out</mat-icon>
+      </button>
+      <button mat-icon-button (click)="resetZoom()" matTooltip="Redefinir zoom (Ctrl+0)">
+        <span style="font-size: 14px; font-weight: 500;">{{ getZoomLevel() }}%</span>
+      </button>
+      <button mat-icon-button (click)="zoomIn()" matTooltip="Aumentar zoom (Ctrl+)">
+        <mat-icon>zoom_in</mat-icon>
+      </button>
+      
+      <button mat-icon-button (click)="toggleTheme()" [matTooltip]="isDarkMode() ? 'Modo claro' : 'Modo escuro'">
+        <mat-icon>{{ isDarkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      </button>
+      
+      <span class="user-welcome" *ngIf="currentUser">
+        Olá, {{ currentUser.nomecompleto || currentUser.login || 'Usuário' }}
+      </span>
+      
+      <button mat-icon-button [matMenuTriggerFor]="userMenu">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+      
+      <mat-menu #userMenu="matMenu">
+        <div class="user-info">
+          <div class="user-name" *ngIf="currentUser">{{ currentUser.nomecompleto || currentUser.login || 'Usuário' }}</div>
+          <div class="user-email" *ngIf="currentUser">{{ currentUser.emailprincipal || 'Email não informado' }}</div>
+          <div class="user-role">{{ getUserRoleText() }}</div>
+        </div>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="navigateToProfile()">
+          <mat-icon>person</mat-icon>
+          <span>Meu Perfil</span>
+        </button>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>exit_to_app</mat-icon>
+          <span>Sair</span>
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+</mat-toolbar>

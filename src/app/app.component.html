@@ -1,0 +1,21 @@
+<div class="app-container">
+  <ng-container *ngIf="authService.isAuthenticated; else loginLayout">
+    <app-header (toggleSidenav)="toggleSidenav()"></app-header>
+    <mat-sidenav-container class="sidenav-container">
+      <mat-sidenav #sidenav [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile || isSidenavOpen" class="sidenav">
+        <app-sidenav></app-sidenav>
+      </mat-sidenav>
+      <mat-sidenav-content class="main-content">
+        <div class="content-container">
+          <router-outlet></router-outlet>
+        </div>
+      </mat-sidenav-content>
+    </mat-sidenav-container>
+  </ng-container>
+  
+  <ng-template #loginLayout>
+    <div class="login-layout">
+      <router-outlet></router-outlet>
+    </div>
+  </ng-template>
+</div>
