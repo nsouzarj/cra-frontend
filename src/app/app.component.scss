@@ -106,6 +106,16 @@
   .content-container {
     padding: 16px;
   }
+  
+  .app-container {
+    height: 100vh;
+    overflow: hidden; /* Prevent double scrollbars */
+  }
+  
+  .main-content {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  }
 }
 
 @media (max-width: 480px) {
@@ -119,5 +129,60 @@
   
   .content-container {
     padding: 12px;
+  }
+  
+  .login-layout {
+    padding: 10px;
+  }
+}
+
+/* Additional responsive improvements for very small screens */
+@media (max-width: 320px) {
+  .sidenav {
+    width: 180px;
+  }
+  
+  .content-container {
+    padding: 8px;
+  }
+}
+
+/* Touch device improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Improve touch targets */
+  .mat-button, 
+  .mat-raised-button,
+  .mat-icon-button {
+    min-height: 48px;
+    min-width: 48px;
+    padding: 12px;
+  }
+  
+  /* Add visual feedback for touch interactions */
+  .mat-button:active,
+  .mat-raised-button:active,
+  .mat-icon-button:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+}
+
+/* Ensure proper scrolling behavior on mobile */
+@media screen and (max-width: 768px) {
+  .app-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  
+  .main-content {
+    height: calc(100% - 64px); /* Adjust for toolbar height */
+  }
+  
+  /* Prevent zoom on input focus */
+  input, textarea, select {
+    font-size: 16px; /* Prevents iOS Safari zoom */
   }
 }

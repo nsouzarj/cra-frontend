@@ -1,4 +1,4 @@
-// Correspondent dashboard - minimal styles
+// Correspondent dashboard styles
 .dashboard-container {
   padding: 20px;
   max-width: 1200px;
@@ -36,10 +36,9 @@
 
 .chart-card {
   padding: 20px;
-}
-
-.chart-card mat-card-header {
-  margin-bottom: 15px;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .chart-container {
@@ -49,7 +48,9 @@
   min-height: 300px;
   width: 100%;
   padding: 20px 0;
-  overflow: visible;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
 }
 
 .bar-chart {
@@ -59,15 +60,16 @@
   border-bottom: 1px solid #eee;
   border-left: 1px solid #eee;
   background-color: #f9f9f9;
+  box-sizing: border-box;
 }
 
-// Ensure responsive bar chart has the same styles
 .bar-chart.responsive-bar-chart {
   height: 250px;
   padding: 20px 10px;
   border-bottom: 1px solid #eee;
   border-left: 1px solid #eee;
   background-color: #f9f9f9;
+  box-sizing: border-box;
 }
 
 .chart-bars {
@@ -78,6 +80,7 @@
   gap: 15px;
   padding: 0 10px;
   justify-content: center;
+  box-sizing: border-box;
 }
 
 .bar-container {
@@ -86,6 +89,7 @@
   align-items: center;
   min-width: 60px;
   flex: 1;
+  box-sizing: border-box;
 }
 
 .bar {
@@ -94,6 +98,7 @@
   border-radius: 4px 4px 0 0;
   background-color: #4facfe;
   box-shadow: 0 0 1px rgba(0,0,0,0.1);
+  box-sizing: border-box;
 }
 
 .bar-value {
@@ -101,6 +106,9 @@
   font-size: 12px;
   font-weight: 500;
   color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bar-label {
@@ -111,7 +119,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100px;
 }
 
 .pie-chart {
@@ -135,10 +142,6 @@
   transform: rotate(-90deg);
 }
 
-.pie-segment {
-  transition: stroke-width 0.2s ease;
-}
-
 .pie-center {
   position: absolute;
   top: 50%;
@@ -158,7 +161,6 @@
   color: #666;
 }
 
-// Updated legend styles to be on the side
 .pie-legend {
   display: flex;
   flex-direction: column;
@@ -229,23 +231,32 @@
 }
 
 @media (max-width: 768px) {
+  // Enable horizontal scrolling for the Solicitações por Status bar chart (2nd chart card)
+  .chart-card:nth-child(2) .chart-container {
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+  
+  .chart-card:nth-child(2) .bar-chart.responsive-bar-chart {
+    min-width: 100%;
+    width: max-content !important;
+    height: 200px;
+  }
+  
+  .chart-card:nth-child(2) .chart-bars {
+    min-width: 100%;
+    width: max-content !important;
+    justify-content: flex-start;
+  }
+  
   .dashboard-container {
     padding: 15px;
   }
   
   .chart-card {
     padding: 15px;
-  }
-  
-  // Stack pie chart and legend on mobile
-  .pie-chart {
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .pie-legend {
-    max-width: 100%;
-    align-items: center;
   }
   
   .pie-chart-container {
@@ -261,16 +272,125 @@
     font-size: 36px;
     width: 36px;
     height: 36px;
+    margin-bottom: 12px;
   }
 }
 
 @media (max-width: 480px) {
+  .chart-card:nth-child(2) .chart-container {
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+  
+  .chart-card:nth-child(2) .bar-chart.responsive-bar-chart {
+    min-width: 100%;
+    width: max-content !important;
+    height: 200px;
+  }
+  
+  .chart-card:nth-child(2) .chart-bars {
+    min-width: 100%;
+    width: max-content !important;
+    justify-content: flex-start;
+  }
+  
+  .dashboard-container {
+    padding: 12px;
+  }
+  
   .pie-chart-container {
     width: 150px;
     height: 150px;
   }
   
-  .pie-total {
-    font-size: 20px;
+  .chart-card {
+    padding: 12px;
   }
+  
+  .dashboard-header h1 {
+    font-size: 24px;
+  }
+  
+  .dashboard-header p {
+    font-size: 14px;
+  }
+  
+  .action-card mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    margin-bottom: 8px;
+  }
+  
+  .action-card h3 {
+    font-size: 16px;
+  }
+  
+  .action-card p {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 320px) {
+  .chart-card:nth-child(2) .chart-container {
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+  
+  .chart-card:nth-child(2) .bar-chart.responsive-bar-chart {
+    min-width: 100%;
+    width: max-content !important;
+    height: 200px;
+  }
+  
+  .chart-card:nth-child(2) .chart-bars {
+    min-width: 100%;
+    width: max-content !important;
+    justify-content: flex-start;
+  }
+}
+
+// Loading state styles
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  gap: 16px;
+}
+
+.loading-container mat-spinner {
+  margin: 0 auto;
+  width: 100px !important;
+  height: 100px !important;
+}
+
+.loading-container p {
+  font-size: 20px;
+  color: #666;
+  margin: 0;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes colorShift {
+  0% { stroke: #667eea; }
+  25% { stroke: #f093fb; }
+  50% { stroke: #4facfe; }
+  75% { stroke: #43e97b; }
+  100% { stroke: #667eea; }
+}
+
+.loading-container mat-spinner svg circle {
+  animation: rotate 1.5s linear infinite, colorShift 3s ease-in-out infinite;
+  transform-origin: center;
+  stroke-width: 8px !important;
 }

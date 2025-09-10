@@ -295,6 +295,19 @@ mat-icon[matListItemIcon] {
   .nav-child-item {
     padding-left: 40px;
   }
+  
+  /* Improve touch targets on mobile */
+  .nav-item,
+  .nav-child-item {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .nav-item mat-icon,
+  .nav-child-item mat-icon {
+    margin-right: 12px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -320,5 +333,76 @@ mat-icon[matListItemIcon] {
   .nav-child-item {
     padding-left: 32px;
     font-size: 13px;
+  }
+  
+  /* Further optimize for small screens */
+  .nav-item,
+  .nav-child-item {
+    min-height: 44px;
+  }
+  
+  .nav-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+  }
+}
+
+/* Additional responsive improvements for very small screens */
+@media (max-width: 320px) {
+  .nav-header {
+    padding: 10px 6px;
+  }
+  
+  .nav-title {
+    font-size: 13px;
+    max-width: 100px;
+  }
+  
+  .nav-item {
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+  
+  .nav-child-item {
+    padding-left: 24px;
+    font-size: 12px;
+  }
+  
+  .nav-item,
+  .nav-child-item {
+    min-height: 40px;
+  }
+  
+  .nav-item mat-icon,
+  .nav-child-item mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+  }
+}
+
+/* Touch device improvements */
+@media (hover: none) and (pointer: coarse) {
+  .nav-item:hover,
+  .nav-child-item:hover {
+    /* Remove hover effects on touch devices */
+    background-color: inherit !important;
+  }
+  
+  .nav-item:active,
+  .nav-child-item:active {
+    /* Add active state for touch feedback */
+    background-color: rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  /* Improve touch targets */
+  .nav-item,
+  .nav-child-item {
+    min-height: 48px;
+    padding-top: 12px;
+    padding-bottom: 12px;
   }
 }

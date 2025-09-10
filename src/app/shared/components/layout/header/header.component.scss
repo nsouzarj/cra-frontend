@@ -94,6 +94,14 @@
   .app-title {
     font-size: 16px;
   }
+  
+  .header-content {
+    padding: 0 12px;
+  }
+  
+  .header-right {
+    gap: 12px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -118,5 +126,73 @@
   .zoom-level {
     font-size: 12px;
     min-width: 35px;
+  }
+  
+  .mat-icon-button {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+  }
+  
+  .mat-icon-button .mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Additional responsive improvements for very small screens */
+@media (max-width: 320px) {
+  .header-content {
+    padding: 0 4px;
+  }
+  
+  .header-left {
+    gap: 4px;
+  }
+  
+  .app-title {
+    font-size: 13px;
+    max-width: 120px;
+  }
+  
+  .header-right {
+    gap: 4px;
+  }
+  
+  .zoom-controls {
+    gap: 2px;
+  }
+  
+  .zoom-level {
+    font-size: 11px;
+    min-width: 30px;
+  }
+  
+  .mat-icon-button {
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+  }
+  
+  .mat-icon-button .mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Touch device improvements */
+@media (hover: none) and (pointer: coarse) {
+  .mat-icon-button {
+    min-width: 48px;
+    min-height: 48px;
+    padding: 12px;
+  }
+  
+  /* Add visual feedback for touch interactions */
+  .mat-icon-button:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
   }
 }
