@@ -16,10 +16,31 @@ import { Comarca } from '../../../shared/models/comarca.model';
 import { User } from '../../../shared/models/user.model';
 import { TipoSolicitacao } from '../../../shared/models/tiposolicitacao.model';
 
+// Import DateAdapter and related modules for date formatting
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+
+// Custom date format for Brazilian standard
+export const BRAZIL_DATE_FORMAT = {
+  parse: {
+    dateInput: 'DD/MM/YYYY',
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY',
+    monthYearLabel: 'MMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
+};
+
 @Component({
   selector: 'app-request-form',
   templateUrl: './request-form.component.html',
-  styleUrls: ['./request-form.component.scss']
+  styleUrls: ['./request-form.component.scss'],
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+    { provide: MAT_DATE_FORMATS, useValue: BRAZIL_DATE_FORMAT }
+  ]
 })
 export class RequestFormComponent implements OnInit {
   requestForm: FormGroup;

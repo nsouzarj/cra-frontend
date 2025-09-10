@@ -1,9 +1,16 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA, LOCALE_ID } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+
+// Import locale registration
+import { registerLocaleData } from '@angular/common';
+import localePt from '@angular/common/locales/pt';
+
+// Register the Brazilian locale data
+registerLocaleData(localePt, 'pt-BR');
 
 // Angular Material Modules
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -125,6 +132,10 @@ import { ErrorHandlingInterceptor } from './core/interceptors/error-handling.int
     {
       provide: MatPaginatorIntl,
       useClass: PaginatorI18nService
+    },
+    {
+      provide: LOCALE_ID,
+      useValue: 'pt-BR'
     }
   ],
   bootstrap: [AppComponent],
