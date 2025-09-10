@@ -1,0 +1,28 @@
+Favicon Setup Instructions for CRA Frontend Project
+==================================================
+
+1. Location for favicon.ico:
+   Place your favicon.ico file in the src/ directory (not in assets)
+
+2. Current configuration:
+   The angular.json file is already configured to look for favicon.ico in src/
+
+3. HTML reference:
+   The src/index.html file already includes the favicon reference:
+   <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+4. To add your favicon:
+   - Delete this instructions file
+   - Place your actual favicon.ico file in the src/ directory
+   - The favicon should be a valid .ico file (not .png or .jpg renamed)
+
+5. Recommended favicon sizes:
+   - 16x16 pixels
+   - 32x32 pixels
+   - 48x48 pixels
+   You can create a multi-resolution favicon that includes all these sizes.
+
+6. Tools to create favicon:
+   - https://www.favicon-generator.org/
+   - https://realfavicongenerator.net/
+   - Adobe Photoshop or GIMP (with proper export settings)
