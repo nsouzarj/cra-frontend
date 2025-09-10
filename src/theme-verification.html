@@ -1,175 +1,314 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Theme and Sidenav Verification</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Verification</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
             margin: 0;
-            transition: all 0.3s ease;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
         }
-        
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background-color: white;
         }
-        
-        .theme-buttons {
+        .header {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .theme-selector {
             margin: 20px 0;
         }
-        
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+        .theme-card {
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        .theme-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .theme-card.selected {
+            border-color: #3f51b5;
+            box-shadow: 0 4px 12px rgba(63, 81, 181, 0.2);
+        }
+        .theme-color-bar {
+            height: 30px;
+            width: 100%;
+        }
+        .theme-info {
+            padding: 15px;
+            background: white;
+        }
+        .theme-info h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
         button {
             padding: 10px 15px;
-            border: 1px solid #ccc;
+            border: none;
             border-radius: 4px;
-            background-color: #f5f5f5;
-            color: #333;
             cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        button:hover {
             background-color: #e0e0e0;
+            color: #333;
         }
-        
-        .verification-info {
+        button:hover {
+            background-color: #d0d0d0;
+        }
+        .theme-info-content {
             margin: 20px 0;
             padding: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #f9f9f9;
+            border-radius: 4px;
+            background-color: #f5f5f5;
         }
-        
+        /* Theme color bars */
+        .theme-light {
+            background: linear-gradient(to right, #ffffff, #f5f5f5);
+        }
+        .theme-dark {
+            background: linear-gradient(to right, #333333, #121212);
+        }
+        .theme-green {
+            background: linear-gradient(to right, #4caf50, #388e3c);
+        }
+        .theme-purple {
+            background: linear-gradient(to right, #9c27b0, #7b1fa2);
+        }
+        .theme-amber {
+            background: linear-gradient(to right, #ffc107, #ffa000);
+        }
+        .theme-yellow {
+            background: linear-gradient(to right, #fdd835, #fbc02d);
+        }
+        .theme-salmon {
+            background: linear-gradient(to right, #ff6d00, #e64a19);
+        }
+        .theme-midnightblue {
+            background: linear-gradient(to right, #1a237e, #283593);
+        }
+        .theme-olive {
+            background: linear-gradient(to right, #827717, #9e9d24);
+        }
+        .theme-slategrey {
+            background: linear-gradient(to right, #616161, #424242);
+        }
+        .theme-red {
+            background: linear-gradient(to right, #d32f2f, #b71c1c);
+        }
+        .theme-lightsteelblue {
+            background: linear-gradient(to right, #1976d2, #0d47a1);
+        }
         /* Theme styles */
-        .light-theme {
-            background-color: #fafafa;
+        .light-theme .container {
+            background-color: #ffffff;
             color: #333333;
         }
-        
-        .dark-theme {
-            background-color: #121212;
+        .dark-theme .container {
+            background-color: #1e1e1e;
             color: #ffffff;
         }
-        
-        .blue-theme {
-            background-color: #e3f2fd;
-            color: #0d47a1;
-        }
-        
-        .green-theme {
+        .green-theme .container {
             background-color: #e8f5e9;
             color: #1b5e20;
         }
-        
-        .purple-theme {
+        .purple-theme .container {
             background-color: #f3e5f5;
             color: #4a148c;
         }
-        
-        /* Sidenav simulation */
-        .sidenav-container {
-            display: flex;
-            height: 300px;
-            margin: 20px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            overflow: hidden;
+        .amber-theme .container {
+            background-color: #fff8e1;
+            color: #5d4037;
         }
-        
-        .sidenav {
-            width: 200px;
-            background-color: #f5f5f5;
-            padding: 10px;
-            transition: all 0.3s ease;
+        .yellow-theme .container {
+            background-color: #fffde7;
+            color: #f57f17;
         }
-        
-        .sidenav.closed {
-            width: 0;
-            padding: 0;
-            overflow: hidden;
+        .salmon-theme .container {
+            background-color: #fff3e0;
+            color: #d84315;
         }
-        
-        .main-content {
-            flex: 1;
-            padding: 10px;
-            background-color: #fff;
+        .midnightblue-theme .container {
+            background-color: #0f1a2d;
+            color: #e3f2fd;
         }
-        
-        .sidenav-toggle {
-            margin: 10px 0;
+        .olive-theme .container {
+            background-color: #f0f4c3;
+            color: #33691e;
+        }
+        .slategrey-theme .container {
+            background-color: #e0e0e0;
+            color: #212121;
+        }
+        .red-theme .container {
+            background-color: #ffebee;
+            color: #b71c1c;
+        }
+        .lightsteelblue-theme .container {
+            background-color: #e3f2fd;
+            color: #0d47a1;
         }
     </style>
 </head>
-<body>
+<body class="light-theme">
     <div class="container">
-        <h1>Theme and Sidenav Verification</h1>
-        
-        <div class="theme-buttons">
-            <button onclick="setTheme('light')">Light Theme</button>
-            <button onclick="setTheme('dark')">Dark Theme</button>
-            <button onclick="setTheme('blue')">Blue Theme</button>
-            <button onclick="setTheme('green')">Green Theme</button>
-            <button onclick="setTheme('purple')">Purple Theme</button>
-            <button onclick="checkCurrentState()">Check Current State</button>
-        </div>
-        
-        <div class="sidenav-toggle">
-            <button onclick="toggleSidenav()">Toggle Sidenav</button>
-        </div>
-        
-        <div class="sidenav-container">
-            <div class="sidenav" id="sidenav">
-                <h3>Sidenav</h3>
-                <ul>
-                    <li>Dashboard</li>
-                    <li>Users</li>
-                    <li>Settings</li>
-                    <li>Profile</li>
-                </ul>
-            </div>
-            <div class="main-content">
-                <h3>Main Content</h3>
-                <p>This is the main content area. The sidenav can be toggled using the button above.</p>
+        <div class="header">
+            <h1>Theme Verification</h1>
+            <div>
+                <span>Current Theme: <span id="current-theme">light</span></span>
             </div>
         </div>
         
-        <div class="verification-info">
-            <h2>Verification Information</h2>
-            <p>Current Theme: <span id="current-theme">Not set</span></p>
-            <p>Body Classes: <span id="body-classes">None</span></p>
-            <p>LocalStorage Theme: <span id="local-storage-theme">None</span></p>
-            <p>Sidenav State: <span id="sidenav-state">Open</span></p>
-            <div id="verification-output"></div>
+        <div class="theme-info-content">
+            <h3>Theme Information</h3>
+            <p>Current Theme: <span id="current-theme-display">light</span></p>
+            <p>Body Classes: <span id="body-classes">light-theme</span></p>
+        </div>
+        
+        <div class="theme-selector">
+            <h3>Select Theme</h3>
+            <div class="theme-grid">
+                <div class="theme-card" onclick="setTheme('light')">
+                    <div class="theme-color-bar theme-light"></div>
+                    <div class="theme-info">
+                        <h4>Light</h4>
+                        <button>Apply</button>
+                    </div>
+                </div>
+                <div class="theme-card" onclick="setTheme('dark')">
+                    <div class="theme-color-bar theme-dark"></div>
+                    <div class="theme-info">
+                        <h4>Dark</h4>
+                        <button>Apply</button>
+                    </div>
+                </div>
+                <div class="theme-card" onclick="setTheme('green')">
+                    <div class="theme-color-bar theme-green"></div>
+                    <div class="theme-info">
+                        <h4>Green</h4>
+                        <button>Apply</button>
+                    </div>
+                </div>
+                <div class="theme-card" onclick="setTheme('purple')">
+                    <div class="theme-color-bar theme-purple"></div>
+                    <div class="theme-info">
+                        <h4>Purple</h4>
+                        <button>Apply</button>
+                    </div>
+                </div>
+                <div class="theme-card" onclick="setTheme('amber')">
+                    <div class="theme-color-bar theme-amber"></div>
+                    <div class="theme-info">
+                        <h4>Amber</h4>
+                        <button>Apply</button>
+                    </div>
+                </div>
+                <div class="theme-card" onclick="setTheme('yellow')">
+                    <div class="theme-color-bar theme-yellow"></div>
+                    <div class="theme-info">
+                        <h4>Yellow</h4>
+                        <button>Apply</button>
+                    </div>
+                </div>
+                <div class="theme-card" onclick="setTheme('salmon')">
+                    <div class="theme-color-bar theme-salmon"></div>
+                    <div class="theme-info">
+                        <h4>Salmon</h4>
+                        <button>Apply</button>
+                    </div>
+                </div>
+                <div class="theme-card" onclick="setTheme('midnightblue')">
+                    <div class="theme-color-bar theme-midnightblue"></div>
+                    <div class="theme-info">
+                        <h4>Midnight Blue</h4>
+                        <button>Apply</button>
+                    </div>
+                </div>
+                <div class="theme-card" onclick="setTheme('olive')">
+                    <div class="theme-color-bar theme-olive"></div>
+                    <div class="theme-info">
+                        <h4>Olive</h4>
+                        <button>Apply</button>
+                    </div>
+                </div>
+                <div class="theme-card" onclick="setTheme('slategrey')">
+                    <div class="theme-color-bar theme-slategrey"></div>
+                    <div class="theme-info">
+                        <h4>Slate Grey</h4>
+                        <button>Apply</button>
+                    </div>
+                </div>
+                <div class="theme-card" onclick="setTheme('red')">
+                    <div class="theme-color-bar theme-red"></div>
+                    <div class="theme-info">
+                        <h4>Red</h4>
+                        <button>Apply</button>
+                    </div>
+                </div>
+                <div class="theme-card" onclick="setTheme('lightsteelblue')">
+                    <div class="theme-color-bar theme-lightsteelblue"></div>
+                    <div class="theme-info">
+                        <h4>Light Steel Blue</h4>
+                        <button>Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <h2>Sample Content</h2>
+            <p>This is sample content to test theme changes. The text and background colors should change when you select different themes.</p>
+            
+            <h3>More Sample Content</h3>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            
+            <ul>
+                <li>List item 1</li>
+                <li>List item 2</li>
+                <li>List item 3</li>
+            </ul>
         </div>
     </div>
 
     <script>
-        let isSidenavOpen = true;
-        
         // Theme management functions
         function setTheme(theme) {
             console.log('Setting theme to:', theme);
             
             // Remove all theme classes
-            document.body.classList.remove('light-theme', 'dark-theme', 'blue-theme', 'green-theme', 'purple-theme');
+            document.body.classList.remove('light-theme', 'dark-theme', 'green-theme', 'purple-theme', 'amber-theme', 'yellow-theme', 'salmon-theme', 'midnightblue-theme', 'olive-theme', 'slategrey-theme', 'red-theme', 'lightsteelblue-theme');
             
             // Add the selected theme class
             document.body.classList.add(theme + '-theme');
             
             // Update display
             document.getElementById('current-theme').textContent = theme;
+            document.getElementById('current-theme-display').textContent = theme;
             document.getElementById('body-classes').textContent = Array.from(document.body.classList).join(', ');
             
             // Save to localStorage
             localStorage.setItem('theme', theme);
-            document.getElementById('local-storage-theme').textContent = localStorage.getItem('theme') || 'None';
             
             console.log('Theme set to:', theme);
-            addVerificationMessage(`Theme set to: ${theme}`);
         }
         
         function getCurrentTheme() {
@@ -188,51 +327,17 @@
             return 'light';
         }
         
-        function toggleSidenav() {
-            const sidenav = document.getElementById('sidenav');
-            isSidenavOpen = !isSidenavOpen;
-            
-            if (isSidenavOpen) {
-                sidenav.classList.remove('closed');
-                document.getElementById('sidenav-state').textContent = 'Open';
-            } else {
-                sidenav.classList.add('closed');
-                document.getElementById('sidenav-state').textContent = 'Closed';
-            }
-            
-            addVerificationMessage(`Sidenav toggled: ${isSidenavOpen ? 'Open' : 'Closed'}`);
-        }
-        
-        function checkCurrentState() {
-            const currentTheme = getCurrentTheme();
-            document.getElementById('current-theme').textContent = currentTheme;
-            document.getElementById('body-classes').textContent = Array.from(document.body.classList).join(', ');
-            document.getElementById('local-storage-theme').textContent = localStorage.getItem('theme') || 'None';
-            document.getElementById('sidenav-state').textContent = isSidenavOpen ? 'Open' : 'Closed';
-            
-            addVerificationMessage(`State checked - Theme: ${currentTheme}, Sidenav: ${isSidenavOpen ? 'Open' : 'Closed'}`);
-        }
-        
-        function addVerificationMessage(message) {
-            const verificationOutput = document.getElementById('verification-output');
-            const timestamp = new Date().toLocaleTimeString();
-            verificationOutput.innerHTML += `<p>[${timestamp}] ${message}</p>`;
-            verificationOutput.scrollTop = verificationOutput.scrollHeight;
-        }
-        
         // Initialize theme on page load
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, initializing theme');
             const theme = getCurrentTheme();
             setTheme(theme);
-            addVerificationMessage('Page loaded, theme initialized');
         });
         
         // Listen for theme changes
         window.addEventListener('storage', function(e) {
             if (e.key === 'theme') {
                 console.log('Theme changed in another tab:', e.newValue);
-                addVerificationMessage(`Theme changed in another tab: ${e.newValue}`);
                 if (e.newValue) {
                     setTheme(e.newValue);
                 }

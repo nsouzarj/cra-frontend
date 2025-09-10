@@ -1,95 +1,92 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Theme Debug Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Debug</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
-            margin: 0;
-            transition: all 0.3s ease;
+            margin: 20px;
+            background-color: #f5f5f5;
         }
-        
         .container {
             max-width: 800px;
             margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        
         .theme-buttons {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin: 20px 0;
         }
-        
         button {
             padding: 10px 15px;
-            border: 1px solid #ccc;
+            border: none;
             border-radius: 4px;
-            background-color: #f5f5f5;
-            color: #333;
             cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        button:hover {
             background-color: #e0e0e0;
         }
-        
-        .debug-info {
-            margin: 20px 0;
+        button:hover {
+            background-color: #d0d0d0;
+        }
+        .debug-output {
+            background-color: #000;
+            color: #00ff00;
             padding: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #f9f9f9;
+            border-radius: 4px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            margin: 20px 0;
         }
-        
-        /* Theme styles */
-        .light-theme {
-            background-color: #fafafa;
-            color: #333333;
-        }
-        
-        .dark-theme {
-            background-color: #121212;
-            color: #ffffff;
-        }
-        
-        .blue-theme {
+        .status-info {
             background-color: #e3f2fd;
-            color: #0d47a1;
-        }
-        
-        .green-theme {
-            background-color: #e8f5e9;
-            color: #1b5e20;
-        }
-        
-        .purple-theme {
-            background-color: #f3e5f5;
-            color: #4a148c;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Theme Debug Test</h1>
+        <h1>Theme Debug Tool</h1>
         
-        <div class="theme-buttons">
-            <button onclick="setTheme('light')">Light Theme</button>
-            <button onclick="setTheme('dark')">Dark Theme</button>
-            <button onclick="setTheme('blue')">Blue Theme</button>
-            <button onclick="setTheme('green')">Green Theme</button>
-            <button onclick="setTheme('purple')">Purple Theme</button>
-            <button onclick="checkCurrentTheme()">Check Current Theme</button>
+        <div class="status-info">
+            <h3>Current Status</h3>
+            <p>Current Theme: <span id="current-theme">light</span></p>
+            <p>Body Classes: <span id="body-classes">-</span></p>
+            <p>LocalStorage Theme: <span id="local-storage-theme">-</span></p>
         </div>
         
-        <div class="debug-info">
-            <h2>Debug Information</h2>
-            <p>Current Theme: <span id="current-theme">Not set</span></p>
-            <p>Body Classes: <span id="body-classes">None</span></p>
-            <p>LocalStorage Theme: <span id="local-storage-theme">None</span></p>
-            <div id="debug-output"></div>
+        <h3>Theme Selection</h3>
+        <div class="theme-buttons">
+            <button onclick="setTheme('light')">Light</button>
+            <button onclick="setTheme('dark')">Dark</button>
+            <button onclick="setTheme('green')">Green</button>
+            <button onclick="setTheme('purple')">Purple</button>
+            <button onclick="setTheme('amber')">Amber</button>
+            <button onclick="setTheme('yellow')">Yellow</button>
+            <button onclick="setTheme('salmon')">Salmon</button>
+            <button onclick="setTheme('midnightblue')">Midnight Blue</button>
+            <button onclick="setTheme('olive')">Olive</button>
+            <button onclick="setTheme('slategrey')">Slate Grey</button>
+            <button onclick="setTheme('red')">Red</button>
+            <button onclick="setTheme('lightsteelblue')">Light Steel Blue</button>
+        </div>
+        
+        <h3>Debug Output</h3>
+        <div class="debug-output" id="debug-output">
+            <p>Debug messages will appear here...</p>
+        </div>
+        
+        <div>
+            <button onclick="checkCurrentTheme()">Check Current Theme</button>
+            <button onclick="clearDebug()">Clear Debug</button>
         </div>
     </div>
 
@@ -99,7 +96,7 @@
             console.log('Setting theme to:', theme);
             
             // Remove all theme classes
-            document.body.classList.remove('light-theme', 'dark-theme', 'blue-theme', 'green-theme', 'purple-theme');
+            document.body.classList.remove('light-theme', 'dark-theme', 'green-theme', 'purple-theme', 'amber-theme', 'yellow-theme', 'salmon-theme', 'midnightblue-theme', 'olive-theme', 'slategrey-theme', 'red-theme', 'lightsteelblue-theme');
             
             // Add the selected theme class
             document.body.classList.add(theme + '-theme');
@@ -146,6 +143,10 @@
             const timestamp = new Date().toLocaleTimeString();
             debugOutput.innerHTML += `<p>[${timestamp}] ${message}</p>`;
             debugOutput.scrollTop = debugOutput.scrollHeight;
+        }
+        
+        function clearDebug() {
+            document.getElementById('debug-output').innerHTML = '<p>Debug messages will appear here...</p>';
         }
         
         // Initialize theme on page load

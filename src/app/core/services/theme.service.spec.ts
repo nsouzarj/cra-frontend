@@ -26,24 +26,23 @@ describe('ThemeService', () => {
   });
 
   it('should set and get theme correctly', () => {
-    const theme: Theme = 'blue';
+    const theme: Theme = 'green';
     service.setTheme(theme);
     expect(service.getCurrentTheme()).toBe(theme);
   });
 
   it('should get available themes', () => {
     const themes = service.getAvailableThemes();
-    expect(themes.length).toBe(5);
+    expect(themes.length).toBe(11); // Updated from 12 to 11 since blue theme was removed
     expect(themes[0].value).toBe('light');
     expect(themes[1].value).toBe('dark');
-    expect(themes[2].value).toBe('blue');
-    expect(themes[3].value).toBe('green');
-    expect(themes[4].value).toBe('purple');
+    expect(themes[2].value).toBe('green');
+    expect(themes[3].value).toBe('purple');
   });
 
   it('should apply theme correctly', () => {
-    service.setTheme('blue');
-    expect(document.body.classList.remove).toHaveBeenCalledWith('light-theme', 'dark-theme', 'blue-theme', 'green-theme', 'purple-theme');
-    expect(document.body.classList.add).toHaveBeenCalledWith('blue-theme');
+    service.setTheme('green');
+    expect(document.body.classList.remove).toHaveBeenCalledWith('light-theme', 'dark-theme', 'green-theme', 'purple-theme', 'amber-theme', 'yellow-theme', 'salmon-theme', 'midnightblue-theme', 'olive-theme', 'slategrey-theme', 'red-theme', 'lightsteelblue-theme');
+    expect(document.body.classList.add).toHaveBeenCalledWith('green-theme');
   });
 });

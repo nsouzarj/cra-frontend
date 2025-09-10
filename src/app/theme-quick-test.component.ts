@@ -27,11 +27,6 @@ import { Router } from '@angular/router';
             Dark
           </button>
           <button mat-raised-button 
-                  (click)="setTheme('blue')" 
-                  [style.background-color]="currentTheme === 'blue' ? '#e3f2fd' : '#f5f5f5'">
-            Blue
-          </button>
-          <button mat-raised-button 
                   (click)="setTheme('green')" 
                   [style.background-color]="currentTheme === 'green' ? '#e3f2fd' : '#f5f5f5'">
             Green
@@ -40,6 +35,46 @@ import { Router } from '@angular/router';
                   (click)="setTheme('purple')" 
                   [style.background-color]="currentTheme === 'purple' ? '#e3f2fd' : '#f5f5f5'">
             Purple
+          </button>
+          <button mat-raised-button 
+                  (click)="setTheme('amber')" 
+                  [style.background-color]="currentTheme === 'amber' ? '#e3f2fd' : '#f5f5f5'">
+            Amber
+          </button>
+          <button mat-raised-button 
+                  (click)="setTheme('yellow')" 
+                  [style.background-color]="currentTheme === 'yellow' ? '#e3f2fd' : '#f5f5f5'">
+            Yellow
+          </button>
+          <button mat-raised-button 
+                  (click)="setTheme('salmon')" 
+                  [style.background-color]="currentTheme === 'salmon' ? '#e3f2fd' : '#f5f5f5'">
+            Salmon
+          </button>
+          <button mat-raised-button 
+                  (click)="setTheme('midnightblue')" 
+                  [style.background-color]="currentTheme === 'midnightblue' ? '#e3f2fd' : '#f5f5f5'">
+            Midnight Blue
+          </button>
+          <button mat-raised-button 
+                  (click)="setTheme('olive')" 
+                  [style.background-color]="currentTheme === 'olive' ? '#e3f2fd' : '#f5f5f5'">
+            Olive
+          </button>
+          <button mat-raised-button 
+                  (click)="setTheme('slategrey')" 
+                  [style.background-color]="currentTheme === 'slategrey' ? '#e3f2fd' : '#f5f5f5'">
+            Slate Grey
+          </button>
+          <button mat-raised-button 
+                  (click)="setTheme('red')" 
+                  [style.background-color]="currentTheme === 'red' ? '#e3f2fd' : '#f5f5f5'">
+            Red
+          </button>
+          <button mat-raised-button 
+                  (click)="setTheme('lightsteelblue')" 
+                  [style.background-color]="currentTheme === 'lightsteelblue' ? '#e3f2fd' : '#f5f5f5'">
+            Light Steel Blue
           </button>
         </div>
       </div>
@@ -128,7 +163,7 @@ export class ThemeQuickTestComponent implements OnInit {
     }
     
     // Test 3: Set each theme
-    const themes: Theme[] = ['light', 'dark', 'blue', 'green', 'purple'];
+    const themes: Theme[] = ['light', 'dark', 'green', 'purple', 'amber', 'yellow', 'salmon', 'midnightblue', 'olive', 'slategrey', 'red', 'lightsteelblue'];
     for (const theme of themes) {
       try {
         this.themeService.setTheme(theme);

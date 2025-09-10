@@ -172,7 +172,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     console.log('Available themes:', this.getAvailableThemes());
     console.log('Body classes before test:', Array.from(document.body.classList));
     // Try setting a specific theme
-    this.setTheme('blue');
+    this.setTheme('green');
   }
 
   refreshTheme(): void {

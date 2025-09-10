@@ -547,7 +547,7 @@ html, body {
   
   /* Ensure all headers maintain proper styling */
   .app-header {
-    background-color: #212121 !important;
+    background-color: #3f51b5 !important;
   }
   
   .app-title {
@@ -560,7 +560,7 @@ html, body {
   
   /* Ensure mat-toolbar maintains proper styling */
   .mat-toolbar {
-    background-color: #212121 !important;
+    background-color: #3f51b5 !important;
     color: #ffffff !important;
   }
   
@@ -607,165 +607,6 @@ html, body {
   /* Enhance placeholder text */
   .mat-input-element::placeholder {
     color: #333333 !important;
-  }
-}
-
-/* Blue Theme Styles */
-.blue-theme {
-  /* Background colors */
-  background-color: #e3f2fd !important;
-  color: #0d47a1;
-  
-  .main-content {
-    background-color: #bbdefb !important;
-  }
-  
-  .content-container {
-    background-color: #ffffff;
-    color: #0d47a1;
-  }
-  
-  /* Sidenav styles */
-  .sidenav {
-    background-color: #e3f2fd !important;
-    border-right: 1px solid #90caf9 !important;
-    color: #0d47a1;
-  }
-  
-  .sidenav-list {
-    background-color: #e3f2fd;
-  }
-  
-  .nav-header {
-    background-color: #1976d2;
-    color: #ffffff;
-  }
-  
-  .nav-item {
-    color: #0d47a1 !important;
-  }
-  
-  .nav-item:hover {
-    background-color: #bbdefb !important;
-  }
-  
-  .nav-item.active-link {
-    background-color: #90caf9 !important;
-    color: #0d47a1 !important;
-    border-right: 3px solid #0d47a1 !important;
-  }
-  
-  .nav-child-item {
-    color: #0d47a1 !important;
-    background-color: #e3f2fd !important;
-  }
-  
-  .nav-child-item:hover {
-    background-color: #bbdefb !important;
-  }
-  
-  .nav-child-item.active-link {
-    background-color: #90caf9 !important;
-    color: #0d47a1 !important;
-  }
-  
-  /* Tables */
-  .data-table {
-    background-color: #ffffff;
-    color: #0d47a1;
-  }
-  
-  .table-header {
-    background-color: #bbdefb;
-    color: #0d47a1;
-  }
-  
-  .mat-row {
-    background-color: #ffffff;
-  }
-  
-  .mat-row:nth-child(even) {
-    background-color: #e3f2fd;
-  }
-  
-  .mat-cell, .mat-header-cell {
-    color: #0d47a1;
-  }
-  
-  /* Cards */
-  .mat-card {
-    background-color: #ffffff;
-    color: #0d47a1;
-    box-shadow: 0 2px 10px rgba(25, 118, 210, 0.2);
-  }
-  
-  /* Dialogs */
-  .mat-dialog-container {
-    background-color: #ffffff;
-    color: #0d47a1;
-  }
-  
-  /* Buttons */
-  .mat-raised-button, .mat-button, .mat-icon-button {
-    background-color: #ffffff;
-    color: #0d47a1;
-  }
-  
-  .mat-raised-button:hover, .mat-button:hover {
-    background-color: #bbdefb;
-  }
-  
-  /* Menu items */
-  .user-info {
-    background-color: #bbdefb;
-  }
-  
-  .user-name {
-    color: #0d47a1;
-  }
-  
-  .user-email {
-    color: #1565c0;
-  }
-  
-  .user-role {
-    color: #1976d2;
-  }
-  
-  /* Snackbar colors remain the same */
-  .error-snackbar {
-    background-color: #f44336 !important;
-  }
-  
-  .success-snackbar {
-    background-color: #4caf50 !important;
-  }
-  
-  .info-snackbar {
-    background-color: #2196f3 !important;
-  }
-  
-  .warning-snackbar {
-    background-color: #ff9800 !important;
-  }
-  
-  /* Ensure all headers maintain proper styling */
-  .app-header {
-    background-color: #1976d2 !important;
-  }
-  
-  .app-title {
-    color: #ffffff !important;
-  }
-  
-  .user-welcome {
-    color: rgba(255, 255, 255, 0.9) !important;
-  }
-  
-  /* Ensure mat-toolbar maintains proper styling */
-  .mat-toolbar {
-    background-color: #1976d2 !important;
-    color: #ffffff !important;
   }
 }
 
@@ -1243,6 +1084,1119 @@ html, body {
   .mat-toolbar {
     background-color: #ffc107 !important;
     color: #5d4037 !important;
+  }
+}
+
+/* Yellow Theme Styles */
+.yellow-theme {
+  /* Background colors */
+  background-color: #fffde7 !important;
+  color: #f57f17;
+  
+  .main-content {
+    background-color: #fff9c4 !important;
+  }
+  
+  .content-container {
+    background-color: #ffffff;
+    color: #f57f17;
+  }
+  
+  /* Sidenav styles */
+  .sidenav {
+    background-color: #fffde7 !important;
+    border-right: 1px solid #fff176 !important;
+    color: #f57f17;
+  }
+  
+  .sidenav-list {
+    background-color: #fffde7;
+  }
+  
+  .nav-header {
+    background-color: #fdd835;
+    color: #f57f17;
+  }
+  
+  .nav-item {
+    color: #f57f17 !important;
+  }
+  
+  .nav-item:hover {
+    background-color: #fff9c4 !important;
+  }
+  
+  .nav-item.active-link {
+    background-color: #fff176 !important;
+    color: #f57f17 !important;
+    border-right: 3px solid #f57f17 !important;
+  }
+  
+  .nav-child-item {
+    color: #f57f17 !important;
+    background-color: #fffde7 !important;
+  }
+  
+  .nav-child-item:hover {
+    background-color: #fff9c4 !important;
+  }
+  
+  .nav-child-item.active-link {
+    background-color: #fff176 !important;
+    color: #f57f17 !important;
+  }
+  
+  /* Tables */
+  .data-table {
+    background-color: #ffffff;
+    color: #f57f17;
+  }
+  
+  .table-header {
+    background-color: #fff9c4;
+    color: #f57f17;
+  }
+  
+  .mat-row {
+    background-color: #ffffff;
+  }
+  
+  .mat-row:nth-child(even) {
+    background-color: #fffde7;
+  }
+  
+  .mat-cell, .mat-header-cell {
+    color: #f57f17;
+  }
+  
+  /* Cards */
+  .mat-card {
+    background-color: #ffffff;
+    color: #f57f17;
+    box-shadow: 0 2px 10px rgba(253, 216, 53, 0.2);
+  }
+  
+  /* Dialogs */
+  .mat-dialog-container {
+    background-color: #ffffff;
+    color: #f57f17;
+  }
+  
+  /* Buttons */
+  .mat-raised-button, .mat-button, .mat-icon-button {
+    background-color: #ffffff;
+    color: #f57f17;
+  }
+  
+  .mat-raised-button:hover, .mat-button:hover {
+    background-color: #fff9c4;
+  }
+  
+  /* Menu items */
+  .user-info {
+    background-color: #fff9c4;
+  }
+  
+  .user-name {
+    color: #f57f17;
+  }
+  
+  .user-email {
+    color: #f9a825;
+  }
+  
+  .user-role {
+    color: #fdd835;
+  }
+  
+  /* Snackbar colors remain the same */
+  .error-snackbar {
+    background-color: #f44336 !important;
+  }
+  
+  .success-snackbar {
+    background-color: #4caf50 !important;
+  }
+  
+  .info-snackbar {
+    background-color: #2196f3 !important;
+  }
+  
+  .warning-snackbar {
+    background-color: #ff9800 !important;
+  }
+  
+  /* Ensure all headers maintain proper styling */
+  .app-header {
+    background-color: #fdd835 !important;
+  }
+  
+  .app-title {
+    color: #f57f17 !important;
+  }
+  
+  .user-welcome {
+    color: rgba(245, 127, 23, 0.9) !important;
+  }
+  
+  /* Ensure mat-toolbar maintains proper styling */
+  .mat-toolbar {
+    background-color: #fdd835 !important;
+    color: #f57f17 !important;
+  }
+}
+
+/* Salmon Theme Styles */
+.salmon-theme {
+  /* Background colors */
+  background-color: #fff3e0 !important;
+  color: #d84315;
+  
+  .main-content {
+    background-color: #ffccbc !important;
+  }
+  
+  .content-container {
+    background-color: #ffffff;
+    color: #d84315;
+  }
+  
+  /* Sidenav styles */
+  .sidenav {
+    background-color: #fff3e0 !important;
+    border-right: 1px solid #ffab91 !important;
+    color: #d84315;
+  }
+  
+  .sidenav-list {
+    background-color: #fff3e0;
+  }
+  
+  .nav-header {
+    background-color: #ff6d00;
+    color: #ffffff;
+  }
+  
+  .nav-item {
+    color: #d84315 !important;
+  }
+  
+  .nav-item:hover {
+    background-color: #ffccbc !important;
+  }
+  
+  .nav-item.active-link {
+    background-color: #ffab91 !important;
+    color: #d84315 !important;
+    border-right: 3px solid #d84315 !important;
+  }
+  
+  .nav-child-item {
+    color: #d84315 !important;
+    background-color: #fff3e0 !important;
+  }
+  
+  .nav-child-item:hover {
+    background-color: #ffccbc !important;
+  }
+  
+  .nav-child-item.active-link {
+    background-color: #ffab91 !important;
+    color: #d84315 !important;
+  }
+  
+  /* Tables */
+  .data-table {
+    background-color: #ffffff;
+    color: #d84315;
+  }
+  
+  .table-header {
+    background-color: #ffccbc;
+    color: #d84315;
+  }
+  
+  .mat-row {
+    background-color: #ffffff;
+  }
+  
+  .mat-row:nth-child(even) {
+    background-color: #fff3e0;
+  }
+  
+  .mat-cell, .mat-header-cell {
+    color: #d84315;
+  }
+  
+  /* Cards */
+  .mat-card {
+    background-color: #ffffff;
+    color: #d84315;
+    box-shadow: 0 2px 10px rgba(255, 109, 0, 0.2);
+  }
+  
+  /* Dialogs */
+  .mat-dialog-container {
+    background-color: #ffffff;
+    color: #d84315;
+  }
+  
+  /* Buttons */
+  .mat-raised-button, .mat-button, .mat-icon-button {
+    background-color: #ffffff;
+    color: #d84315;
+  }
+  
+  .mat-raised-button:hover, .mat-button:hover {
+    background-color: #ffccbc;
+  }
+  
+  /* Menu items */
+  .user-info {
+    background-color: #ffccbc;
+  }
+  
+  .user-name {
+    color: #d84315;
+  }
+  
+  .user-email {
+    color: #e64a19;
+  }
+  
+  .user-role {
+    color: #ff6d00;
+  }
+  
+  /* Snackbar colors remain the same */
+  .error-snackbar {
+    background-color: #f44336 !important;
+  }
+  
+  .success-snackbar {
+    background-color: #4caf50 !important;
+  }
+  
+  .info-snackbar {
+    background-color: #2196f3 !important;
+  }
+  
+  .warning-snackbar {
+    background-color: #ff9800 !important;
+  }
+  
+  /* Ensure all headers maintain proper styling */
+  .app-header {
+    background-color: #ff6d00 !important;
+  }
+  
+  .app-title {
+    color: #ffffff !important;
+  }
+  
+  .user-welcome {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+  
+  /* Ensure mat-toolbar maintains proper styling */
+  .mat-toolbar {
+    background-color: #ff6d00 !important;
+    color: #ffffff !important;
+  }
+}
+
+/* Midnight Blue Theme Styles */
+.midnightblue-theme {
+  /* Background colors */
+  background-color: #192c4d !important;
+  color: #e3f2fd;
+  
+  .main-content {
+    background-color: #1a237e !important;
+  }
+  
+  .content-container {
+    background-color: #151f35;
+    color: #e3f2fd;
+  }
+  
+  /* Sidenav styles */
+  .sidenav {
+    background-color: #0f1a2d !important;
+    border-right: 1px solid #283593 !important;
+    color: #e3f2fd;
+  }
+  
+  .sidenav-list {
+    background-color: #0f1a2d;
+  }
+  
+  .nav-header {
+    background-color: #1a237e;
+    color: #ffffff;
+  }
+  
+  .nav-item {
+    color: #e3f2fd !important;
+  }
+  
+  .nav-item:hover {
+    background-color: #1a237e !important;
+  }
+  
+  .nav-item.active-link {
+    background-color: #283593 !important;
+    color: #bbdefb !important;
+    border-right: 3px solid #bbdefb !important;
+  }
+  
+  .nav-child-item {
+    color: #e3f2fd !important;
+    background-color: #0f1a2d !important;
+  }
+  
+  .nav-child-item:hover {
+    background-color: #1a237e !important;
+  }
+  
+  .nav-child-item.active-link {
+    background-color: #283593 !important;
+    color: #bbdefb !important;
+  }
+  
+  /* Tables */
+  .data-table {
+    background-color: #151f35;
+    color: #e3f2fd;
+  }
+  
+  .table-header {
+    background-color: #1a237e;
+    color: #e3f2fd;
+  }
+  
+  .mat-row {
+    background-color: #151f35;
+  }
+  
+  .mat-row:nth-child(even) {
+    background-color: #0f1a2d;
+  }
+  
+  .mat-cell, .mat-header-cell {
+    color: #e3f2fd;
+  }
+  
+  /* Cards */
+  .mat-card {
+    background-color: #151f35;
+    color: #e3f2fd;
+    box-shadow: 0 2px 10px rgba(26, 35, 126, 0.3);
+  }
+  
+  /* Dialogs */
+  .mat-dialog-container {
+    background-color: #151f35;
+    color: #e3f2fd;
+  }
+  
+  /* Buttons */
+  .mat-raised-button, .mat-button, .mat-icon-button {
+    background-color: #151f35;
+    color: #e3f2fd;
+  }
+  
+  .mat-raised-button:hover, .mat-button:hover {
+    background-color: #1a237e;
+  }
+  
+  /* Menu items */
+  .user-info {
+    background-color: #1a237e;
+  }
+  
+  .user-name {
+    color: #e3f2fd;
+  }
+  
+  .user-email {
+    color: #bbdefb;
+  }
+  
+  .user-role {
+    color: #304ffe;
+  }
+  
+  /* Snackbar colors remain the same */
+  .error-snackbar {
+    background-color: #f44336 !important;
+  }
+  
+  .success-snackbar {
+    background-color: #4caf50 !important;
+  }
+  
+  .info-snackbar {
+    background-color: #2196f3 !important;
+  }
+  
+  .warning-snackbar {
+    background-color: #ff9800 !important;
+  }
+  
+  /* Ensure all headers maintain proper styling */
+  .app-header {
+    background-color: #1a237e !important;
+  }
+  
+  .app-title {
+    color: #ffffff !important;
+  }
+  
+  .user-welcome {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+  
+  /* Ensure mat-toolbar maintains proper styling */
+  .mat-toolbar {
+    background-color: #1a237e !important;
+    color: #ffffff !important;
+  }
+}
+
+/* Olive Theme Styles */
+.olive-theme {
+  /* Background colors */
+  background-color: #f0f4c3 !important;
+  color: #33691e;
+  
+  .main-content {
+    background-color: #dce775 !important;
+  }
+  
+  .content-container {
+    background-color: #ffffff;
+    color: #33691e;
+  }
+  
+  /* Sidenav styles */
+  .sidenav {
+    background-color: #f0f4c3 !important;
+    border-right: 1px solid #cddc39 !important;
+    color: #33691e;
+  }
+  
+  .sidenav-list {
+    background-color: #f0f4c3;
+  }
+  
+  .nav-header {
+    background-color: #827717;
+    color: #ffffff;
+  }
+  
+  .nav-item {
+    color: #33691e !important;
+  }
+  
+  .nav-item:hover {
+    background-color: #dce775 !important;
+  }
+  
+  .nav-item.active-link {
+    background-color: #cddc39 !important;
+    color: #33691e !important;
+    border-right: 3px solid #33691e !important;
+  }
+  
+  .nav-child-item {
+    color: #33691e !important;
+    background-color: #f0f4c3 !important;
+  }
+  
+  .nav-child-item:hover {
+    background-color: #dce775 !important;
+  }
+  
+  .nav-child-item.active-link {
+    background-color: #cddc39 !important;
+    color: #33691e !important;
+  }
+  
+  /* Tables */
+  .data-table {
+    background-color: #ffffff;
+    color: #33691e;
+  }
+  
+  .table-header {
+    background-color: #dce775;
+    color: #33691e;
+  }
+  
+  .mat-row {
+    background-color: #ffffff;
+  }
+  
+  .mat-row:nth-child(even) {
+    background-color: #f0f4c3;
+  }
+  
+  .mat-cell, .mat-header-cell {
+    color: #33691e;
+  }
+  
+  /* Cards */
+  .mat-card {
+    background-color: #ffffff;
+    color: #33691e;
+    box-shadow: 0 2px 10px rgba(130, 119, 23, 0.2);
+  }
+  
+  /* Dialogs */
+  .mat-dialog-container {
+    background-color: #ffffff;
+    color: #33691e;
+  }
+  
+  /* Buttons */
+  .mat-raised-button, .mat-button, .mat-icon-button {
+    background-color: #ffffff;
+    color: #33691e;
+  }
+  
+  .mat-raised-button:hover, .mat-button:hover {
+    background-color: #dce775;
+  }
+  
+  /* Menu items */
+  .user-info {
+    background-color: #dce775;
+  }
+  
+  .user-name {
+    color: #33691e;
+  }
+  
+  .user-email {
+    color: #558b2f;
+  }
+  
+  .user-role {
+    color: #827717;
+  }
+  
+  /* Snackbar colors remain the same */
+  .error-snackbar {
+    background-color: #f44336 !important;
+  }
+  
+  .success-snackbar {
+    background-color: #4caf50 !important;
+  }
+  
+  .info-snackbar {
+    background-color: #2196f3 !important;
+  }
+  
+  .warning-snackbar {
+    background-color: #ff9800 !important;
+  }
+  
+  /* Ensure all headers maintain proper styling */
+  .app-header {
+    background-color: #827717 !important;
+  }
+  
+  .app-title {
+    color: #ffffff !important;
+  }
+  
+  .user-welcome {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+  
+  /* Ensure mat-toolbar maintains proper styling */
+  .mat-toolbar {
+    background-color: #827717 !important;
+    color: #ffffff !important;
+  }
+}
+
+/* Slate Grey Theme Styles */
+.slategrey-theme {
+  /* Background colors */
+  background-color: #e0e0e0 !important;
+  color: #212121;
+  
+  .main-content {
+    background-color: #bdbdbd !important;
+  }
+  
+  .content-container {
+    background-color: #ffffff;
+    color: #212121;
+  }
+  
+  /* Sidenav styles */
+  .sidenav {
+    background-color: #e0e0e0 !important;
+    border-right: 1px solid #9e9e9e !important;
+    color: #212121;
+  }
+  
+  .sidenav-list {
+    background-color: #e0e0e0;
+  }
+  
+  .nav-header {
+    background-color: #616161;
+    color: #ffffff;
+  }
+  
+  .nav-item {
+    color: #212121 !important;
+  }
+  
+  .nav-item:hover {
+    background-color: #bdbdbd !important;
+  }
+  
+  .nav-item.active-link {
+    background-color: #9e9e9e !important;
+    color: #212121 !important;
+    border-right: 3px solid #212121 !important;
+  }
+  
+  .nav-child-item {
+    color: #212121 !important;
+    background-color: #e0e0e0 !important;
+  }
+  
+  .nav-child-item:hover {
+    background-color: #bdbdbd !important;
+  }
+  
+  .nav-child-item.active-link {
+    background-color: #9e9e9e !important;
+    color: #212121 !important;
+  }
+  
+  /* Tables */
+  .data-table {
+    background-color: #ffffff;
+    color: #212121;
+  }
+  
+  .table-header {
+    background-color: #bdbdbd;
+    color: #212121;
+  }
+  
+  .mat-row {
+    background-color: #ffffff;
+  }
+  
+  .mat-row:nth-child(even) {
+    background-color: #e0e0e0;
+  }
+  
+  .mat-cell, .mat-header-cell {
+    color: #212121;
+  }
+  
+  /* Cards */
+  .mat-card {
+    background-color: #ffffff;
+    color: #212121;
+    box-shadow: 0 2px 10px rgba(97, 97, 97, 0.2);
+  }
+  
+  /* Dialogs */
+  .mat-dialog-container {
+    background-color: #ffffff;
+    color: #212121;
+  }
+  
+  /* Buttons */
+  .mat-raised-button, .mat-button, .mat-icon-button {
+    background-color: #ffffff;
+    color: #212121;
+  }
+  
+  .mat-raised-button:hover, .mat-button:hover {
+    background-color: #bdbdbd;
+  }
+  
+  /* Menu items */
+  .user-info {
+    background-color: #bdbdbd;
+  }
+  
+  .user-name {
+    color: #212121;
+  }
+  
+  .user-email {
+    color: #424242;
+  }
+  
+  .user-role {
+    color: #616161;
+  }
+  
+  /* Snackbar colors remain the same */
+  .error-snackbar {
+    background-color: #f44336 !important;
+  }
+  
+  .success-snackbar {
+    background-color: #4caf50 !important;
+  }
+  
+  .info-snackbar {
+    background-color: #2196f3 !important;
+  }
+  
+  .warning-snackbar {
+    background-color: #ff9800 !important;
+  }
+  
+  /* Ensure all headers maintain proper styling */
+  .app-header {
+    background-color: #616161 !important;
+  }
+  
+  .app-title {
+    color: #ffffff !important;
+  }
+  
+  .user-welcome {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+  
+  /* Ensure mat-toolbar maintains proper styling */
+  .mat-toolbar {
+    background-color: #616161 !important;
+    color: #ffffff !important;
+  }
+}
+
+/* Red Theme Styles */
+.red-theme {
+  /* Background colors */
+  background-color: #ffebee !important;
+  color: #b71c1c;
+  
+  .main-content {
+    background-color: #ffcdd2 !important;
+  }
+  
+  .content-container {
+    background-color: #ffffff;
+    color: #b71c1c;
+  }
+  
+  /* Sidenav styles */
+  .sidenav {
+    background-color: #ffebee !important;
+    border-right: 1px solid #ef9a9a !important;
+    color: #b71c1c;
+  }
+  
+  .sidenav-list {
+    background-color: #ffebee;
+  }
+  
+  .nav-header {
+    background-color: #d32f2f;
+    color: #ffffff;
+  }
+  
+  .nav-item {
+    color: #b71c1c !important;
+  }
+  
+  .nav-item:hover {
+    background-color: #ffcdd2 !important;
+  }
+  
+  .nav-item.active-link {
+    background-color: #ef9a9a !important;
+    color: #b71c1c !important;
+    border-right: 3px solid #b71c1c !important;
+  }
+  
+  .nav-child-item {
+    color: #b71c1c !important;
+    background-color: #ffebee !important;
+  }
+  
+  .nav-child-item:hover {
+    background-color: #ffcdd2 !important;
+  }
+  
+  .nav-child-item.active-link {
+    background-color: #ef9a9a !important;
+    color: #b71c1c !important;
+  }
+  
+  /* Tables */
+  .data-table {
+    background-color: #ffffff;
+    color: #b71c1c;
+  }
+  
+  .table-header {
+    background-color: #ffcdd2;
+    color: #b71c1c;
+  }
+  
+  .mat-row {
+    background-color: #ffffff;
+  }
+  
+  .mat-row:nth-child(even) {
+    background-color: #ffebee;
+  }
+  
+  .mat-cell, .mat-header-cell {
+    color: #b71c1c;
+  }
+  
+  /* Cards */
+  .mat-card {
+    background-color: #ffffff;
+    color: #b71c1c;
+    box-shadow: 0 2px 10px rgba(211, 47, 47, 0.2);
+  }
+  
+  /* Dialogs */
+  .mat-dialog-container {
+    background-color: #ffffff;
+    color: #b71c1c;
+  }
+  
+  /* Buttons */
+  .mat-raised-button, .mat-button, .mat-icon-button {
+    background-color: #ffffff;
+    color: #b71c1c;
+  }
+  
+  .mat-raised-button:hover, .mat-button:hover {
+    background-color: #ffcdd2;
+  }
+  
+  /* Menu items */
+  .user-info {
+    background-color: #ffcdd2;
+  }
+  
+  .user-name {
+    color: #b71c1c;
+  }
+  
+  .user-email {
+    color: #c62828;
+  }
+  
+  .user-role {
+    color: #d32f2f;
+  }
+  
+  /* Snackbar colors remain the same */
+  .error-snackbar {
+    background-color: #f44336 !important;
+  }
+  
+  .success-snackbar {
+    background-color: #4caf50 !important;
+  }
+  
+  .info-snackbar {
+    background-color: #2196f3 !important;
+  }
+  
+  .warning-snackbar {
+    background-color: #ff9800 !important;
+  }
+  
+  /* Ensure all headers maintain proper styling */
+  .app-header {
+    background-color: #d32f2f !important;
+  }
+  
+  .app-title {
+    color: #ffffff !important;
+  }
+  
+  .user-welcome {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+  
+  /* Ensure mat-toolbar maintains proper styling */
+  .mat-toolbar {
+    background-color: #d32f2f !important;
+    color: #ffffff !important;
+  }
+}
+
+/* Light Steel Blue Theme Styles */
+.lightsteelblue-theme {
+  /* Background colors */
+  background-color: #e3f2fd !important;
+  color: #0d47a1;
+  
+  .main-content {
+    background-color: #bbdefb !important;
+  }
+  
+  .content-container {
+    background-color: #ffffff;
+    color: #0d47a1;
+  }
+  
+  /* Sidenav styles */
+  .sidenav {
+    background-color: #e3f2fd !important;
+    border-right: 1px solid #90caf9 !important;
+    color: #0d47a1;
+  }
+  
+  .sidenav-list {
+    background-color: #e3f2fd;
+  }
+  
+  .nav-header {
+    background-color: #1976d2;
+    color: #ffffff;
+  }
+  
+  .nav-item {
+    color: #0d47a1 !important;
+  }
+  
+  .nav-item:hover {
+    background-color: #bbdefb !important;
+  }
+  
+  .nav-item.active-link {
+    background-color: #90caf9 !important;
+    color: #0d47a1 !important;
+    border-right: 3px solid #0d47a1 !important;
+  }
+  
+  .nav-child-item {
+    color: #0d47a1 !important;
+    background-color: #e3f2fd !important;
+  }
+  
+  .nav-child-item:hover {
+    background-color: #bbdefb !important;
+  }
+  
+  .nav-child-item.active-link {
+    background-color: #90caf9 !important;
+    color: #0d47a1 !important;
+  }
+  
+  /* Tables */
+  .data-table {
+    background-color: #ffffff;
+    color: #0d47a1;
+  }
+  
+  .table-header {
+    background-color: #bbdefb;
+    color: #0d47a1;
+  }
+  
+  .mat-row {
+    background-color: #ffffff;
+  }
+  
+  .mat-row:nth-child(even) {
+    background-color: #e3f2fd;
+  }
+  
+  .mat-cell, .mat-header-cell {
+    color: #0d47a1;
+  }
+  
+  /* Cards */
+  .mat-card {
+    background-color: #ffffff;
+    color: #0d47a1;
+    box-shadow: 0 2px 10px rgba(25, 118, 210, 0.2);
+  }
+  
+  /* Dialogs */
+  .mat-dialog-container {
+    background-color: #ffffff;
+    color: #0d47a1;
+  }
+  
+  /* Buttons */
+  .mat-raised-button, .mat-button, .mat-icon-button {
+    background-color: #ffffff;
+    color: #0d47a1;
+  }
+  
+  .mat-raised-button:hover, .mat-button:hover {
+    background-color: #bbdefb;
+  }
+  
+  /* Menu items */
+  .user-info {
+    background-color: #bbdefb;
+  }
+  
+  .user-name {
+    color: #0d47a1;
+  }
+  
+  .user-email {
+    color: #1565c0;
+  }
+  
+  .user-role {
+    color: #1976d2;
+  }
+  
+  /* Snackbar colors remain the same */
+  .error-snackbar {
+    background-color: #f44336 !important;
+  }
+  
+  .success-snackbar {
+    background-color: #4caf50 !important;
+  }
+  
+  .info-snackbar {
+    background-color: #2196f3 !important;
+  }
+  
+  .warning-snackbar {
+    background-color: #ff9800 !important;
+  }
+  
+  /* Ensure all headers maintain proper styling */
+  .app-header {
+    background-color: #1976d2 !important;
+  }
+  
+  .app-title {
+    color: #ffffff !important;
+  }
+  
+  .user-welcome {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+  
+  /* Ensure mat-toolbar maintains proper styling */
+  .mat-toolbar {
+    background-color: #1976d2 !important;
+    color: #ffffff !important;
   }
 }
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-export type Theme = 'light' | 'dark' | 'blue' | 'green' | 'purple' | 'amber';
+export type Theme = 'light' | 'dark' | 'green' | 'purple' | 'amber' | 'yellow' | 'salmon' | 'midnightblue' | 'olive' | 'slategrey' | 'red' | 'lightsteelblue';
 
 @Injectable({
   providedIn: 'root'
@@ -49,10 +49,16 @@ export class ThemeService {
     return [
       { value: 'light', label: 'Claro' },
       { value: 'dark', label: 'Escuro' },
-      { value: 'blue', label: 'Azul' },
       { value: 'green', label: 'Verde' },
       { value: 'purple', label: 'Roxo' },
-      { value: 'amber', label: 'Âmbar' }
+      { value: 'amber', label: 'Âmbar' },
+      { value: 'yellow', label: 'Amarelo' },
+      { value: 'salmon', label: 'Salmão' },
+      { value: 'midnightblue', label: 'Midnight Blue' },
+      { value: 'olive', label: 'Olive' },
+      { value: 'slategrey', label: 'Slate Grey' },
+      { value: 'red', label: 'Red' },
+      { value: 'lightsteelblue', label: 'Light Steel Blue' }
     ];
   }
 
@@ -60,7 +66,7 @@ export class ThemeService {
    * Check if a theme value is valid
    */
   private isValidTheme(theme: string): theme is Theme {
-    return ['light', 'dark', 'blue', 'green', 'purple', 'amber'].includes(theme);
+    return ['light', 'dark', 'green', 'purple', 'amber', 'yellow', 'salmon', 'midnightblue', 'olive', 'slategrey', 'red', 'lightsteelblue'].includes(theme);
   }
 
   /**
@@ -68,7 +74,7 @@ export class ThemeService {
    */
   private applyTheme(): void {
     // Remove all theme classes
-    document.body.classList.remove('light-theme', 'dark-theme', 'blue-theme', 'green-theme', 'purple-theme', 'amber-theme');
+    document.body.classList.remove('light-theme', 'dark-theme', 'green-theme', 'purple-theme', 'amber-theme', 'yellow-theme', 'salmon-theme', 'midnightblue-theme', 'olive-theme', 'slategrey-theme', 'red-theme', 'lightsteelblue-theme');
     
     // Add the current theme class
     const themeClass = `${this.currentTheme}-theme`;

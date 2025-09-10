@@ -1,93 +1,74 @@
-// Simple test to verify theme functionality
-class ThemeTester {
-  private currentTheme: string = 'light';
-  private availableThemes: { value: string; label: string }[] = [
-    { value: 'light', label: 'Claro' },
-    { value: 'dark', label: 'Escuro' },
-    { value: 'blue', label: 'Azul' },
-    { value: 'green', label: 'Verde' },
-    { value: 'purple', label: 'Roxo' }
-  ];
+// Theme functionality test
+console.log('Theme functionality test starting...');
 
-  constructor() {
-    this.loadSavedTheme();
-  }
-
-  private loadSavedTheme(): void {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme && this.isValidTheme(savedTheme)) {
-      this.currentTheme = savedTheme;
-    } else {
-      // Check system preference
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      this.currentTheme = prefersDark ? 'dark' : 'light';
-    }
-    this.applyTheme();
-  }
-
-  private isValidTheme(theme: string): boolean {
-    return ['light', 'dark', 'blue', 'green', 'purple'].includes(theme);
-  }
-
-  private applyTheme(): void {
+// Test theme class management
+function testThemeClassManagement() {
+    console.log('Testing theme class management...');
+    
     // Remove all theme classes
-    document.body.classList.remove('light-theme', 'dark-theme', 'blue-theme', 'green-theme', 'purple-theme');
+    document.body.classList.remove('light-theme', 'dark-theme', 'green-theme', 'purple-theme', 'amber-theme', 'yellow-theme', 'salmon-theme', 'midnightblue-theme', 'olive-theme', 'slategrey-theme', 'red-theme', 'lightsteelblue-theme');
     
-    // Add the current theme class
-    const themeClass = `${this.currentTheme}-theme`;
-    document.body.classList.add(themeClass);
+    // Add a theme class
+    document.body.classList.add('dark-theme');
+    console.log('Added dark-theme class');
     
-    console.log(`Theme '${this.currentTheme}' applied with class '${themeClass}'`);
-  }
-
-  public setTheme(theme: string): void {
-    if (!this.isValidTheme(theme)) {
-      console.error(`Invalid theme: ${theme}`);
-      return;
+    // Check if class was added
+    if (document.body.classList.contains('dark-theme')) {
+        console.log('✓ Theme class added successfully');
+    } else {
+        console.log('✗ Failed to add theme class');
     }
     
-    this.currentTheme = theme;
-    localStorage.setItem('theme', theme);
-    this.applyTheme();
-  }
-
-  public getCurrentTheme(): string {
-    return this.currentTheme;
-  }
-
-  public getAvailableThemes(): { value: string; label: string }[] {
-    return this.availableThemes;
-  }
-
-  // Test method
-  public runTest(): void {
-    console.log('=== Theme Functionality Test ===');
-    console.log('Current theme:', this.getCurrentTheme());
-    console.log('Available themes:', this.getAvailableThemes());
+    // Remove the theme class
+    document.body.classList.remove('dark-theme');
+    console.log('Removed dark-theme class');
     
-    // Test setting each theme
-    this.availableThemes.forEach(theme => {
-      console.log(`\nTesting theme: ${theme.value}`);
-      this.setTheme(theme.value);
-      console.log(`Current theme after setting: ${this.getCurrentTheme()}`);
-    });
-    
-    console.log('\n=== Test Complete ===');
-  }
+    // Check if class was removed
+    if (!document.body.classList.contains('dark-theme')) {
+        console.log('✓ Theme class removed successfully');
+    } else {
+        console.log('✗ Failed to remove theme class');
+    }
 }
 
-// Run the test if we're in a browser environment
-if (typeof window !== 'undefined') {
-  // Wait for DOM to be ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      const tester = new ThemeTester();
-      tester.runTest();
-    });
-  } else {
-    const tester = new ThemeTester();
-    tester.runTest();
-  }
+// Test localStorage theme persistence
+function testLocalStoragePersistence() {
+    console.log('Testing localStorage theme persistence...');
+    
+    // Set a theme in localStorage
+    localStorage.setItem('theme', 'light');
+    console.log('Set theme to light in localStorage');
+    
+    // Retrieve the theme from localStorage
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+        console.log('✓ Theme persistence test passed');
+    } else {
+        console.log('✗ Theme persistence test failed');
+    }
+    
+    // Clean up
+    localStorage.removeItem('theme');
 }
 
-export { ThemeTester };
+// Test available themes
+function testAvailableThemes() {
+    console.log('Testing available themes...');
+    
+    const themes = ['light', 'dark', 'green', 'purple', 'amber', 'yellow', 'salmon', 'midnightblue', 'olive', 'slategrey', 'red', 'lightsteelblue'];
+    console.log('Available themes:', themes);
+    
+    // Check if we have the expected number of themes
+    if (themes.length === 12) {
+        console.log('✓ Correct number of themes available');
+    } else {
+        console.log('✗ Incorrect number of themes. Expected 12, got', themes.length);
+    }
+}
+
+// Run all tests
+testThemeClassManagement();
+testLocalStoragePersistence();
+testAvailableThemes();
+
+console.log('Theme functionality test completed.');

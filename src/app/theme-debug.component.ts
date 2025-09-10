@@ -10,7 +10,6 @@ import { ThemeService, Theme } from './core/services/theme.service';
       <div>
         <button (click)="setTheme('light')" [style.background-color]="currentTheme === 'light' ? '#e3f2fd' : '#f5f5f5'">Light</button>
         <button (click)="setTheme('dark')" [style.background-color]="currentTheme === 'dark' ? '#e3f2fd' : '#f5f5f5'">Dark</button>
-        <button (click)="setTheme('blue')" [style.background-color]="currentTheme === 'blue' ? '#e3f2fd' : '#f5f5f5'">Blue</button>
         <button (click)="setTheme('green')" [style.background-color]="currentTheme === 'green' ? '#e3f2fd' : '#f5f5f5'">Green</button>
         <button (click)="setTheme('purple')" [style.background-color]="currentTheme === 'purple' ? '#e3f2fd' : '#f5f5f5'">Purple</button>
       </div>
