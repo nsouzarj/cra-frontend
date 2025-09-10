@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-export type Theme = 'light' | 'dark' | 'blue' | 'green' | 'purple';
+export type Theme = 'light' | 'dark' | 'blue' | 'green' | 'purple' | 'amber';
 
 @Injectable({
   providedIn: 'root'
@@ -51,7 +51,8 @@ export class ThemeService {
       { value: 'dark', label: 'Escuro' },
       { value: 'blue', label: 'Azul' },
       { value: 'green', label: 'Verde' },
-      { value: 'purple', label: 'Roxo' }
+      { value: 'purple', label: 'Roxo' },
+      { value: 'amber', label: 'Âmbar' }
     ];
   }
 
@@ -59,7 +60,7 @@ export class ThemeService {
    * Check if a theme value is valid
    */
   private isValidTheme(theme: string): theme is Theme {
-    return ['light', 'dark', 'blue', 'green', 'purple'].includes(theme);
+    return ['light', 'dark', 'blue', 'green', 'purple', 'amber'].includes(theme);
   }
 
   /**
@@ -67,7 +68,7 @@ export class ThemeService {
    */
   private applyTheme(): void {
     // Remove all theme classes
-    document.body.classList.remove('light-theme', 'dark-theme', 'blue-theme', 'green-theme', 'purple-theme');
+    document.body.classList.remove('light-theme', 'dark-theme', 'blue-theme', 'green-theme', 'purple-theme', 'amber-theme');
     
     // Add the current theme class
     const themeClass = `${this.currentTheme}-theme`;
