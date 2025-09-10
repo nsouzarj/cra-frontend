@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { User } from '../../shared/models/user.model';
 import { ApiResponse } from '../../shared/models/api-response.model';
@@ -151,6 +151,35 @@ export class UserService {
   getActiveUsers(): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/ativos`)
       .pipe(catchError(this.handleError));
+  }
+
+  /**
+   * Resets a user's password
+   * 
+   * @param id The ID of the user whose password to reset
+   * @param newPassword The new password
+   * @returns Observable containing the updated user
+   */
+  resetUserPassword(id: number, newPassword: string): Observable<any> {
+    const resetData = { id: id, novaSenha: newPassword };
+    // Using the base API URL since this endpoint might be directly under /cra-api
+    return this.http.put<any>(`${this.apiUrl}/alterar-senha`, resetData)
+      .pipe(
+        catchError(error => {
+          console.error('Error in resetUserPassword:', error);
+          // Log more detailed error information
+          if (error.error) {
+            console.error('Error details:', error.error);
+          }
+          if (error.message) {
+            console.error('Error message:', error.message);
+          }
+          if (error.status) {
+            console.error('Error status:', error.status);
+          }
+          return throwError(error);
+        })
+      );
   }
 
   /**

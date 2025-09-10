@@ -77,7 +77,6 @@ import { ErrorHandlingInterceptor } from './core/interceptors/error-handling.int
     HeaderComponent,
     SidenavComponent,
     ConfirmationDialogComponent
-    // CpfCnpjFormatDirective - removed since we're handling formatting in the component
   ],
   imports: [
     BrowserModule,

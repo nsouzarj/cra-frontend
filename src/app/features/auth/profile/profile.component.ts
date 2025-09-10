@@ -5,6 +5,9 @@ import { User } from '../../../shared/models/user.model';
 import { CorrespondenteService } from '../../../core/services/correspondente.service';
 import { Correspondente } from '../../../shared/models/correspondente.model';
 import { UserService } from '@/app/core/services/user.service';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { PasswordResetDialogComponent, PasswordResetDialogData } from '../../../shared/components/password-reset-dialog/password-reset-dialog.component';
 
 @Component({
   selector: 'app-profile',
@@ -21,7 +24,9 @@ export class ProfileComponent implements OnInit {
     private authService: AuthService,
     private correspondenteService: CorrespondenteService,
     private userService: UserService,
-    private router: Router
+    private router: Router,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -88,7 +93,65 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  /**
+   * Resets the current user's password
+   */
+  resetPassword(): void {
+    if (!this.currentUser?.id) return;
 
+    // Open password reset dialog
+    const passwordDialogRef = this.dialog.open(PasswordResetDialogComponent, {
+      width: '500px',
+      data: {
+        userName: this.currentUser!.nomecompleto
+      } as PasswordResetDialogData
+    });
+
+    passwordDialogRef.afterClosed().subscribe(newPassword => {
+      if (newPassword) {
+        // Use the dedicated password reset endpoint
+        this.userService.resetUserPassword(this.currentUser!.id!, newPassword).subscribe({
+          next: (responseUser) => {
+            // Update the current user with the response
+            this.currentUser = this.normalizeUser(responseUser);
+            
+            // Also update the user in the auth service
+            this.authService.updateCurrentUser(this.currentUser);
+            
+            this.snackBar.open('Senha alterada com sucesso!', 'Fechar', {
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            });
+          },
+          error: (error) => {
+            console.error('Error resetting password:', error);
+            // Log more detailed error information
+            if (error.error) {
+              console.error('Error details:', error.error);
+            }
+            if (error.message) {
+              console.error('Error message:', error.message);
+            }
+            if (error.status) {
+              console.error('Error status:', error.status);
+            }
+            
+            let errorMessage = 'Erro ao alterar senha';
+            if (error.error && error.error.message) {
+              errorMessage = error.error.message;
+            } else if (error.message) {
+              errorMessage = error.message;
+            }
+            
+            this.snackBar.open(errorMessage, 'Fechar', {
+              duration: 5000,
+              panelClass: ['error-snackbar']
+            });
+          }
+        });
+      }
+    });
+  }
 
   /**
    * Normalize user data to ensure emailprincipal is properly set

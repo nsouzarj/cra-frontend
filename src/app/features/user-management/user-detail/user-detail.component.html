@@ -34,57 +34,39 @@
       <mat-card class="info-card">
         <mat-card-header>
           <mat-card-title>
-            <mat-icon>info</mat-icon>
+            <mat-icon [color]="isCorrespondent() ? null : 'primary'" [style.color]="isCorrespondent() ? '#009688' : null">info</mat-icon>
             Informações Pessoais
           </mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <div class="info-list">
+          <div class="info-grid">
             <div class="info-item">
-              <span class="info-label">ID:</span>
-              <span class="info-value">{{ user.id }}</span>
+              <label>ID</label>
+              <span>{{ user.id }}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">Login:</span>
-              <span class="info-value">{{ user.login }}</span>
+              <label>Login</label>
+              <span>{{ user.login }}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">Nome Completo:</span>
-              <span class="info-value">{{ user.nomecompleto }}</span>
+              <label>Nome Completo</label>
+              <span>{{ user.nomecompleto }}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">Tipo de Usuário:</span>
-              <span class="info-value" [class]="getUserTypeClass(user.tipo) + '-text'">
+              <label>Tipo de Usuário</label>
+              <span class="user-type" [class]="getUserTypeClass(user.tipo) + '-text'">
                 {{ getUserTypeText(user.tipo) }}
               </span>
             </div>
             <div class="info-item">
-              <span class="info-label">Status:</span>
-              <span class="info-value" [class.active-status]="user.ativo" [class.inactive-status]="!user.ativo">
+              <label>Status</label>
+              <span [class.active-status]="user.ativo" [class.inactive-status]="!user.ativo">
                 {{ user.ativo ? 'Ativo' : 'Inativo' }}
               </span>
             </div>
             <div class="info-item">
-              <span class="info-label">Data de Entrada:</span>
-              <span class="info-value">{{ user.dataEntrada ? (user.dataEntrada | date:'dd/MM/yyyy HH:mm') : 'Não informado' }}</span>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Correspondent Information (only for Correspondente type users) -->
-      <mat-card class="info-card" *ngIf="user.tipo === 3 && user.correspondentId">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>business</mat-icon>
-            Informações do Correspondente
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="info-list">
-            <div class="info-item" *ngFor="let info of getCorrespondentInfo()">
-              <span class="info-label">{{ info.label }}:</span>
-              <span class="info-value">{{ info.value }}</span>
+              <label>Data de Entrada</label>
+              <span>{{ user.dataEntrada ? (user.dataEntrada | date:'dd/MM/yyyy HH:mm') : 'Não informado' }}</span>
             </div>
           </div>
         </mat-card-content>
@@ -94,7 +76,7 @@
       <mat-card class="info-card">
         <mat-card-header>
           <mat-card-title>
-            <mat-icon>email</mat-icon>
+            <mat-icon [color]="isCorrespondent() ? null : 'primary'" [style.color]="isCorrespondent() ? '#009688' : null">email</mat-icon>
             Informações de Contato
           </mat-card-title>
         </mat-card-header>
@@ -116,11 +98,103 @@
         </mat-card-content>
       </mat-card>
 
+      <!-- Correspondent Information Card (matching profile component) -->
+      <mat-card class="info-card" *ngIf="isCorrespondent()">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="section-icon" color="primary">work</mat-icon>
+            Dados do Correspondente
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div *ngIf="userFind?.correspondente; else noCorrespondentData">
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Nome</label>
+                <span>{{ userFind?.correspondente?.nome }}</span>
+              </div>
+              <div class="info-item">
+                <label>CPF/CNPJ</label>
+                <span>{{ userFind?.correspondente?.cpfcnpj || 'Não informado' }}</span>
+              </div>
+              <div class="info-item">
+                <label>OAB</label>
+                <span>{{ userFind?.correspondente?.oab || 'Não informado' }}</span>
+              </div>
+              <div class="info-item">
+                <label>Email Primário</label>
+                <span>{{ userFind?.correspondente?.emailprimario || 'Não informado' }}</span>
+              </div>
+              <div class="info-item">
+                <label>Telefone Primário</label>
+                <span>{{ userFind?.correspondente?.telefoneprimario || 'Não informado' }}</span>
+              </div>
+              <div class="info-item">
+                <label>Celular Primário</label>
+                <span>{{ userFind?.correspondente?.telefonecelularprimario || 'Não informado' }}</span>
+              </div>
+            </div>
+          </div>
+          <ng-template #noCorrespondentData>
+            <div class="empty-state">
+              <mat-icon>info</mat-icon>
+              <p>Este usuário é um correspondente, mas os dados não foram carregados.</p>
+              <p *ngIf="user && user.correspondentId">ID do Correspondente: {{ user.correspondentId }}</p>
+              <div *ngIf="user && !user.correspondentId" class="error-message">
+                <p>Erro: ID do correspondente não encontrado nos dados do usuário.</p>
+              </div>
+            </div>
+          </ng-template>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Address Information Card (matching profile component) -->
+      <mat-card class="info-card" *ngIf="isCorrespondent() && userFind?.correspondente?.endereco">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="section-icon" color="primary">location_on</mat-icon>
+            Endereço do Correspondente
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Logradouro</label>
+              <span>{{ userFind?.correspondente?.endereco?.logradouro || 'Não informado' }}</span>
+            </div>
+            <div class="info-item">
+              <label>Número</label>
+              <span>{{ userFind?.correspondente?.endereco?.numero || 'Não informado' }}</span>
+            </div>
+            <div class="info-item">
+              <label>Complemento</label>
+              <span>{{ userFind?.correspondente?.endereco?.complemento || 'Não informado' }}</span>
+            </div>
+            <div class="info-item">
+              <label>Bairro</label>
+              <span>{{ userFind?.correspondente?.endereco?.bairro || 'Não informado' }}</span>
+            </div>
+            <div class="info-item">
+              <label>Cidade</label>
+              <span>{{ userFind?.correspondente?.endereco?.cidade || 'Não informado' }}</span>
+            </div>
+            <div class="info-item">
+              <label>UF</label>
+              <span>{{ userFind?.correspondente?.endereco?.uf?.sigla || userFind?.correspondente?.endereco?.uf?.nome || 'Não informado' }}</span>
+            </div>
+            <div class="info-item">
+              <label>CEP</label>
+              <span>{{ userFind?.correspondente?.endereco?.cep || 'Não informado' }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
       <!-- Permissions -->
       <mat-card class="info-card">
         <mat-card-header>
           <mat-card-title>
-            <mat-icon>security</mat-icon>
+            <mat-icon [color]="isCorrespondent() ? null : 'primary'" [style.color]="isCorrespondent() ? '#009688' : null">security</mat-icon>
             Permissões e Acesso
           </mat-card-title>
         </mat-card-header>
@@ -132,8 +206,8 @@
                 <span class="permission-title">{{ permission.title }}</span>
                 <span class="permission-description">{{ permission.description }}</span>
               </div>
-              <mat-icon class="permission-status" [class.allowed]="permission.allowed">
-                {{ permission.allowed ? 'check_circle' : 'cancel' }}
+              <mat-icon class="permission-status" [class.allowed]="permission.allowed" [class.restricted]="permission.restrictedForCorrespondent">
+                {{ permission.allowed ? 'check_circle' : (permission.restrictedForCorrespondent ? 'block' : 'cancel') }}
               </mat-icon>
             </div>
           </div>
@@ -144,7 +218,7 @@
       <mat-card class="info-card" *ngIf="permissionService.canManageUsers() && user?.id !== currentUserId">
         <mat-card-header>
           <mat-card-title>
-            <mat-icon>admin_panel_settings</mat-icon>
+            <mat-icon [color]="isCorrespondent() ? null : 'primary'" [style.color]="isCorrespondent() ? '#009688' : null">admin_panel_settings</mat-icon>
             Ações Administrativas
           </mat-card-title>
         </mat-card-header>
