@@ -1,66 +1,80 @@
 import { Injectable } from '@angular/core';
 
+export type Theme = 'light' | 'dark' | 'blue' | 'green' | 'purple';
+
 @Injectable({
   providedIn: 'root'
 })
 export class ThemeService {
-  private isDarkTheme = false;
+  private currentTheme: Theme = 'light';
 
   constructor() {
     // Check if user has a saved theme preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      this.isDarkTheme = savedTheme === 'dark';
-      console.log('Theme loaded from localStorage:', savedTheme);
+    const savedTheme = localStorage.getItem('theme') as Theme;
+    if (savedTheme && this.isValidTheme(savedTheme)) {
+      this.currentTheme = savedTheme;
     } else {
       // Check system preference as default
-      this.isDarkTheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      console.log('Theme loaded from system preference:', this.isDarkTheme);
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      this.currentTheme = prefersDark ? 'dark' : 'light';
     }
     
     // Apply the theme on initialization
-    // Add a small delay to ensure DOM is fully loaded
-    setTimeout(() => {
-      this.applyTheme();
-      console.log('Theme applied:', this.isDarkTheme ? 'dark' : 'light');
-    }, 0);
-  }
-
-  /**
-   * Enable or disable dark theme
-   */
-  setDarkTheme(isDark: boolean): void {
-    console.log('Setting dark theme:', isDark);
-    this.isDarkTheme = isDark;
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
     this.applyTheme();
   }
 
   /**
-   * Toggle between light and dark theme
+   * Set the current theme
    */
-  toggleTheme(): void {
-    this.setDarkTheme(!this.isDarkTheme);
+  setTheme(theme: Theme): void {
+    if (!this.isValidTheme(theme)) {
+      return;
+    }
+    this.currentTheme = theme;
+    localStorage.setItem('theme', theme);
+    this.applyTheme();
   }
 
   /**
-   * Check if dark theme is currently enabled
+   * Get the current theme
    */
-  isDarkMode(): boolean {
-    return this.isDarkTheme;
+  getCurrentTheme(): Theme {
+    return this.currentTheme;
   }
-  
+
+  /**
+   * Get all available themes
+   */
+  getAvailableThemes(): { value: Theme; label: string }[] {
+    return [
+      { value: 'light', label: 'Claro' },
+      { value: 'dark', label: 'Escuro' },
+      { value: 'blue', label: 'Azul' },
+      { value: 'green', label: 'Verde' },
+      { value: 'purple', label: 'Roxo' }
+    ];
+  }
+
+  /**
+   * Check if a theme value is valid
+   */
+  private isValidTheme(theme: string): theme is Theme {
+    return ['light', 'dark', 'blue', 'green', 'purple'].includes(theme);
+  }
+
   /**
    * Apply the current theme
    */
   private applyTheme(): void {
-    console.log('Applying theme, dark mode:', this.isDarkTheme);
-    if (this.isDarkTheme) {
-      document.body.classList.add('dark-theme');
-      console.log('Dark theme class added');
-    } else {
-      document.body.classList.remove('dark-theme');
-      console.log('Dark theme class removed');
-    }
+    // Remove all theme classes
+    document.body.classList.remove('light-theme', 'dark-theme', 'blue-theme', 'green-theme', 'purple-theme');
+    
+    // Add the current theme class
+    const themeClass = `${this.currentTheme}-theme`;
+    document.body.classList.add(themeClass);
+    
+    // Dispatch a custom event to notify other components of theme change
+    const event = new CustomEvent('themeChanged', { detail: this.currentTheme });
+    window.dispatchEvent(event);
   }
 }

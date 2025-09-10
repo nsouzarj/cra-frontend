@@ -1,79 +1,90 @@
+.sidenav {
+  min-width: 250px;
+  height: 100%;
+  border-right: 1px solid #e0e0e0;
+  background-color: #fafafa;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
 .sidenav-list {
   padding: 0;
-  height: 100%;
+  background-color: #fafafa;
+  flex: 1;
 }
 
 .nav-header {
-  display: flex;
-  align-items: center;
   padding: 20px 16px;
   background-color: #3f51b5;
   color: white;
+  display: flex;
+  align-items: center;
   gap: 12px;
 }
 
 .nav-logo {
-  font-size: 28px;
-  width: 28px;
-  height: 28px;
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: white;
 }
 
 .nav-title {
   font-size: 18px;
   font-weight: 500;
-}
-
-.nav-divider {
-  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nav-item {
-  border-radius: 0;
+  display: flex;
+  align-items: center;
   padding: 12px 16px;
-  margin: 0;
-  color: #333;
   text-decoration: none;
-  transition: background-color 0.2s ease;
+  color: #333;
+  border-left: 3px solid transparent;
+  transition: all 0.3s ease;
+  position: relative;
 }
 
 .nav-item:hover {
-  background-color: #f0f0f0;
+  background-color: #ebebeb;
 }
 
 .nav-item.active-link {
   background-color: #e3f2fd;
   color: #1976d2;
-  border-right: 3px solid #1976d2;
+  border-left: 3px solid #1976d2;
 }
 
-.nav-group-header {
-  justify-content: space-between;
-  cursor: pointer;
-}
-
-.expand-icon {
-  transition: transform 0.2s ease;
-}
-
-.expand-icon.expanded {
-  transform: rotate(180deg);
+.nav-item .nav-text {
+  flex: 1;
+  font-weight: 500;
+  font-size: 14px;
 }
 
 .nav-children {
+  background-color: #fafafa;
+  padding-left: 0;
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.3s ease;
-  background-color: #f8f8f8;
 }
 
 .nav-children.expanded {
-  max-height: 500px;
+  max-height: 1000px; /* Adjust based on content */
 }
 
 .nav-child-item {
-  padding-left: 56px;
-  border-radius: 0;
-  color: #555;
+  display: flex;
+  align-items: center;
+  padding: 10px 16px 10px 48px;
+  text-decoration: none;
+  color: #333;
+  font-size: 13px;
+  transition: all 0.3s ease;
 }
 
 .nav-child-item:hover {
@@ -87,6 +98,52 @@
 
 mat-icon[matListItemIcon] {
   color: inherit;
+}
+
+/* Light Theme Overrides */
+.light-theme .sidenav {
+  background-color: #fafafa !important;
+  border-right: 1px solid #e0e0e0 !important;
+  color: #333333;
+}
+
+.light-theme .sidenav-list {
+  background-color: #fafafa;
+}
+
+.light-theme .nav-header {
+  background-color: #3f51b5;
+}
+
+.light-theme .nav-item {
+  color: #333333 !important;
+}
+
+.light-theme .nav-item:hover {
+  background-color: #ebebeb !important;
+}
+
+.light-theme .nav-item.active-link {
+  background-color: #e3f2fd !important;
+  color: #1976d2 !important;
+  border-right: 3px solid #1976d2 !important;
+}
+
+.light-theme .nav-children {
+  background-color: #fafafa;
+}
+
+.light-theme .nav-child-item {
+  color: #333333 !important;
+}
+
+.light-theme .nav-child-item:hover {
+  background-color: #ebebeb !important;
+}
+
+.light-theme .nav-child-item.active-link {
+  background-color: #e3f2fd !important;
+  color: #1976d2 !important;
 }
 
 /* Dark Theme Overrides */
@@ -127,6 +184,144 @@ mat-icon[matListItemIcon] {
 .dark-theme .nav-child-item.active-link {
   background-color: #424242 !important;
   color: #7986cb !important;
+}
+
+/* Blue Theme Overrides */
+.blue-theme .sidenav {
+  background-color: #e3f2fd !important;
+  border-right: 1px solid #90caf9 !important;
+  color: #0d47a1;
+}
+
+.blue-theme .sidenav-list {
+  background-color: #e3f2fd;
+}
+
+.blue-theme .nav-header {
+  background-color: #1976d2;
+}
+
+.blue-theme .nav-item {
+  color: #0d47a1 !important;
+}
+
+.blue-theme .nav-item:hover {
+  background-color: #bbdefb !important;
+}
+
+.blue-theme .nav-item.active-link {
+  background-color: #90caf9 !important;
+  color: #0d47a1 !important;
+  border-right: 3px solid #0d47a1 !important;
+}
+
+.blue-theme .nav-children {
+  background-color: #e3f2fd;
+}
+
+.blue-theme .nav-child-item {
+  color: #0d47a1 !important;
+}
+
+.blue-theme .nav-child-item:hover {
+  background-color: #bbdefb !important;
+}
+
+.blue-theme .nav-child-item.active-link {
+  background-color: #90caf9 !important;
+  color: #0d47a1 !important;
+}
+
+/* Green Theme Overrides */
+.green-theme .sidenav {
+  background-color: #e8f5e9 !important;
+  border-right: 1px solid #a5d6a7 !important;
+  color: #1b5e20;
+}
+
+.green-theme .sidenav-list {
+  background-color: #e8f5e9;
+}
+
+.green-theme .nav-header {
+  background-color: #4caf50;
+}
+
+.green-theme .nav-item {
+  color: #1b5e20 !important;
+}
+
+.green-theme .nav-item:hover {
+  background-color: #c8e6c9 !important;
+}
+
+.green-theme .nav-item.active-link {
+  background-color: #a5d6a7 !important;
+  color: #1b5e20 !important;
+  border-right: 3px solid #1b5e20 !important;
+}
+
+.green-theme .nav-children {
+  background-color: #e8f5e9;
+}
+
+.green-theme .nav-child-item {
+  color: #1b5e20 !important;
+}
+
+.green-theme .nav-child-item:hover {
+  background-color: #c8e6c9 !important;
+}
+
+.green-theme .nav-child-item.active-link {
+  background-color: #a5d6a7 !important;
+  color: #1b5e20 !important;
+}
+
+/* Purple Theme Overrides */
+.purple-theme .sidenav {
+  background-color: #f3e5f5 !important;
+  border-right: 1px solid #ce93d8 !important;
+  color: #4a148c;
+}
+
+.purple-theme .sidenav-list {
+  background-color: #f3e5f5;
+}
+
+.purple-theme .nav-header {
+  background-color: #9c27b0;
+}
+
+.purple-theme .nav-item {
+  color: #4a148c !important;
+}
+
+.purple-theme .nav-item:hover {
+  background-color: #e1bee7 !important;
+}
+
+.purple-theme .nav-item.active-link {
+  background-color: #ce93d8 !important;
+  color: #4a148c !important;
+  border-right: 3px solid #4a148c !important;
+}
+
+.purple-theme .nav-children {
+  background-color: #f3e5f5;
+}
+
+.purple-theme .nav-child-item {
+  color: #4a148c !important;
+}
+
+.purple-theme .nav-child-item:hover {
+  background-color: #e1bee7 !important;
+}
+
+.purple-theme .nav-child-item.active-link {
+  background-color: #ce93d8 !important;
+  color: #4a148c !important;
 }
 
 /* Mobile styles */

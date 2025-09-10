@@ -44,22 +44,16 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
-import { UnauthorizedComponent } from './shared/components/unauthorized/unauthorized.component';
-import { NotFoundComponent } from './shared/components/not-found/not-found.component';
 import { ProfileComponent } from './features/auth/profile/profile.component';
 
-// Layout Components
-import { HeaderComponent } from './shared/components/layout/header/header.component';
-import { SidenavComponent } from './shared/components/layout/sidenav/sidenav.component';
-
-// Shared Components
-import { ConfirmationDialogComponent } from './shared/components/confirmation-dialog/confirmation-dialog.component';
+// Shared Components Module
+import { SharedComponentsModule } from './shared/components/shared-components.module';
 
 // Shared Services
 import { PaginatorI18nService } from './shared/services/paginator-i18n.service';
 
 // Shared Module
-import { SharedModule } from './shared/shared.module'; // Added SharedModule
+import { SharedModule } from './shared/shared.module';
 
 // Interceptors
 import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
@@ -71,12 +65,9 @@ import { ErrorHandlingInterceptor } from './core/interceptors/error-handling.int
     LoginComponent,
     RegisterComponent,
     DashboardComponent,
-    UnauthorizedComponent,
-    NotFoundComponent,
-    ProfileComponent,
-    HeaderComponent,
-    SidenavComponent,
-    ConfirmationDialogComponent
+    ProfileComponent
+    // Removed ThemeTestComponent, ThemeDebugComponent, and ThemeTroubleshootComponent
+    // as they are declared in SharedComponentsModule
   ],
   imports: [
     BrowserModule,
@@ -86,7 +77,8 @@ import { ErrorHandlingInterceptor } from './core/interceptors/error-handling.int
     FormsModule,
     RouterModule.forRoot([]),
     AppRoutingModule,
-    SharedModule, // Added SharedModule
+    SharedModule,
+    SharedComponentsModule,
     
     // Angular Material Modules
     MatToolbarModule,

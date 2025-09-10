@@ -14,6 +14,10 @@ import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { UnauthorizedComponent } from './shared/components/unauthorized/unauthorized.component';
 import { NotFoundComponent } from './shared/components/not-found/not-found.component';
 import { ProfileComponent } from './features/auth/profile/profile.component';
+import { ThemeTestComponent } from './theme-test.component'; // Added ThemeTestComponent
+import { ThemeDebugComponent } from './theme-debug.component'; // Added ThemeDebugComponent
+import { ThemeTroubleshootComponent } from './theme-troubleshoot.component'; // Added ThemeTroubleshootComponent
+import { ThemeQuickTestComponent } from './theme-quick-test.component'; // Added ThemeQuickTestComponent
 
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -65,6 +69,10 @@ const routes: Routes = [
     loadChildren: () => import('./features/correspondent-requests/correspondent-requests.module').then(m => m.CorrespondentRequestsModule),
     canActivate: [CorrespondenteGuard]
   },
+  { path: 'theme-test', component: ThemeTestComponent }, // Added theme test route
+  { path: 'theme-debug', component: ThemeDebugComponent }, // Added theme debug route
+  { path: 'theme-troubleshoot', component: ThemeTroubleshootComponent }, // Added theme troubleshoot route
+  { path: 'theme-quick-test', component: ThemeQuickTestComponent }, // Added theme quick test route
   { path: 'unauthorized', component: UnauthorizedComponent },
   { path: '**', component: NotFoundComponent }
 ];

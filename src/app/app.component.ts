@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
+import { Component, OnInit, ViewChild, HostListener, AfterViewInit } from '@angular/core';
 import { AuthService } from './core/services/auth.service';
 import { ThemeService } from './core/services/theme.service';
 import { Router } from '@angular/router';
@@ -9,7 +9,7 @@ import { MatSidenav } from '@angular/material/sidenav';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
   title = 'CRA - Sistema de Correspondentes';
   
   @ViewChild('sidenav') sidenav!: MatSidenav;
@@ -25,6 +25,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    console.log('AppComponent: ngOnInit called');
     // Initialize theme
     // Theme is now initialized in the service constructor
     
@@ -41,6 +42,19 @@ export class AppComponent implements OnInit {
         }
       });
     }
+    
+    // Listen for theme changes
+    window.addEventListener('themeChanged', (event: Event) => {
+      const customEvent = event as CustomEvent;
+      console.log('AppComponent: Theme changed to', customEvent.detail);
+    });
+  }
+  
+  ngAfterViewInit(): void {
+    // Initialize sidenav after view is ready
+    setTimeout(() => {
+      this.checkScreenSize();
+    }, 0);
   }
   
   @HostListener('window:resize', ['$event'])
@@ -65,9 +79,16 @@ export class AppComponent implements OnInit {
   }
   
   toggleSidenav(): void {
+    console.log('Toggling sidenav');
+    console.log('Sidenav reference:', this.sidenav);
     if (this.sidenav) {
+      console.log('Sidenav mode:', this.sidenav.mode);
+      console.log('Sidenav opened:', this.sidenav.opened);
       this.sidenav.toggle();
       this.isSidenavOpen = !this.isSidenavOpen;
+      console.log('Sidenav is now:', this.isSidenavOpen ? 'open' : 'closed');
+    } else {
+      console.log('Sidenav reference is not available');
     }
   }
 }

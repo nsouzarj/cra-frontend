@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Functionality Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            margin: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1, h2 {
+            color: #333;
+        }
+        
+        .theme-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f5f5f5;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .theme-info {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        /* Theme styles */
+        .light-theme {
+            background-color: #fafafa;
+            color: #333333;
+        }
+        
+        .light-theme .theme-info {
+            background-color: #f5f5f5;
+            border-color: #e0e0e0;
+        }
+        
+        .dark-theme {
+            background-color: #121212;
+            color: #ffffff;
+        }
+        
+        .dark-theme .theme-info {
+            background-color: #1e1e1e;
+            border-color: #424242;
+        }
+        
+        .dark-theme button {
+            background-color: #2d2d2d;
+            color: #ffffff;
+            border-color: #424242;
+        }
+        
+        .dark-theme button:hover {
+            background-color: #3d3d3d;
+        }
+        
+        .blue-theme {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+        
+        .blue-theme .theme-info {
+            background-color: #bbdefb;
+            border-color: #90caf9;
+        }
+        
+        .green-theme {
+            background-color: #e8f5e9;
+            color: #1b5e20;
+        }
+        
+        .green-theme .theme-info {
+            background-color: #c8e6c9;
+            border-color: #a5d6a7;
+        }
+        
+        .purple-theme {
+            background-color: #f3e5f5;
+            color: #4a148c;
+        }
+        
+        .purple-theme .theme-info {
+            background-color: #e1bee7;
+            border-color: #ce93d8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Theme Functionality Test</h1>
+        
+        <div class="theme-buttons">
+            <button onclick="setTheme('light')">Light Theme</button>
+            <button onclick="setTheme('dark')">Dark Theme</button>
+            <button onclick="setTheme('blue')">Blue Theme</button>
+            <button onclick="setTheme('green')">Green Theme</button>
+            <button onclick="setTheme('purple')">Purple Theme</button>
+            <button onclick="testAllThemes()">Test All Themes</button>
+        </div>
+        
+        <div class="theme-info">
+            <h2>Current Theme Information</h2>
+            <p>Current Theme: <span id="current-theme">Not set</span></p>
+            <p>Body Classes: <span id="body-classes">None</span></p>
+            <p>System Preference (Dark): <span id="system-preference">Unknown</span></p>
+        </div>
+        
+        <div class="theme-info">
+            <h2>Test Results</h2>
+            <div id="test-results">
+                <p>Click "Test All Themes" to run the test.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management functions
+        function setTheme(theme) {
+            // Remove all theme classes
+            document.body.classList.remove('light-theme', 'dark-theme', 'blue-theme', 'green-theme', 'purple-theme');
+            
+            // Add the selected theme class
+            document.body.classList.add(theme + '-theme');
+            
+            // Update display
+            document.getElementById('current-theme').textContent = theme;
+            document.getElementById('body-classes').textContent = Array.from(document.body.classList).join(', ');
+            
+            // Save to localStorage
+            localStorage.setItem('theme', theme);
+            
+            console.log(`Theme set to: ${theme}`);
+        }
+        
+        function getCurrentTheme() {
+            // Check localStorage first
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                return savedTheme;
+            }
+            
+            // Check system preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                return 'dark';
+            }
+            
+            // Default to light
+            return 'light';
+        }
+        
+        function getAvailableThemes() {
+            return [
+                { value: 'light', label: 'Claro' },
+                { value: 'dark', label: 'Escuro' },
+                { value: 'blue', label: 'Azul' },
+                { value: 'green', label: 'Verde' },
+                { value: 'purple', label: 'Roxo' }
+            ];
+        }
+        
+        function isValidTheme(theme) {
+            return ['light', 'dark', 'blue', 'green', 'purple'].includes(theme);
+        }
+        
+        function loadSavedTheme() {
+            const theme = getCurrentTheme();
+            setTheme(theme);
+            
+            // Update system preference display
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.getElementById('system-preference').textContent = prefersDark ? 'Yes' : 'No';
+        }
+        
+        function testAllThemes() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<p>Testing all themes...</p>';
+            
+            const themes = getAvailableThemes();
+            let results = '<ul>';
+            
+            themes.forEach(theme => {
+                try {
+                    setTheme(theme.value);
+                    results += `<li>✓ Theme "${theme.label}" (${theme.value}) applied successfully</li>`;
+                } catch (error) {
+                    results += `<li>✗ Error applying theme "${theme.label}" (${theme.value}): ${error.message}</li>`;
+                }
+            });
+            
+            results += '</ul>';
+            resultsDiv.innerHTML = results;
+            
+            // Restore the original theme
+            const originalTheme = getCurrentTheme();
+            setTheme(originalTheme);
+        }
+        
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSavedTheme();
+        });
+    </script>
+</body>
+</html>

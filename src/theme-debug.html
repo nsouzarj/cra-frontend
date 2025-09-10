@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Theme Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            margin: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .theme-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f5f5f5;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .debug-info {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        /* Theme styles */
+        .light-theme {
+            background-color: #fafafa;
+            color: #333333;
+        }
+        
+        .dark-theme {
+            background-color: #121212;
+            color: #ffffff;
+        }
+        
+        .blue-theme {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+        
+        .green-theme {
+            background-color: #e8f5e9;
+            color: #1b5e20;
+        }
+        
+        .purple-theme {
+            background-color: #f3e5f5;
+            color: #4a148c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Theme Debug Test</h1>
+        
+        <div class="theme-buttons">
+            <button onclick="setTheme('light')">Light Theme</button>
+            <button onclick="setTheme('dark')">Dark Theme</button>
+            <button onclick="setTheme('blue')">Blue Theme</button>
+            <button onclick="setTheme('green')">Green Theme</button>
+            <button onclick="setTheme('purple')">Purple Theme</button>
+            <button onclick="checkCurrentTheme()">Check Current Theme</button>
+        </div>
+        
+        <div class="debug-info">
+            <h2>Debug Information</h2>
+            <p>Current Theme: <span id="current-theme">Not set</span></p>
+            <p>Body Classes: <span id="body-classes">None</span></p>
+            <p>LocalStorage Theme: <span id="local-storage-theme">None</span></p>
+            <div id="debug-output"></div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management functions
+        function setTheme(theme) {
+            console.log('Setting theme to:', theme);
+            
+            // Remove all theme classes
+            document.body.classList.remove('light-theme', 'dark-theme', 'blue-theme', 'green-theme', 'purple-theme');
+            
+            // Add the selected theme class
+            document.body.classList.add(theme + '-theme');
+            
+            // Update display
+            document.getElementById('current-theme').textContent = theme;
+            document.getElementById('body-classes').textContent = Array.from(document.body.classList).join(', ');
+            
+            // Save to localStorage
+            localStorage.setItem('theme', theme);
+            document.getElementById('local-storage-theme').textContent = localStorage.getItem('theme') || 'None';
+            
+            console.log('Theme set to:', theme);
+            addDebugMessage(`Theme set to: ${theme}`);
+        }
+        
+        function getCurrentTheme() {
+            // Check localStorage first
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                return savedTheme;
+            }
+            
+            // Check system preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                return 'dark';
+            }
+            
+            // Default to light
+            return 'light';
+        }
+        
+        function checkCurrentTheme() {
+            const currentTheme = getCurrentTheme();
+            document.getElementById('current-theme').textContent = currentTheme;
+            document.getElementById('body-classes').textContent = Array.from(document.body.classList).join(', ');
+            document.getElementById('local-storage-theme').textContent = localStorage.getItem('theme') || 'None';
+            
+            addDebugMessage(`Current theme check: ${currentTheme}`);
+        }
+        
+        function addDebugMessage(message) {
+            const debugOutput = document.getElementById('debug-output');
+            const timestamp = new Date().toLocaleTimeString();
+            debugOutput.innerHTML += `<p>[${timestamp}] ${message}</p>`;
+            debugOutput.scrollTop = debugOutput.scrollHeight;
+        }
+        
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing theme');
+            const theme = getCurrentTheme();
+            setTheme(theme);
+            addDebugMessage('Page loaded, theme initialized');
+        });
+        
+        // Listen for theme changes
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'theme') {
+                console.log('Theme changed in another tab:', e.newValue);
+                addDebugMessage(`Theme changed in another tab: ${e.newValue}`);
+                if (e.newValue) {
+                    setTheme(e.newValue);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

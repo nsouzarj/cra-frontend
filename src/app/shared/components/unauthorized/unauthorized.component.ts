@@ -1,21 +1,28 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { User } from '../../../shared/models/user.model';
 
 @Component({
   selector: 'app-unauthorized',
   templateUrl: './unauthorized.component.html',
   styleUrls: ['./unauthorized.component.scss']
 })
-export class UnauthorizedComponent {
+export class UnauthorizedComponent implements OnInit {
+  
+  currentUser: User | null = null;
   
   constructor(
     public authService: AuthService,
     private router: Router
   ) {}
 
+  ngOnInit(): void {
+    this.currentUser = this.authService.currentUserValue;
+  }
+
   getUserRoleText(): string {
-    const user = this.authService.currentUserValue;
+    const user = this.currentUser;
     
     // Check if we have a user
     if (!user) {

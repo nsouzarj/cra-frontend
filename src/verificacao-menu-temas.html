@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verificação de Menu e Temas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            margin: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .theme-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f5f5f5;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .verification-info {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        /* Theme styles */
+        .light-theme {
+            background-color: #fafafa;
+            color: #333333;
+        }
+        
+        .dark-theme {
+            background-color: #121212;
+            color: #ffffff;
+        }
+        
+        .blue-theme {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+        
+        .green-theme {
+            background-color: #e8f5e9;
+            color: #1b5e20;
+        }
+        
+        .purple-theme {
+            background-color: #f3e5f5;
+            color: #4a148c;
+        }
+        
+        /* Sidenav simulation */
+        .sidenav-container {
+            display: flex;
+            height: 300px;
+            margin: 20px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .sidenav {
+            width: 200px;
+            background-color: #f5f5f5;
+            padding: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .sidenav.closed {
+            width: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 10px;
+            background-color: #fff;
+        }
+        
+        .sidenav-toggle {
+            margin: 10px 0;
+        }
+        
+        /* Menu simulation */
+        .menu-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .menu-button {
+            padding: 10px 15px;
+            background-color: #3f51b5;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            min-width: 200px;
+        }
+        
+        .menu.open {
+            display: block;
+        }
+        
+        .menu-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .menu-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .menu-item.selected {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        /* Collapsible menu items */
+        .collapsible-item {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: #f0f0f0;
+        }
+        
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .collapsible-content.expanded {
+            max-height: 200px;
+        }
+        
+        .sub-item {
+            padding: 8px 15px 8px 30px;
+            cursor: pointer;
+        }
+        
+        .sub-item:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Verificação de Menu e Temas</h1>
+        
+        <div class="theme-buttons">
+            <button onclick="setTheme('light')">Tema Claro</button>
+            <button onclick="setTheme('dark')">Tema Escuro</button>
+            <button onclick="setTheme('blue')">Tema Azul</button>
+            <button onclick="setTheme('green')">Tema Verde</button>
+            <button onclick="setTheme('purple')">Tema Roxo</button>
+            <button onclick="checkCurrentState()">Verificar Estado Atual</button>
+        </div>
+        
+        <div class="sidenav-toggle">
+            <button onclick="toggleSidenav()">Alternar Sidenav</button>
+        </div>
+        
+        <div class="menu-container">
+            <button class="menu-button" onclick="toggleMenu()">Selecionar Tema</button>
+            <div class="menu" id="themeMenu">
+                <div class="menu-item" onclick="selectTheme('light')">
+                    <span>Claro</span>
+                </div>
+                <div class="menu-item" onclick="selectTheme('dark')">
+                    <span>Escuro</span>
+                </div>
+                <div class="menu-item" onclick="selectTheme('blue')">
+                    <span>Azul</span>
+                </div>
+                <div class="menu-item" onclick="selectTheme('green')">
+                    <span>Verde</span>
+                </div>
+                <div class="menu-item" onclick="selectTheme('purple')">
+                    <span>Roxo</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sidenav-container">
+            <div class="sidenav" id="sidenav">
+                <h3>Menu de Navegação</h3>
+                <div class="collapsible-item" onclick="toggleCollapsible(this)">
+                    <span>Usuários</span>
+                    <span>▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="sub-item">Listar Usuários</div>
+                    <div class="sub-item">Adicionar Usuário</div>
+                </div>
+                
+                <div class="collapsible-item" onclick="toggleCollapsible(this)">
+                    <span>Configurações</span>
+                    <span>▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="sub-item">Preferências</div>
+                    <div class="sub-item">Temas</div>
+                </div>
+                
+                <div class="menu-item">Dashboard</div>
+                <div class="menu-item">Perfil</div>
+            </div>
+            <div class="main-content">
+                <h3>Conteúdo Principal</h3>
+                <p>Esta é a área de conteúdo principal. O menu lateral pode ser alternado usando o botão acima.</p>
+                <p>O menu de temas pode ser aberto clicando no botão "Selecionar Tema".</p>
+            </div>
+        </div>
+        
+        <div class="verification-info">
+            <h2>Informações de Verificação</h2>
+            <p>Tema Atual: <span id="current-theme">Não definido</span></p>
+            <p>Classes do Body: <span id="body-classes">Nenhuma</span></p>
+            <p>Tema no LocalStorage: <span id="local-storage-theme">Nenhum</span></p>
+            <p>Estado do Sidenav: <span id="sidenav-state">Aberto</span></p>
+            <div id="verification-output"></div>
+        </div>
+    </div>
+
+    <script>
+        let isSidenavOpen = true;
+        let currentTheme = 'light';
+        let menuOpen = false;
+        
+        // Theme management functions
+        function setTheme(theme) {
+            console.log('Definindo tema para:', theme);
+            
+            // Remove all theme classes
+            document.body.classList.remove('light-theme', 'dark-theme', 'blue-theme', 'green-theme', 'purple-theme');
+            
+            // Add the selected theme class
+            document.body.classList.add(theme + '-theme');
+            
+            // Update display
+            document.getElementById('current-theme').textContent = theme;
+            document.getElementById('body-classes').textContent = Array.from(document.body.classList).join(', ');
+            
+            // Save to localStorage
+            localStorage.setItem('theme', theme);
+            document.getElementById('local-storage-theme').textContent = localStorage.getItem('theme') || 'Nenhum';
+            
+            currentTheme = theme;
+            console.log('Tema definido para:', theme);
+            addVerificationMessage(`Tema definido para: ${theme}`);
+            
+            // Update menu item selection
+            updateMenuSelection(theme);
+        }
+        
+        function selectTheme(theme) {
+            setTheme(theme);
+            closeMenu();
+        }
+        
+        function getCurrentTheme() {
+            // Check localStorage first
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                return savedTheme;
+            }
+            
+            // Check system preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                return 'dark';
+            }
+            
+            // Default to light
+            return 'light';
+        }
+        
+        function toggleSidenav() {
+            const sidenav = document.getElementById('sidenav');
+            isSidenavOpen = !isSidenavOpen;
+            
+            if (isSidenavOpen) {
+                sidenav.classList.remove('closed');
+                document.getElementById('sidenav-state').textContent = 'Aberto';
+            } else {
+                sidenav.classList.add('closed');
+                document.getElementById('sidenav-state').textContent = 'Fechado';
+            }
+            
+            addVerificationMessage(`Sidenav alternado: ${isSidenavOpen ? 'Aberto' : 'Fechado'}`);
+        }
+        
+        function toggleMenu() {
+            const menu = document.getElementById('themeMenu');
+            menuOpen = !menuOpen;
+            
+            if (menuOpen) {
+                menu.classList.add('open');
+            } else {
+                menu.classList.remove('open');
+            }
+        }
+        
+        function closeMenu() {
+            const menu = document.getElementById('themeMenu');
+            menu.classList.remove('open');
+            menuOpen = false;
+        }
+        
+        function updateMenuSelection(theme) {
+            // Remove selected class from all menu items
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Add selected class to the current theme item
+            const currentItem = Array.from(menuItems).find(item => 
+                item.textContent.trim() === getThemeLabel(theme)
+            );
+            
+            if (currentItem) {
+                currentItem.classList.add('selected');
+            }
+        }
+        
+        function getThemeLabel(theme) {
+            const labels = {
+                'light': 'Claro',
+                'dark': 'Escuro',
+                'blue': 'Azul',
+                'green': 'Verde',
+                'purple': 'Roxo'
+            };
+            return labels[theme] || theme;
+        }
+        
+        function toggleCollapsible(element) {
+            const content = element.nextElementSibling;
+            content.classList.toggle('expanded');
+            
+            // Toggle arrow icon
+            const arrow = element.querySelector('span:last-child');
+            if (content.classList.contains('expanded')) {
+                arrow.textContent = '▲';
+            } else {
+                arrow.textContent = '▼';
+            }
+        }
+        
+        function checkCurrentState() {
+            const theme = getCurrentTheme();
+            document.getElementById('current-theme').textContent = theme;
+            document.getElementById('body-classes').textContent = Array.from(document.body.classList).join(', ');
+            document.getElementById('local-storage-theme').textContent = localStorage.getItem('theme') || 'Nenhum';
+            document.getElementById('sidenav-state').textContent = isSidenavOpen ? 'Aberto' : 'Fechado';
+            
+            addVerificationMessage(`Estado verificado - Tema: ${theme}, Sidenav: ${isSidenavOpen ? 'Aberto' : 'Fechado'}`);
+        }
+        
+        function addVerificationMessage(message) {
+            const verificationOutput = document.getElementById('verification-output');
+            const timestamp = new Date().toLocaleTimeString();
+            verificationOutput.innerHTML += `<p>[${timestamp}] ${message}</p>`;
+            verificationOutput.scrollTop = verificationOutput.scrollHeight;
+        }
+        
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM carregado, inicializando tema');
+            const theme = getCurrentTheme();
+            setTheme(theme);
+            addVerificationMessage('Página carregada, tema inicializado');
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('themeMenu');
+            const menuButton = document.querySelector('.menu-button');
+            
+            if (menuOpen && !menu.contains(event.target) && event.target !== menuButton) {
+                closeMenu();
+            }
+        });
+        
+        // Listen for theme changes
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'theme') {
+                console.log('Tema alterado em outra aba:', e.newValue);
+                addVerificationMessage(`Tema alterado em outra aba: ${e.newValue}`);
+                if (e.newValue) {
+                    setTheme(e.newValue);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

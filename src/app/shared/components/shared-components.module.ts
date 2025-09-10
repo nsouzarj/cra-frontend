@@ -1,0 +1,87 @@
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+// Angular Material Modules
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialogModule } from '@angular/material/dialog';
+
+// Components
+import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
+import { NotFoundComponent } from './not-found/not-found.component';
+import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
+import { HeaderComponent } from './layout/header/header.component';
+import { SidenavComponent } from './layout/sidenav/sidenav.component';
+import { ThemeTestComponent } from '../../theme-test.component';
+import { ThemeDebugComponent } from '../../theme-debug.component';
+import { ThemeTroubleshootComponent } from '../../theme-troubleshoot.component';
+import { ThemeQuickTestComponent } from '../../theme-quick-test.component';
+
+@NgModule({
+  declarations: [
+    UnauthorizedComponent,
+    NotFoundComponent,
+    ConfirmationDialogComponent,
+    HeaderComponent,
+    SidenavComponent,
+    ThemeTestComponent,
+    ThemeDebugComponent,
+    ThemeTroubleshootComponent,
+    ThemeQuickTestComponent
+  ],
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    ReactiveFormsModule,
+    // Angular Material Modules
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatListModule,
+    MatMenuModule,
+    MatDividerModule,
+    MatSelectModule,
+    MatOptionModule,
+    MatFormFieldModule,
+    MatDialogModule
+  ],
+  exports: [
+    UnauthorizedComponent,
+    NotFoundComponent,
+    ConfirmationDialogComponent,
+    HeaderComponent,
+    SidenavComponent,
+    ThemeTestComponent,
+    ThemeDebugComponent,
+    ThemeTroubleshootComponent,
+    ThemeQuickTestComponent,
+    // Angular Material Modules
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatListModule,
+    MatMenuModule,
+    MatDividerModule,
+    MatSelectModule,
+    MatOptionModule,
+    MatFormFieldModule,
+    MatDialogModule
+  ]
+})
+export class SharedComponentsModule { }

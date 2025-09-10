@@ -1,5 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
-@import '@angular/material/prebuilt-themes/indigo-pink.css';
+/* Comment out the prebuilt theme to avoid conflicts with our custom themes */
+/* @import '@angular/material/prebuilt-themes/indigo-pink.css'; */
 
 /* Import Roboto font */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
@@ -249,152 +250,161 @@ html, body {
   color: #f44336;
 }
 
-/* Confirmation Dialog Styles */
-.confirmation-dialog {
-  min-width: 400px;
-}
-
-.confirmation-dialog .mat-dialog-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #d32f2f;
-}
-
-.confirmation-dialog .mat-dialog-content {
-  padding-top: 16px;
-}
-
-.confirmation-dialog .mat-dialog-actions {
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 16px 0 0 0;
-}
-
-/* Data Import/Export Styles */
-.import-export-container {
-  border: 2px dashed #e0e0e0;
-  border-radius: 8px;
-  padding: 32px;
-  text-align: center;
-  margin: 16px 0;
-  transition: border-color 0.3s ease;
-}
-
-.import-export-container:hover {
-  border-color: #2196f3;
-}
-
-.import-export-container.dragover {
-  border-color: #4caf50;
-  background-color: #f1f8e9;
-}
-
-/* Accessibility Improvements */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-/* Focus Management */
-.skip-link {
-  position: absolute;
-  top: -40px;
-  left: 6px;
-  background: #000;
-  color: #fff;
-  padding: 8px;
-  text-decoration: none;
-  border-radius: 4px;
-  z-index: 10000;
-}
-
-.skip-link:focus {
-  top: 6px;
-}
-
-/* High Contrast Mode Support */
-@media (prefers-contrast: high) {
-  .mat-card {
-    border: 2px solid;
+/* Light Theme (Default) */
+.light-theme {
+  /* Background colors */
+  background-color: #fafafa !important;
+  color: #333333;
+  
+  .main-content {
+    background-color: #f5f5f5 !important;
   }
   
-  .mat-button, .mat-raised-button {
-    border: 2px solid;
-  }
-}
-
-/* Reduced Motion Support */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* Responsive Utilities */
-@media (max-width: 768px) {
   .content-container {
-    padding: 16px;
+    background-color: #ffffff;
+    color: #333333;
   }
   
-  .form-container {
-    padding: 16px;
-    max-width: 100%;
+  /* Sidenav styles */
+  .sidenav {
+    background-color: #fafafa !important;
+    border-right: 1px solid #e0e0e0 !important;
+    color: #333333;
   }
   
-  .search-container {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
+  .sidenav-list {
+    background-color: #fafafa;
   }
   
-  .search-field {
-    min-width: unset;
+  .nav-header {
+    background-color: #3f51b5;
+    color: #ffffff;
+  }
+  
+  .nav-item {
+    color: #333333 !important;
+  }
+  
+  .nav-item:hover {
+    background-color: #ebebeb !important;
+  }
+  
+  .nav-item.active-link {
+    background-color: #e3f2fd !important;
+    color: #1976d2 !important;
+    border-right: 3px solid #1976d2 !important;
+  }
+  
+  .nav-child-item {
+    color: #333333 !important;
+    background-color: #fafafa !important;
+  }
+  
+  .nav-child-item:hover {
+    background-color: #ebebeb !important;
+  }
+  
+  .nav-child-item.active-link {
+    background-color: #e3f2fd !important;
+    color: #1976d2 !important;
+  }
+  
+  /* Tables */
+  .data-table {
+    background-color: #ffffff;
+    color: #333333;
   }
   
   .table-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
+    background-color: #f5f5f5;
+    color: #333333;
   }
   
-  .action-buttons {
-    gap: 4px;
-  }
-}
-
-@media (max-width: 480px) {
-  .content-container {
-    padding: 12px;
+  .mat-row {
+    background-color: #ffffff;
   }
   
-  .form-container {
-    padding: 12px;
+  .mat-row:nth-child(even) {
+    background-color: #fafafa;
   }
   
-  .form-field {
-    margin-bottom: 12px;
+  .mat-cell, .mat-header-cell {
+    color: #333333;
   }
   
-  .button-container {
-    margin-top: 16px;
+  /* Cards */
+  .mat-card {
+    background-color: #ffffff;
+    color: #333333;
   }
   
+  /* Dialogs */
   .mat-dialog-container {
-    padding: 16px;
+    background-color: #ffffff;
+    color: #333333;
   }
   
-  .confirmation-dialog {
-    min-width: 90vw;
+  /* Buttons */
+  .mat-raised-button, .mat-button, .mat-icon-button {
+    background-color: #ffffff;
+    color: #333333;
+  }
+  
+  .mat-raised-button:hover, .mat-button:hover {
+    background-color: #f5f5f5;
+  }
+  
+  /* Menu items */
+  .user-info {
+    background-color: #f5f5f5;
+  }
+  
+  .user-name {
+    color: #333333;
+  }
+  
+  .user-email {
+    color: #666666;
+  }
+  
+  .user-role {
+    color: #3f51b5;
+  }
+  
+  /* Snackbar colors remain the same */
+  .error-snackbar {
+    background-color: #f44336 !important;
+  }
+  
+  .success-snackbar {
+    background-color: #4caf50 !important;
+  }
+  
+  .info-snackbar {
+    background-color: #2196f3 !important;
+  }
+  
+  .warning-snackbar {
+    background-color: #ff9800 !important;
+  }
+  
+  /* Ensure all headers maintain proper styling */
+  .app-header {
+    background-color: #3f51b5 !important;
+  }
+  
+  .app-title {
+    color: #ffffff !important;
+  }
+  
+  .user-welcome {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+  
+  /* Ensure mat-toolbar maintains proper styling */
+  .mat-toolbar {
+    background-color: #3f51b5 !important;
+    color: #ffffff !important;
   }
 }
 
@@ -598,64 +608,496 @@ html, body {
   .mat-input-element::placeholder {
     color: #333333 !important;
   }
+}
+
+/* Blue Theme Styles */
+.blue-theme {
+  /* Background colors */
+  background-color: #e3f2fd !important;
+  color: #0d47a1;
   
-  .mat-form-field-placeholder {
-    color: #333333 !important;
+  .main-content {
+    background-color: #bbdefb !important;
   }
   
-  /* Keep form validation styles */
-  .form-validation-errors {
-    background-color: #ffebee;
-    border: 1px solid #f44336;
-    color: #333333;
+  .content-container {
+    background-color: #ffffff;
+    color: #0d47a1;
   }
   
-  .form-validation-errors h4 {
-    color: #d32f2f;
+  /* Sidenav styles */
+  .sidenav {
+    background-color: #e3f2fd !important;
+    border-right: 1px solid #90caf9 !important;
+    color: #0d47a1;
   }
   
-  .form-validation-errors ul {
-    color: #d32f2f;
+  .sidenav-list {
+    background-color: #e3f2fd;
   }
   
-  /* Keep password strength indicator */
-  .password-strength-bar {
-    background-color: #e0e0e0;
+  .nav-header {
+    background-color: #1976d2;
+    color: #ffffff;
   }
   
-  .password-requirements {
-    color: #666;
+  .nav-item {
+    color: #0d47a1 !important;
   }
   
-  .password-requirements li.met {
+  .nav-item:hover {
+    background-color: #bbdefb !important;
+  }
+  
+  .nav-item.active-link {
+    background-color: #90caf9 !important;
+    color: #0d47a1 !important;
+    border-right: 3px solid #0d47a1 !important;
+  }
+  
+  .nav-child-item {
+    color: #0d47a1 !important;
+    background-color: #e3f2fd !important;
+  }
+  
+  .nav-child-item:hover {
+    background-color: #bbdefb !important;
+  }
+  
+  .nav-child-item.active-link {
+    background-color: #90caf9 !important;
+    color: #0d47a1 !important;
+  }
+  
+  /* Tables */
+  .data-table {
+    background-color: #ffffff;
+    color: #0d47a1;
+  }
+  
+  .table-header {
+    background-color: #bbdefb;
+    color: #0d47a1;
+  }
+  
+  .mat-row {
+    background-color: #ffffff;
+  }
+  
+  .mat-row:nth-child(even) {
+    background-color: #e3f2fd;
+  }
+  
+  .mat-cell, .mat-header-cell {
+    color: #0d47a1;
+  }
+  
+  /* Cards */
+  .mat-card {
+    background-color: #ffffff;
+    color: #0d47a1;
+    box-shadow: 0 2px 10px rgba(25, 118, 210, 0.2);
+  }
+  
+  /* Dialogs */
+  .mat-dialog-container {
+    background-color: #ffffff;
+    color: #0d47a1;
+  }
+  
+  /* Buttons */
+  .mat-raised-button, .mat-button, .mat-icon-button {
+    background-color: #ffffff;
+    color: #0d47a1;
+  }
+  
+  .mat-raised-button:hover, .mat-button:hover {
+    background-color: #bbdefb;
+  }
+  
+  /* Menu items */
+  .user-info {
+    background-color: #bbdefb;
+  }
+  
+  .user-name {
+    color: #0d47a1;
+  }
+  
+  .user-email {
+    color: #1565c0;
+  }
+  
+  .user-role {
+    color: #1976d2;
+  }
+  
+  /* Snackbar colors remain the same */
+  .error-snackbar {
+    background-color: #f44336 !important;
+  }
+  
+  .success-snackbar {
+    background-color: #4caf50 !important;
+  }
+  
+  .info-snackbar {
+    background-color: #2196f3 !important;
+  }
+  
+  .warning-snackbar {
+    background-color: #ff9800 !important;
+  }
+  
+  /* Ensure all headers maintain proper styling */
+  .app-header {
+    background-color: #1976d2 !important;
+  }
+  
+  .app-title {
+    color: #ffffff !important;
+  }
+  
+  .user-welcome {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+  
+  /* Ensure mat-toolbar maintains proper styling */
+  .mat-toolbar {
+    background-color: #1976d2 !important;
+    color: #ffffff !important;
+  }
+}
+
+/* Green Theme Styles */
+.green-theme {
+  /* Background colors */
+  background-color: #e8f5e9 !important;
+  color: #1b5e20;
+  
+  .main-content {
+    background-color: #c8e6c9 !important;
+  }
+  
+  .content-container {
+    background-color: #ffffff;
+    color: #1b5e20;
+  }
+  
+  /* Sidenav styles */
+  .sidenav {
+    background-color: #e8f5e9 !important;
+    border-right: 1px solid #a5d6a7 !important;
+    color: #1b5e20;
+  }
+  
+  .sidenav-list {
+    background-color: #e8f5e9;
+  }
+  
+  .nav-header {
+    background-color: #4caf50;
+    color: #ffffff;
+  }
+  
+  .nav-item {
+    color: #1b5e20 !important;
+  }
+  
+  .nav-item:hover {
+    background-color: #c8e6c9 !important;
+  }
+  
+  .nav-item.active-link {
+    background-color: #a5d6a7 !important;
+    color: #1b5e20 !important;
+    border-right: 3px solid #1b5e20 !important;
+  }
+  
+  .nav-child-item {
+    color: #1b5e20 !important;
+    background-color: #e8f5e9 !important;
+  }
+  
+  .nav-child-item:hover {
+    background-color: #c8e6c9 !important;
+  }
+  
+  .nav-child-item.active-link {
+    background-color: #a5d6a7 !important;
+    color: #1b5e20 !important;
+  }
+  
+  /* Tables */
+  .data-table {
+    background-color: #ffffff;
+    color: #1b5e20;
+  }
+  
+  .table-header {
+    background-color: #c8e6c9;
+    color: #1b5e20;
+  }
+  
+  .mat-row {
+    background-color: #ffffff;
+  }
+  
+  .mat-row:nth-child(even) {
+    background-color: #e8f5e9;
+  }
+  
+  .mat-cell, .mat-header-cell {
+    color: #1b5e20;
+  }
+  
+  /* Cards */
+  .mat-card {
+    background-color: #ffffff;
+    color: #1b5e20;
+    box-shadow: 0 2px 10px rgba(76, 175, 80, 0.2);
+  }
+  
+  /* Dialogs */
+  .mat-dialog-container {
+    background-color: #ffffff;
+    color: #1b5e20;
+  }
+  
+  /* Buttons */
+  .mat-raised-button, .mat-button, .mat-icon-button {
+    background-color: #ffffff;
+    color: #1b5e20;
+  }
+  
+  .mat-raised-button:hover, .mat-button:hover {
+    background-color: #c8e6c9;
+  }
+  
+  /* Menu items */
+  .user-info {
+    background-color: #c8e6c9;
+  }
+  
+  .user-name {
+    color: #1b5e20;
+  }
+  
+  .user-email {
+    color: #2e7d32;
+  }
+  
+  .user-role {
     color: #4caf50;
   }
   
-  .password-requirements li.unmet {
-    color: #f44336;
+  /* Snackbar colors remain the same */
+  .error-snackbar {
+    background-color: #f44336 !important;
   }
   
-  /* Keep action buttons/icons in light theme */
-  .action-buttons .mat-icon-button,
-  .action-buttons .mat-button,
-  .action-buttons .mat-raised-button {
-    background-color: #ffffff !important;
-    color: #333333 !important;
+  .success-snackbar {
+    background-color: #4caf50 !important;
   }
   
-  .action-buttons .mat-icon {
-    color: #333333 !important;
+  .info-snackbar {
+    background-color: #2196f3 !important;
   }
   
-  /* Keep table action icons in light theme */
-  .mat-row .mat-icon-button,
-  .mat-row .mat-button,
-  .mat-row .mat-raised-button {
-    background-color: #ffffff !important;
-    color: #333333 !important;
+  .warning-snackbar {
+    background-color: #ff9800 !important;
   }
   
-  .mat-row .mat-icon {
-    color: #333333 !important;
+  /* Ensure all headers maintain proper styling */
+  .app-header {
+    background-color: #4caf50 !important;
+  }
+  
+  .app-title {
+    color: #ffffff !important;
+  }
+  
+  .user-welcome {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+  
+  /* Ensure mat-toolbar maintains proper styling */
+  .mat-toolbar {
+    background-color: #4caf50 !important;
+    color: #ffffff !important;
+  }
+}
+
+/* Purple Theme Styles */
+.purple-theme {
+  /* Background colors */
+  background-color: #f3e5f5 !important;
+  color: #4a148c;
+  
+  .main-content {
+    background-color: #e1bee7 !important;
+  }
+  
+  .content-container {
+    background-color: #ffffff;
+    color: #4a148c;
+  }
+  
+  /* Sidenav styles */
+  .sidenav {
+    background-color: #f3e5f5 !important;
+    border-right: 1px solid #ce93d8 !important;
+    color: #4a148c;
+  }
+  
+  .sidenav-list {
+    background-color: #f3e5f5;
+  }
+  
+  .nav-header {
+    background-color: #9c27b0;
+    color: #ffffff;
+  }
+  
+  .nav-item {
+    color: #4a148c !important;
+  }
+  
+  .nav-item:hover {
+    background-color: #e1bee7 !important;
+  }
+  
+  .nav-item.active-link {
+    background-color: #ce93d8 !important;
+    color: #4a148c !important;
+    border-right: 3px solid #4a148c !important;
+  }
+  
+  .nav-child-item {
+    color: #4a148c !important;
+    background-color: #f3e5f5 !important;
+  }
+  
+  .nav-child-item:hover {
+    background-color: #e1bee7 !important;
+  }
+  
+  .nav-child-item.active-link {
+    background-color: #ce93d8 !important;
+    color: #4a148c !important;
+  }
+  
+  /* Tables */
+  .data-table {
+    background-color: #ffffff;
+    color: #4a148c;
+  }
+  
+  .table-header {
+    background-color: #e1bee7;
+    color: #4a148c;
+  }
+  
+  .mat-row {
+    background-color: #ffffff;
+  }
+  
+  .mat-row:nth-child(even) {
+    background-color: #f3e5f5;
+  }
+  
+  .mat-cell, .mat-header-cell {
+    color: #4a148c;
+  }
+  
+  /* Cards */
+  .mat-card {
+    background-color: #ffffff;
+    color: #4a148c;
+    box-shadow: 0 2px 10px rgba(156, 39, 176, 0.2);
+  }
+  
+  /* Dialogs */
+  .mat-dialog-container {
+    background-color: #ffffff;
+    color: #4a148c;
+  }
+  
+  /* Buttons */
+  .mat-raised-button, .mat-button, .mat-icon-button {
+    background-color: #ffffff;
+    color: #4a148c;
+  }
+  
+  .mat-raised-button:hover, .mat-button:hover {
+    background-color: #e1bee7;
+  }
+  
+  /* Menu items */
+  .user-info {
+    background-color: #e1bee7;
+  }
+  
+  .user-name {
+    color: #4a148c;
+  }
+  
+  .user-email {
+    color: #6a1b9a;
+  }
+  
+  .user-role {
+    color: #9c27b0;
+  }
+  
+  /* Snackbar colors remain the same */
+  .error-snackbar {
+    background-color: #f44336 !important;
+  }
+  
+  .success-snackbar {
+    background-color: #4caf50 !important;
+  }
+  
+  .info-snackbar {
+    background-color: #2196f3 !important;
+  }
+  
+  .warning-snackbar {
+    background-color: #ff9800 !important;
+  }
+  
+  /* Ensure all headers maintain proper styling */
+  .app-header {
+    background-color: #9c27b0 !important;
+  }
+  
+  .app-title {
+    color: #ffffff !important;
+  }
+  
+  .user-welcome {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+  
+  /* Ensure mat-toolbar maintains proper styling */
+  .mat-toolbar {
+    background-color: #9c27b0 !important;
+    color: #ffffff !important;
+  }
+}
+
+
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .content-container {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-container {
+    padding: 12px;
   }
 }

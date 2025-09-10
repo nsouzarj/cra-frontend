@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Theme and Sidenav Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            margin: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .theme-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f5f5f5;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .verification-info {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        /* Theme styles */
+        .light-theme {
+            background-color: #fafafa;
+            color: #333333;
+        }
+        
+        .dark-theme {
+            background-color: #121212;
+            color: #ffffff;
+        }
+        
+        .blue-theme {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+        
+        .green-theme {
+            background-color: #e8f5e9;
+            color: #1b5e20;
+        }
+        
+        .purple-theme {
+            background-color: #f3e5f5;
+            color: #4a148c;
+        }
+        
+        /* Sidenav simulation */
+        .sidenav-container {
+            display: flex;
+            height: 300px;
+            margin: 20px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .sidenav {
+            width: 200px;
+            background-color: #f5f5f5;
+            padding: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .sidenav.closed {
+            width: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 10px;
+            background-color: #fff;
+        }
+        
+        .sidenav-toggle {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Theme and Sidenav Verification</h1>
+        
+        <div class="theme-buttons">
+            <button onclick="setTheme('light')">Light Theme</button>
+            <button onclick="setTheme('dark')">Dark Theme</button>
+            <button onclick="setTheme('blue')">Blue Theme</button>
+            <button onclick="setTheme('green')">Green Theme</button>
+            <button onclick="setTheme('purple')">Purple Theme</button>
+            <button onclick="checkCurrentState()">Check Current State</button>
+        </div>
+        
+        <div class="sidenav-toggle">
+            <button onclick="toggleSidenav()">Toggle Sidenav</button>
+        </div>
+        
+        <div class="sidenav-container">
+            <div class="sidenav" id="sidenav">
+                <h3>Sidenav</h3>
+                <ul>
+                    <li>Dashboard</li>
+                    <li>Users</li>
+                    <li>Settings</li>
+                    <li>Profile</li>
+                </ul>
+            </div>
+            <div class="main-content">
+                <h3>Main Content</h3>
+                <p>This is the main content area. The sidenav can be toggled using the button above.</p>
+            </div>
+        </div>
+        
+        <div class="verification-info">
+            <h2>Verification Information</h2>
+            <p>Current Theme: <span id="current-theme">Not set</span></p>
+            <p>Body Classes: <span id="body-classes">None</span></p>
+            <p>LocalStorage Theme: <span id="local-storage-theme">None</span></p>
+            <p>Sidenav State: <span id="sidenav-state">Open</span></p>
+            <div id="verification-output"></div>
+        </div>
+    </div>
+
+    <script>
+        let isSidenavOpen = true;
+        
+        // Theme management functions
+        function setTheme(theme) {
+            console.log('Setting theme to:', theme);
+            
+            // Remove all theme classes
+            document.body.classList.remove('light-theme', 'dark-theme', 'blue-theme', 'green-theme', 'purple-theme');
+            
+            // Add the selected theme class
+            document.body.classList.add(theme + '-theme');
+            
+            // Update display
+            document.getElementById('current-theme').textContent = theme;
+            document.getElementById('body-classes').textContent = Array.from(document.body.classList).join(', ');
+            
+            // Save to localStorage
+            localStorage.setItem('theme', theme);
+            document.getElementById('local-storage-theme').textContent = localStorage.getItem('theme') || 'None';
+            
+            console.log('Theme set to:', theme);
+            addVerificationMessage(`Theme set to: ${theme}`);
+        }
+        
+        function getCurrentTheme() {
+            // Check localStorage first
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                return savedTheme;
+            }
+            
+            // Check system preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                return 'dark';
+            }
+            
+            // Default to light
+            return 'light';
+        }
+        
+        function toggleSidenav() {
+            const sidenav = document.getElementById('sidenav');
+            isSidenavOpen = !isSidenavOpen;
+            
+            if (isSidenavOpen) {
+                sidenav.classList.remove('closed');
+                document.getElementById('sidenav-state').textContent = 'Open';
+            } else {
+                sidenav.classList.add('closed');
+                document.getElementById('sidenav-state').textContent = 'Closed';
+            }
+            
+            addVerificationMessage(`Sidenav toggled: ${isSidenavOpen ? 'Open' : 'Closed'}`);
+        }
+        
+        function checkCurrentState() {
+            const currentTheme = getCurrentTheme();
+            document.getElementById('current-theme').textContent = currentTheme;
+            document.getElementById('body-classes').textContent = Array.from(document.body.classList).join(', ');
+            document.getElementById('local-storage-theme').textContent = localStorage.getItem('theme') || 'None';
+            document.getElementById('sidenav-state').textContent = isSidenavOpen ? 'Open' : 'Closed';
+            
+            addVerificationMessage(`State checked - Theme: ${currentTheme}, Sidenav: ${isSidenavOpen ? 'Open' : 'Closed'}`);
+        }
+        
+        function addVerificationMessage(message) {
+            const verificationOutput = document.getElementById('verification-output');
+            const timestamp = new Date().toLocaleTimeString();
+            verificationOutput.innerHTML += `<p>[${timestamp}] ${message}</p>`;
+            verificationOutput.scrollTop = verificationOutput.scrollHeight;
+        }
+        
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing theme');
+            const theme = getCurrentTheme();
+            setTheme(theme);
+            addVerificationMessage('Page loaded, theme initialized');
+        });
+        
+        // Listen for theme changes
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'theme') {
+                console.log('Theme changed in another tab:', e.newValue);
+                addVerificationMessage(`Theme changed in another tab: ${e.newValue}`);
+                if (e.newValue) {
+                    setTheme(e.newValue);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+.theme-troubleshoot-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.theme-troubleshoot-container h2 {
+  color: #3f51b5;
+  margin-bottom: 20px;
+}
+
+.theme-troubleshoot-container h3 {
+  color: #333;
+  margin: 20px 0 10px 0;
+}
+
+.theme-troubleshoot-container button {
+  margin: 5px;
+}
+
+.status-section {
+  background: #f5f5f5;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.test-section {
+  background: #e3f2fd;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.test-section button {
+  min-width: 100px;
+  margin: 5px;
+}
+
+.test-section .selected {
+  border: 2px solid #3f51b5;
+  font-weight: bold;
+}
+
+.menu-test-section {
+  background: #e8f5e9;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.menu-test-result {
+  margin-top: 10px;
+  padding: 10px;
+  background: #c8e6c9;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.navigation-section {
+  background: #f3e5f5;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.console-section {
+  background: #fff3e0;
+  padding: 15px;
+  border-radius: 4px;
+}

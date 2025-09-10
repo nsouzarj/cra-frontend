@@ -1,0 +1,63 @@
+<div class="theme-troubleshoot-container">
+  <h2>Theme Troubleshooting</h2>
+  
+  <div class="status-section">
+    <h3>Current Theme Status</h3>
+    <p><strong>Current Theme:</strong> {{ currentTheme }}</p>
+    <p><strong>Body Classes:</strong> {{ bodyClasses }}</p>
+    <button mat-raised-button (click)="refreshStatus()" color="primary">Refresh Status</button>
+  </div>
+  
+  <div class="test-section">
+    <h3>Theme Selection Test</h3>
+    <p>Click the buttons below to test theme changes:</p>
+    <div>
+      <button mat-raised-button 
+              (click)="setTheme('light')" 
+              [class.selected]="currentTheme === 'light'">
+        Light
+      </button>
+      <button mat-raised-button 
+              (click)="setTheme('dark')" 
+              [class.selected]="currentTheme === 'dark'">
+        Dark
+      </button>
+      <button mat-raised-button 
+              (click)="setTheme('blue')" 
+              [class.selected]="currentTheme === 'blue'">
+        Blue
+      </button>
+      <button mat-raised-button 
+              (click)="setTheme('green')" 
+              [class.selected]="currentTheme === 'green'">
+        Green
+      </button>
+      <button mat-raised-button 
+              (click)="setTheme('purple')" 
+              [class.selected]="currentTheme === 'purple'">
+        Purple
+      </button>
+    </div>
+  </div>
+  
+  <div class="menu-test-section">
+    <h3>Theme Menu Test</h3>
+    <p>Click the button below to test if the theme menu opens:</p>
+    <button mat-raised-button (click)="testMenu()" color="accent">Test Theme Menu</button>
+    <p *ngIf="menuTestResult" class="menu-test-result">
+      {{ menuTestResult }}
+    </p>
+  </div>
+  
+  <div class="navigation-section">
+    <h3>Navigation</h3>
+    <p>Click the button below to go to the theme test page:</p>
+    <button mat-raised-button (click)="goToThemeTest()" color="primary">Go to Theme Test Page</button>
+  </div>
+  
+  <div class="console-section">
+    <h3>Console Output</h3>
+    <p>Check the browser console for detailed logs when testing theme changes.</p>
+    <button mat-raised-button (click)="clearLogs()" color="warn">Clear Logs</button>
+  </div>
+</div>

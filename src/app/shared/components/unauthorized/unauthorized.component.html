@@ -5,8 +5,8 @@
         <mat-icon class="error-icon">lock</mat-icon>
         <h1>Acesso Negado</h1>
         <p>Você não tem permissão para acessar esta página.</p>
-        <div class="user-info" *ngIf="authService.currentUserValue">
-          <p><strong>Usuário:</strong> {{ authService.currentUserValue.nomecompleto }}</p>
+        <div class="user-info" *ngIf="currentUser">
+          <p><strong>Usuário:</strong> {{ currentUser.nomecompleto || currentUser.login }}</p>
           <p><strong>Tipo:</strong> {{ getUserRoleText() }}</p>
         </div>
         <div class="actions">

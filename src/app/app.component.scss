@@ -41,6 +41,20 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
+/* Light Theme Overrides */
+.light-theme {
+  background-color: #fafafa !important;
+  
+  .main-content {
+    background-color: #f5f5f5 !important;
+  }
+  
+  .sidenav {
+    background-color: #fafafa !important;
+    border-right: 1px solid #e0e0e0 !important;
+  }
+}
+
 /* Dark Theme Overrides */
 .dark-theme {
   background-color: #121212 !important;
@@ -52,6 +66,48 @@
   .sidenav {
     background-color: #303030 !important;
     border-right: 1px solid #424242 !important;
+  }
+}
+
+/* Blue Theme Overrides */
+.blue-theme {
+  background-color: #e3f2fd !important;
+  
+  .main-content {
+    background-color: #bbdefb !important;
+  }
+  
+  .sidenav {
+    background-color: #e3f2fd !important;
+    border-right: 1px solid #90caf9 !important;
+  }
+}
+
+/* Green Theme Overrides */
+.green-theme {
+  background-color: #e8f5e9 !important;
+  
+  .main-content {
+    background-color: #c8e6c9 !important;
+  }
+  
+  .sidenav {
+    background-color: #e8f5e9 !important;
+    border-right: 1px solid #a5d6a7 !important;
+  }
+}
+
+/* Purple Theme Overrides */
+.purple-theme {
+  background-color: #f3e5f5 !important;
+  
+  .main-content {
+    background-color: #e1bee7 !important;
+  }
+  
+  .sidenav {
+    background-color: #f3e5f5 !important;
+    border-right: 1px solid #ce93d8 !important;
   }
 }
 

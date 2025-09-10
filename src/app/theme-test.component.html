@@ -1,0 +1,51 @@
+<div class="theme-selection-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <h2>Seleção de Tema</h2>
+      </mat-card-title>
+      <mat-card-subtitle>
+        Escolha o tema que deseja usar no sistema
+      </mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <div class="current-theme-section">
+        <h3>Tema Atual: {{ getCurrentThemeLabel() }}</h3>
+        <div class="theme-preview" [ngClass]="currentTheme + '-theme'">
+          <div class="preview-content">
+            <mat-icon>palette</mat-icon>
+            <span>Pré-visualização do tema</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="theme-selection">
+        <h3>Temas Disponíveis</h3>
+        <div class="theme-grid">
+          <div *ngFor="let theme of availableThemes" 
+               class="theme-card"
+               [ngClass]="{'selected': currentTheme === theme.value}"
+               (click)="setTheme(theme.value)">
+            <div class="theme-color-bar" [ngClass]="'theme-' + theme.value"></div>
+            <div class="theme-info">
+              <h4>{{ theme.label }}</h4>
+              <button mat-raised-button 
+                      [color]="currentTheme === theme.value ? 'primary' : 'basic'"
+                      class="select-button">
+                {{ currentTheme === theme.value ? 'Selecionado' : 'Selecionar' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="theme-actions">
+        <button mat-raised-button color="primary" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+          Voltar
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

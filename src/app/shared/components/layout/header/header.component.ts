@@ -1,7 +1,7 @@
-import { Component, OnInit, Output, EventEmitter, HostListener, OnDestroy } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, HostListener, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
-import { ThemeService } from '../../../../core/services/theme.service';
+import { ThemeService, Theme } from '../../../../core/services/theme.service';
 import { ZoomService } from '../../../../core/services/zoom.service';
 import { User } from '../../../models/user.model';
 import { Subscription } from 'rxjs';
@@ -18,13 +18,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
   @Output() toggleSidenav = new EventEmitter<void>();
 
   constructor(
+    public router: Router,
     private authService: AuthService,
     private themeService: ThemeService,
     private zoomService: ZoomService,
-    private router: Router
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+    console.log('HeaderComponent: ngOnInit called');
+    console.log('HeaderComponent: Current theme on init:', this.getCurrentTheme());
+    
+    // Listen for theme changes
+    window.addEventListener('themeChanged', (event: Event) => {
+      const customEvent = event as CustomEvent;
+      console.log('HeaderComponent: Theme changed to', customEvent.detail);
+      this.cdr.markForCheck();
+    });
+    
     // Subscribe to user changes to ensure we get updates when user logs in
     this.currentUserSubscription = this.authService.currentUser.subscribe(user => {
       this.currentUser = this.normalizeUser(user);
@@ -64,18 +75,49 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   onToggleSidenav(): void {
+    console.log('Header: Toggling sidenav');
     this.toggleSidenav.emit();
   }
 
-  toggleTheme(): void {
-    console.log('Toggling theme');
-    this.themeService.toggleTheme();
+  onThemeMenuClick(event: Event): void {
+    console.log('HeaderComponent: Theme menu clicked');
+    event.preventDefault();
+    event.stopPropagation();
   }
 
-  isDarkMode(): boolean {
-    const isDark = this.themeService.isDarkMode();
-    console.log('Checking dark mode:', isDark);
-    return isDark;
+  onThemeSelect(theme: Theme, event: Event): void {
+    console.log('HeaderComponent: Theme selected:', theme);
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Set the theme
+    this.setTheme(theme);
+    
+    // Close the menu explicitly
+    const menuButton = document.getElementById('theme-menu-button');
+    if (menuButton) {
+      (menuButton as any)._menuTrigger?.closeMenu();
+    }
+  }
+
+  setTheme(theme: Theme): void {
+    console.log('HeaderComponent: Setting theme to', theme);
+    // Simple approach - just call the theme service directly
+    this.themeService.setTheme(theme);
+    // Force change detection
+    this.cdr.detectChanges();
+  }
+
+  getCurrentTheme(): Theme {
+    const theme = this.themeService.getCurrentTheme();
+    console.log('HeaderComponent: Getting current theme:', theme);
+    return theme;
+  }
+
+  getAvailableThemes(): { value: Theme; label: string }[] {
+    const themes = this.themeService.getAvailableThemes();
+    console.log('HeaderComponent: Getting available themes:', themes);
+    return themes;
   }
 
   getUserRoleText(): string {
@@ -124,6 +166,28 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.authService.logout();
   }
 
+  testTheme(): void {
+    console.log('Testing theme functionality');
+    console.log('Current theme:', this.getCurrentTheme());
+    console.log('Available themes:', this.getAvailableThemes());
+    console.log('Body classes before test:', Array.from(document.body.classList));
+    // Try setting a specific theme
+    this.setTheme('blue');
+  }
+
+  refreshTheme(): void {
+    console.log('Refreshing theme');
+    this.themeService.setTheme(this.themeService.getCurrentTheme());
+  }
+
+  navigateToThemeSelection(): void {
+    this.router.navigate(['/theme-test']);
+  }
+  
+  navigateToThemeTroubleshoot(): void {
+    this.router.navigate(['/theme-troubleshoot']);
+  }
+
   // Zoom functionality methods
   zoomIn(): void {
     this.zoomService.zoomIn();
@@ -141,24 +205,25 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return this.zoomService.getZoomLevel();
   }
 
-  // Keyboard shortcuts for zoom (Ctrl + '+' to zoom in, Ctrl + '-' to zoom out, Ctrl + '0' to reset)
+  // Keyboard shortcuts
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent): void {
+    // Check if Ctrl key is pressed
     if (event.ctrlKey) {
-      switch (event.key) {
-        case '+':
-        case '=': // Some keyboards use '=' for '+'
-          event.preventDefault();
-          this.zoomIn();
-          break;
-        case '-':
-          event.preventDefault();
-          this.zoomOut();
-          break;
-        case '0':
-          event.preventDefault();
-          this.resetZoom();
-          break;
+      // Zoom in with Ctrl + Plus
+      if (event.key === '+' || event.key === '=') {
+        event.preventDefault();
+        this.zoomIn();
+      }
+      // Zoom out with Ctrl + Minus
+      else if (event.key === '-') {
+        event.preventDefault();
+        this.zoomOut();
+      }
+      // Reset zoom with Ctrl + 0
+      else if (event.key === '0') {
+        event.preventDefault();
+        this.resetZoom();
       }
     }
   }

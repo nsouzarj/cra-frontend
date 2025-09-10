@@ -128,6 +128,7 @@ export class SidenavComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    console.log('SidenavComponent: ngOnInit called');
     // Track current route
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -139,6 +140,15 @@ export class SidenavComponent implements OnInit {
 
     // Set initial expanded state based on current route
     this.setInitialExpansion();
+    
+    // Listen for theme changes
+    window.addEventListener('themeChanged', (event: Event) => {
+      const customEvent = event as CustomEvent;
+      console.log('SidenavComponent: Theme changed to', customEvent.detail);
+      // The theme styles are applied to the body, so the sidenav will automatically update
+    });
+    
+    console.log('SidenavComponent: Current route:', this.currentRoute);
   }
 
   hasPermission(roles?: string[]): boolean {

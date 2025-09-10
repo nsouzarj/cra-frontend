@@ -86,25 +86,6 @@
   font-weight: 500;
 }
 
-/* Dark Theme Overrides */
-.dark-theme .app-header {
-  background-color: #3f51b5 !important;
-}
-
-.dark-theme .app-title {
-  color: #ffffff !important;
-  font-weight: 600; /* Make title bolder for better visibility */
-}
-
-.dark-theme .user-welcome {
-  color: #ffffff !important; /* Brighter text */
-  font-weight: 500; /* Make user welcome text bolder */
-}
-
-.dark-theme .mat-icon {
-  color: #ffffff !important;
-}
-
 @media (max-width: 768px) {
   .user-welcome {
     display: none;

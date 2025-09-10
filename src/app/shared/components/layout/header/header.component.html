@@ -19,10 +19,6 @@
         <mat-icon>zoom_in</mat-icon>
       </button>
       
-      <button mat-icon-button (click)="toggleTheme()" [matTooltip]="isDarkMode() ? 'Modo claro' : 'Modo escuro'">
-        <mat-icon>{{ isDarkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
-      </button>
-      
       <span class="user-welcome" *ngIf="currentUser">
         Olá, {{ currentUser.nomecompleto || currentUser.login || 'Usuário' }}
       </span>
@@ -41,6 +37,10 @@
         <button mat-menu-item (click)="navigateToProfile()">
           <mat-icon>person</mat-icon>
           <span>Meu Perfil</span>
+        </button>
+        <button mat-menu-item (click)="navigateToThemeSelection()">
+          <mat-icon>palette</mat-icon>
+          <span>Temas</span>
         </button>
         <button mat-menu-item (click)="logout()">
           <mat-icon>exit_to_app</mat-icon>
