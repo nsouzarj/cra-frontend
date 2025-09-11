@@ -103,7 +103,7 @@
 
 .chart-card {
   padding: 20px;
-  overflow: hidden;
+  overflow: visible; // Changed from overflow: hidden to allow scrolling
   width: 100%;
   box-sizing: border-box;
 }
@@ -122,7 +122,7 @@
   min-height: 300px;
   width: 100%;
   padding: 20px 0;
-  overflow: auto;
+  overflow: visible; // Changed from overflow: auto to overflow: visible to allow proper scrolling
   -webkit-overflow-scrolling: touch;
   box-sizing: border-box;
 }
@@ -136,6 +136,33 @@
   border-right: none;
   background-color: #f9f9f9;
   box-sizing: border-box;
+  // Add horizontal scrolling support
+  overflow-x: visible;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}
+
+// Ensure horizontal scrolling for Solicitações por Status chart
+.horizontal-scroll-container {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.horizontal-scroll-container .bar-chart.responsive-bar-chart {
+  min-width: 100%;
+  width: max-content;
+  height: 250px;
+}
+
+.horizontal-scroll-container .chart-bars {
+  min-width: 100%;
+  width: max-content;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
 }
 
 .chart-bars {
@@ -339,7 +366,9 @@
   .chart-card .pie-chart-container { width: 150px; height: 150px; }
   
   // Horizontal scrolling for charts
-  .chart-card {
+  .chart-card,
+  .chart-card .chart-container,
+  .chart-card .horizontal-scroll-container {
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
@@ -357,6 +386,7 @@
     min-width: 100%;
     width: max-content;
     justify-content: flex-start;
+    flex-wrap: nowrap;
   }
   
   .chart-card .bar-container {
@@ -404,6 +434,7 @@
     min-width: 100%;
     width: max-content;
     justify-content: flex-start;
+    flex-wrap: nowrap;
   }
   
   .chart-card .bar-container {
@@ -463,6 +494,7 @@
     min-width: 100%;
     width: max-content;
     justify-content: flex-start;
+    flex-wrap: nowrap;
   }
   
   .chart-card .bar-container {

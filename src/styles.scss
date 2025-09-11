@@ -2361,6 +2361,7 @@ html, body {
   .chart-bars {
     gap: 10px;
     padding: 0 5px;
+    flex-wrap: nowrap;
   }
   
   .bar {
@@ -2375,6 +2376,7 @@ html, body {
   
   .bar-container {
     min-width: 40px;
+    flex: 0 0 auto;
   }
   
   .bar-label {
@@ -2431,6 +2433,7 @@ html, body {
   
   .chart-bars {
     gap: 5px;
+    flex-wrap: nowrap;
   }
   
   .bar {
@@ -2445,6 +2448,7 @@ html, body {
   
   .bar-container {
     min-width: 30px;
+    flex: 0 0 auto;
   }
   
   .bar-label {
@@ -2506,6 +2510,7 @@ html, body {
   
   .chart-bars {
     gap: 3px;
+    flex-wrap: nowrap;
   }
   
   .bar {
@@ -2520,6 +2525,7 @@ html, body {
   
   .bar-container {
     min-width: 25px;
+    flex: 0 0 auto;
   }
   
   .bar-label {

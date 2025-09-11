@@ -92,9 +92,9 @@
   gap: 15px;
   padding: 0 10px;
   justify-content: center;
-  box-sizing: border-box;
-  // Ensure proper centering
+  // Ensure proper centering and prevent wrapping
   margin: 0 auto;
+  flex-wrap: nowrap;
 }
 
 .bar-container {
@@ -262,6 +262,7 @@
     width: max-content;
     justify-content: flex-start;
     flex-direction: row;
+    flex-wrap: nowrap;
   }
   
   .chart-card .bar-container {
@@ -326,6 +327,7 @@
     width: max-content;
     justify-content: flex-start;
     flex-direction: row;
+    flex-wrap: nowrap;
   }
   
   .chart-card .bar-container {
@@ -412,6 +414,7 @@
     width: max-content;
     justify-content: flex-start;
     flex-direction: row;
+    flex-wrap: nowrap;
   }
   
   .chart-card .bar-container {
