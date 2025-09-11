@@ -1691,6 +1691,7 @@ html, body {
     background-color: #f44336 !important;
   }
   
+  
   .success-snackbar {
     background-color: #4caf50 !important;
   }
@@ -2200,6 +2201,361 @@ html, body {
   }
 }
 
+/* Chart responsive improvements */
+.chart-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  height: 100%;
+  gap: 15px;
+  padding: 0 10px;
+  justify-content: center;
+  // Ensure proper centering
+  margin: 0 auto;
+}
+
+.bar {
+  width: 100%;
+  min-height: 5px;
+  border-radius: 4px 4px 0 0;
+  background-color: #4facfe;
+  box-shadow: 0 0 1px rgba(0,0,0,0.1);
+  // Ensure the bar takes the background color from ngStyle
+  background-clip: padding-box;
+}
+
+.bar-value {
+  margin-top: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #333;
+}
+
+.bar-label {
+  margin-top: 10px;
+  font-size: 11px;
+  text-align: center;
+  color: #666;
+}
+
+.bar-chart,
+.pie-chart {
+  max-width: 100%;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pie-chart-container {
+  flex-shrink: 0;
+  max-width: 100%;
+}
+
+.pie-legend {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.legend-item {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.legend-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ensure form elements are responsive */
+.mat-form-field {
+  width: 100%;
+}
+
+.mat-select-panel {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Responsive table improvements */
+@media (max-width: 768px) {
+  .data-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .mat-table {
+    min-width: 600px;
+  }
+  
+  .mat-header-row,
+  .mat-row {
+    display: table-row;
+  }
+  
+  .mat-header-cell,
+  .mat-cell {
+    display: table-cell;
+  }
+}
+
+/* Touch device improvements */
+@media (hover: none) and (pointer: coarse) {
+  .mat-button, 
+  .mat-raised-button,
+  .mat-icon-button {
+    min-height: 48px;
+    min-width: 48px;
+    padding: 12px;
+  }
+  
+  .mat-form-field {
+    min-height: 56px;
+  }
+  
+  .form-field {
+    margin-bottom: 20px;
+  }
+  
+  /* Add visual feedback for touch interactions */
+  .mat-button:active,
+  .mat-raised-button:active,
+  .mat-icon-button:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+}
+
+/* Chart-specific responsive improvements */
+@media (max-width: 768px) {
+  .chart-container {
+    min-height: 250px;
+    padding: 15px 0;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .bar-chart,
+  .bar-chart.responsive-bar-chart {
+    min-width: 100%;
+    width: max-content;
+    height: 200px;
+    padding: 15px 5px;
+  }
+  
+  .pie-chart-container {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .chart-bars {
+    gap: 10px;
+    padding: 0 5px;
+  }
+  
+  .bar {
+    width: 100%;
+    min-height: 5px;
+    border-radius: 4px 4px 0 0;
+    background-color: #4facfe;
+    box-shadow: 0 0 1px rgba(0,0,0,0.1);
+    // Ensure the bar takes the background color from ngStyle
+    background-clip: padding-box;
+  }
+  
+  .bar-container {
+    min-width: 40px;
+  }
+  
+  .bar-label {
+    font-size: 10px;
+    max-width: 80px;
+  }
+  
+  .bar-value {
+    font-size: 10px;
+  }
+  
+  .pie-chart {
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+  }
+  
+  .pie-legend {
+    max-width: 100%;
+    align-items: center;
+  }
+  
+  .pie-total {
+    font-size: 20px;
+  }
+  
+  .pie-label {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-container {
+    min-height: 200px;
+    padding: 10px 0;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .bar-chart,
+  .bar-chart.responsive-bar-chart {
+    height: 180px;
+    padding: 12px 3px;
+    min-width: 100%;
+    width: max-content;
+  }
+  
+  .pie-chart-container {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .chart-bars {
+    gap: 5px;
+  }
+  
+  .bar {
+    width: 100%;
+    min-height: 5px;
+    border-radius: 4px 4px 0 0;
+    background-color: #4facfe;
+    box-shadow: 0 0 1px rgba(0,0,0,0.1);
+    // Ensure the bar takes the background color from ngStyle
+    background-clip: padding-box;
+  }
+  
+  .bar-container {
+    min-width: 30px;
+  }
+  
+  .bar-label {
+    font-size: 8px;
+    max-width: 60px;
+  }
+  
+  .bar-value {
+    font-size: 8px;
+  }
+  
+  .pie-chart {
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .pie-legend {
+    max-width: 100%;
+    align-items: center;
+    font-size: 12px;
+  }
+  
+  .pie-total {
+    font-size: 18px;
+  }
+  
+  .pie-label {
+    font-size: 10px;
+  }
+  
+  .legend-label {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 320px) {
+  .chart-container {
+    min-height: 180px;
+    padding: 8px 0;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .bar-chart,
+  .bar-chart.responsive-bar-chart {
+    height: 160px;
+    padding: 10px 2px;
+    min-width: 100%;
+    width: max-content;
+  }
+  
+  .pie-chart-container {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .chart-bars {
+    gap: 3px;
+  }
+  
+  .bar {
+    width: 100%;
+    min-height: 5px;
+    border-radius: 4px 4px 0 0;
+    background-color: #4facfe;
+    box-shadow: 0 0 1px rgba(0,0,0,0.1);
+    // Ensure the bar takes the background color from ngStyle
+    background-clip: padding-box;
+  }
+  
+  .bar-container {
+    min-width: 25px;
+  }
+  
+  .bar-label {
+    font-size: 7px;
+    max-width: 50px;
+  }
+  
+  .bar-value {
+    font-size: 7px;
+  }
+  
+  .pie-chart {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+  
+  .pie-legend {
+    max-width: 100%;
+    align-items: center;
+    font-size: 10px;
+  }
+  
+  .pie-total {
+    font-size: 16px;
+  }
+  
+  .pie-label {
+    font-size: 9px;
+  }
+  
+  .legend-label {
+    font-size: 9px;
+  }
+}
+
 /* Responsive styles for mobile devices */
 @media (max-width: 768px) {
   .content-container {
@@ -2381,291 +2737,5 @@ html, body {
   
   p {
     font-size: 12px !important;
-  }
-}
-
-/* Chart responsive improvements */
-.chart-container {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  // Ensure container adapts to content
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.bar-chart,
-.pie-chart {
-  max-width: 100%;
-  overflow: hidden;
-  // Ensure charts don't exceed container
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.pie-chart-container {
-  flex-shrink: 0;
-  // Ensure container maintains aspect ratio
-  max-width: 100%;
-}
-
-.pie-legend {
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.legend-item {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.legend-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Ensure form elements are responsive */
-.mat-form-field {
-  width: 100%;
-}
-
-.mat-select-panel {
-  max-width: 100%;
-  overflow-x: auto;
-}
-
-/* Responsive table improvements */
-@media (max-width: 768px) {
-  .data-table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-  
-  .mat-table {
-    min-width: 600px;
-  }
-  
-  .mat-header-row,
-  .mat-row {
-    display: table-row;
-  }
-  
-  .mat-header-cell,
-  .mat-cell {
-    display: table-cell;
-  }
-}
-
-/* Touch device improvements */
-@media (hover: none) and (pointer: coarse) {
-  .mat-button, 
-  .mat-raised-button,
-  .mat-icon-button {
-    min-height: 48px;
-    min-width: 48px;
-    padding: 12px;
-  }
-  
-  .mat-form-field {
-    min-height: 56px;
-  }
-  
-  .form-field {
-    margin-bottom: 20px;
-  }
-  
-  /* Add visual feedback for touch interactions */
-  .mat-button:active,
-  .mat-raised-button:active,
-  .mat-icon-button:active {
-    transform: scale(0.95);
-    transition: transform 0.1s ease;
-  }
-}
-
-/* Chart-specific responsive improvements */
-@media (max-width: 768px) {
-  .chart-container {
-    min-height: 250px;
-    padding: 15px 0;
-    // Ensure proper width on mobile
-    width: 100%;
-    // Add horizontal scrolling for bar charts on mobile
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  .bar-chart,
-  .bar-chart.responsive-bar-chart {
-    // Allow chart to be wider than container for scrolling
-    min-width: 100%;
-    width: max-content;
-    // Ensure proper height
-    height: 200px;
-    padding: 15px 5px;
-  }
-  
-  .chart-bars {
-    // Allow bars to extend beyond container width
-    min-width: 100%;
-    width: max-content;
-    // Maintain proper alignment
-    justify-content: flex-start;
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  .pie-chart-container {
-    width: 150px;
-    height: 150px;
-  }
-  
-  .chart-bars {
-    gap: 10px;
-    padding: 0 5px;
-  }
-  
-  .bar-container {
-    min-width: 40px;
-  }
-  
-  .bar-label {
-    font-size: 10px;
-    max-width: 80px;
-  }
-  
-  .bar-value {
-    font-size: 10px;
-  }
-  
-  .pie-chart {
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .pie-legend {
-    max-width: 100%;
-    align-items: center;
-  }
-  
-  .pie-total {
-    font-size: 20px;
-  }
-  
-  .pie-label {
-    font-size: 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  .chart-container {
-    min-height: 200px;
-    padding: 10px 0;
-    // Ensure proper width on small screens
-    width: 100%;
-    // Maintain horizontal scrolling
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  .bar-chart,
-  .bar-chart.responsive-bar-chart {
-    height: 180px;
-    padding: 12px 3px;
-    // Allow chart to be wider than container for scrolling
-    min-width: 100%;
-    width: max-content;
-  }
-  
-  .pie-chart-container {
-    width: 120px;
-    height: 120px;
-  }
-  
-  .chart-bars {
-    gap: 5px;
-  }
-  
-  .bar-container {
-    min-width: 30px;
-  }
-  
-  .bar-label {
-    font-size: 8px;
-    max-width: 60px;
-  }
-  
-  .bar-value {
-    font-size: 8px;
-  }
-  
-  .pie-total {
-    font-size: 18px;
-  }
-  
-  .pie-label {
-    font-size: 10px;
-  }
-  
-  .legend-label {
-    font-size: 10px;
-  }
-}
-
-@media (max-width: 320px) {
-  .chart-container {
-    min-height: 180px;
-    padding: 8px 0;
-    // Ensure proper width on very small screens
-    width: 100%;
-    // Maintain horizontal scrolling
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  .bar-chart,
-  .bar-chart.responsive-bar-chart {
-    height: 160px;
-    padding: 10px 2px;
-    // Allow chart to be wider than container for scrolling
-    min-width: 100%;
-    width: max-content;
-  }
-  
-  .pie-chart-container {
-    width: 100px;
-    height: 100px;
-  }
-  
-  .chart-bars {
-    gap: 3px;
-  }
-  
-  .bar-container {
-    min-width: 25px;
-  }
-  
-  .bar-label {
-    font-size: 7px;
-    max-width: 50px;
-  }
-  
-  .bar-value {
-    font-size: 7px;
-  }
-  
-  .pie-total {
-    font-size: 16px;
-  }
-  
-  .pie-label {
-    font-size: 9px;
-  }
-  
-  .legend-label {
-    font-size: 9px;
   }
 }

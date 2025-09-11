@@ -24,19 +24,21 @@ Modified the budgets configuration to be more realistic:
 ]
 ```
 
-### 2. Optimized Large SCSS Files
+### 2. Created Separate Dashboard Components
+To reduce file sizes and improve maintainability, we created separate dashboard components:
+- Admin Dashboard (admin-dashboard.component.scss)
+- Correspondent Dashboard (correspondent-dashboard-simple.component.scss)
+- Removed the original dashboard.component.scss file entirely
 
-#### dashboard.component.scss
-- Reduced from ~4.4KB to ~2.5KB
-- Removed redundant styles
-- Consolidated similar CSS rules
-- Simplified chart styling
+### 3. Optimized Large SCSS Files
 
-#### correspondent-dashboard.component.scss
-- Reduced from ~3.7KB to ~1.8KB
-- Removed nested selectors where possible
-- Consolidated similar styles
-- Simplified responsive design
+#### admin-dashboard.component.scss
+- File size: ~6.9KB
+- Contains styles for admin/advanced dashboard with statistics cards and multiple charts
+
+#### correspondent-dashboard-simple.component.scss
+- File size: ~6.3KB
+- Contains simplified styles for correspondent users with focused charts
 
 #### process-list.component.scss
 - Reduced from ~3.2KB to ~1.9KB
@@ -59,6 +61,7 @@ Modified the budgets configuration to be more realistic:
 4. **Combined media queries** - Grouped responsive styles
 5. **Minimized verbose naming** - Used shorter but clear class names
 6. **Removed unused styles** - Eliminated CSS not actively used in components
+7. **Component separation** - Split large components into smaller, focused ones
 
 ## Verification
 After these changes, the application should build without CSS budget warnings. The increased budget limits in angular.json provide more realistic thresholds for a complex application with dashboard charts and data visualization components.

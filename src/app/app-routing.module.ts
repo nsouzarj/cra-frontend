@@ -11,6 +11,8 @@ import { CorrespondenteGuard } from './core/guards/correspondente.guard';
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { AdminDashboardComponent } from './features/admin-dashboard/admin-dashboard.component';
+import { CorrespondentDashboardSimpleComponent } from './features/correspondent-dashboard/correspondent-dashboard-simple.component';
 import { UnauthorizedComponent } from './shared/components/unauthorized/unauthorized.component';
 import { NotFoundComponent } from './shared/components/not-found/not-found.component';
 import { ProfileComponent } from './features/auth/profile/profile.component';
@@ -30,12 +32,13 @@ const routes: Routes = [
   },
   { 
     path: 'dashboard', 
-    component: DashboardComponent, 
-    canActivate: [AuthGuard] 
+    component: AdminDashboardComponent, 
+    canActivate: [AuthGuard],
+    data: { expectedRoles: ['ROLE_ADMIN', 'ROLE_ADVOGADO'] }
   },
   {
     path: 'correspondent-dashboard',
-    loadChildren: () => import('./features/correspondent-dashboard/correspondent-dashboard.module').then(m => m.CorrespondentDashboardModule),
+    component: CorrespondentDashboardSimpleComponent,
     canActivate: [CorrespondenteGuard]
   },
   {

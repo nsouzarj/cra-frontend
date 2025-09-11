@@ -53,6 +53,10 @@ import { RegisterComponent } from './features/auth/register/register.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { ProfileComponent } from './features/auth/profile/profile.component';
 
+// New Dashboard Components
+import { AdminDashboardComponent } from './features/admin-dashboard/admin-dashboard.component';
+import { CorrespondentDashboardSimpleComponent } from './features/correspondent-dashboard/correspondent-dashboard-simple.component';
+
 // Shared Components Module
 import { SharedComponentsModule } from './shared/components/shared-components.module';
 
@@ -72,7 +76,9 @@ import { ErrorHandlingInterceptor } from './core/interceptors/error-handling.int
     LoginComponent,
     RegisterComponent,
     DashboardComponent,
-    ProfileComponent
+    ProfileComponent,
+    AdminDashboardComponent,
+    CorrespondentDashboardSimpleComponent
     // Removed ThemeTestComponent, ThemeDebugComponent, and ThemeTroubleshootComponent
     // as they are declared in SharedComponentsModule
   ],
