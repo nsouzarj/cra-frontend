@@ -50,7 +50,6 @@ import { AppComponent } from './app.component';
 // Core Components
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
-import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { ProfileComponent } from './features/auth/profile/profile.component';
 
 // New Dashboard Components
@@ -75,7 +74,6 @@ import { ErrorHandlingInterceptor } from './core/interceptors/error-handling.int
     AppComponent,
     LoginComponent,
     RegisterComponent,
-    DashboardComponent,
     ProfileComponent,
     AdminDashboardComponent,
     CorrespondentDashboardSimpleComponent

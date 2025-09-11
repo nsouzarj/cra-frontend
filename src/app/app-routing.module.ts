@@ -10,7 +10,6 @@ import { CorrespondenteGuard } from './core/guards/correspondente.guard';
 // Components
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
-import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { AdminDashboardComponent } from './features/admin-dashboard/admin-dashboard.component';
 import { CorrespondentDashboardSimpleComponent } from './features/correspondent-dashboard/correspondent-dashboard-simple.component';
 import { UnauthorizedComponent } from './shared/components/unauthorized/unauthorized.component';
