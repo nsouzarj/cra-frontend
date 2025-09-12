@@ -12,6 +12,9 @@
               {{ processo.numeroprocesso }} - {{ processo.parte }}
             </mat-option>
           </mat-select>
+          <mat-error *ngIf="isFieldInvalid('processo')">
+            {{ getFieldErrorMessage('processo') }}
+          </mat-error>
         </mat-form-field>
 
         <mat-form-field class="full-width" appearance="outline">
@@ -21,6 +24,9 @@
               {{ correspondente.nome }} - {{ correspondente.oab }}
             </mat-option>
           </mat-select>
+          <mat-error *ngIf="isFieldInvalid('correspondente')">
+            {{ getFieldErrorMessage('correspondente') }}
+          </mat-error>
         </mat-form-field>
 
         <mat-form-field class="full-width" appearance="outline">
@@ -30,6 +36,9 @@
               {{ tipo.especie }} - {{ tipo.tipo }}
             </mat-option>
           </mat-select>
+          <mat-error *ngIf="isFieldInvalid('tipoSolicitacao')">
+            {{ getFieldErrorMessage('tipoSolicitacao') }}
+          </mat-error>
         </mat-form-field>
 
         <mat-form-field class="full-width" appearance="outline">
@@ -39,6 +48,9 @@
               {{ usuario.nomecompleto }} ({{ usuario.login }})
             </mat-option>
           </mat-select>
+          <mat-error *ngIf="isFieldInvalid('usuario')">
+            {{ getFieldErrorMessage('usuario') }}
+          </mat-error>
         </mat-form-field>
 
         <!-- Data Solicitação (agora editável pelo usuário, com data atual como padrão) -->
@@ -76,6 +88,9 @@
           <mat-label>Valor</mat-label>
           <span matPrefix>R$&nbsp;</span>
           <input matInput type="text" [value]="formatCurrencyDisplay(requestForm.get('valor')?.value)" (input)="formatCurrency($event)" placeholder="0,00">
+          <mat-error *ngIf="isFieldInvalid('valor')">
+            {{ getFieldErrorMessage('valor') }}
+          </mat-error>
         </mat-form-field>
 
         <!-- Status field - only shown when editing -->
