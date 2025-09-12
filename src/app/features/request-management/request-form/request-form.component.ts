@@ -117,18 +117,18 @@ export class RequestFormComponent implements OnInit {
 
   private createForm(): FormGroup {
     return this.formBuilder.group({
-      tipoSolicitacao: [null],
+      tipoSolicitacao: [null, Validators.required],
       status: [''], // Will be set to "Aguardando Confirmação" in onSubmit for new solicitations
-      processo: [null],
-      correspondente: [null],
-      usuario: [null],
+      processo: [null, Validators.required],
+      correspondente: [null, Validators.required],
+      usuario: [null, Validators.required],
       dataSolicitacao: [this.getCurrentDate()], // Pre-filled with current date but editable by user
       dataPrazo: [''],
       instrucoes: [''],
       // Conditional fields
       dataAgendamento: [''],
       horaAudiencia: [''],
-      valor: ['']
+      valor: ['', this.showValorField ? Validators.required : null]
     });
   }
 
@@ -298,6 +298,15 @@ export class RequestFormComponent implements OnInit {
   // Method to handle tipoSolicitacao selection change
   onTipoSolicitacaoChange(tipoSolicitacaoId: number): void {
     this.updateConditionalFields(tipoSolicitacaoId);
+    
+    // Update validator for valor field based on showValorField
+    const valorControl = this.requestForm.get('valor');
+    if (this.showValorField) {
+      valorControl?.setValidators(Validators.required);
+    } else {
+      valorControl?.clearValidators();
+    }
+    valorControl?.updateValueAndValidity();
   }
 
   // Method to update visibility of conditional fields based on tipoSolicitacao
@@ -421,5 +430,29 @@ export class RequestFormComponent implements OnInit {
       const control = this.requestForm.get(key);
       control?.markAsTouched();
     });
+  }
+  
+  // Helper method to check if a field has an error and has been touched
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.requestForm.get(fieldName);
+    return !!(field && field.invalid && field.touched);
+  }
+  
+  // Helper method to get error message for a field
+  getFieldErrorMessage(fieldName: string): string {
+    const field = this.requestForm.get(fieldName);
+    if (field && field.errors) {
+      if (field.errors['required']) {
+        const fieldLabels: { [key: string]: string } = {
+          'processo': 'Processo',
+          'correspondente': 'Correspondente',
+          'tipoSolicitacao': 'Tipo de Solicitação',
+          'usuario': 'Usuário',
+          'valor': 'Valor'
+        };
+        return `${fieldLabels[fieldName] || fieldName} é obrigatório`;
+      }
+    }
+    return '';
   }
 }
