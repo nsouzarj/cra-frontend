@@ -2,17 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSelectChange } from '@angular/material/select';
 import { SolicitacaoService } from '../../../core/services/solicitacao.service';
 import { SolicitacaoStatusService } from '../../../core/services/solicitacao-status.service';
 import { ProcessoService } from '../../../core/services/processo.service';
 import { CorrespondenteService } from '../../../core/services/correspondente.service';
-import { ComarcaService } from '../../../core/services/comarca.service';
 import { UserService } from '../../../core/services/user.service';
 import { TipoSolicitacaoService } from '../../../core/services/tiposolicitacao.service';
 import { Solicitacao, SolicitacaoStatus } from '../../../shared/models/solicitacao.model';
 import { Processo } from '../../../shared/models/processo.model';
 import { Correspondente } from '../../../shared/models/correspondente.model';
-import { Comarca } from '../../../shared/models/comarca.model';
 import { User } from '../../../shared/models/user.model';
 import { TipoSolicitacao } from '../../../shared/models/tiposolicitacao.model';
 
@@ -76,7 +75,6 @@ export class RequestFormComponent implements OnInit {
   // Dropdown options
   processos: Processo[] = [];
   correspondentes: Correspondente[] = [];
-  comarcas: Comarca[] = [];
   usuarios: User[] = [];
   tiposSolicitacao: TipoSolicitacao[] = [];
   statuses: SolicitacaoStatus[] = [];
@@ -84,6 +82,10 @@ export class RequestFormComponent implements OnInit {
   // Filtered dropdown options (only active processes and correspondentes)
   filteredProcessos: Processo[] = [];
   filteredCorrespondentes: Correspondente[] = [];
+
+  // Conditional fields visibility
+  showAudienciaFields = false;
+  showValorField = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -94,7 +96,6 @@ export class RequestFormComponent implements OnInit {
     private solicitacaoStatusService: SolicitacaoStatusService,
     private processoService: ProcessoService,
     private correspondenteService: CorrespondenteService,
-    private comarcaService: ComarcaService,
     private userService: UserService,
     private tipoSolicitacaoService: TipoSolicitacaoService
   ) {
@@ -115,21 +116,39 @@ export class RequestFormComponent implements OnInit {
   }
 
   private createForm(): FormGroup {
-    // Set default status to the first available status or 'PENDENTE' if none available
-    const defaultStatus = this.statuses && this.statuses.length > 0 ? this.statuses[0].status : 'PENDENTE';
-    
     return this.formBuilder.group({
-      complemento: ['', [Validators.required]],
       tipoSolicitacao: [null],
-      status: [defaultStatus],
+      status: [''], // Will be set to "Aguardando Confirmação" in onSubmit for new solicitations
       processo: [null],
       correspondente: [null],
-      comarca: [null],
       usuario: [null],
+      dataSolicitacao: [this.getCurrentDate()], // Pre-filled with current date but editable by user
       dataPrazo: [''],
-      observacao: [''],
-      instrucoes: ['']
+      instrucoes: [''],
+      // Conditional fields
+      dataAgendamento: [''],
+      horaAudiencia: [''],
+      valor: ['']
     });
+  }
+
+  // Helper method to get current date in YYYY-MM-DD format
+  private getCurrentDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  // Helper method to format date for display
+  private formatDateForDisplay(dateString: string): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${day}/${month}/${year}`;
   }
 
   private loadDropdownData(): void {
@@ -156,17 +175,6 @@ export class RequestFormComponent implements OnInit {
       error: (error) => {
         console.error('Error loading correspondentes:', error);
         this.snackBar.open('Erro ao carregar correspondentes', 'Fechar', { duration: 5000 });
-      }
-    });
-
-    // Load comarcas
-    this.comarcaService.getComarcas().subscribe({
-      next: (comarcas) => {
-        this.comarcas = comarcas;
-      },
-      error: (error) => {
-        console.error('Error loading comarcas:', error);
-        this.snackBar.open('Erro ao carregar comarcas', 'Fechar', { duration: 5000 });
       }
     });
 
@@ -210,18 +218,29 @@ export class RequestFormComponent implements OnInit {
     this.loading = true;
     this.solicitacaoService.getSolicitacaoById(this.requestId).subscribe({
       next: (solicitacao) => {
+        // Ensure dataSolicitacao is populated with current date if empty
+        const dataSolicitacaoValue = solicitacao.datasolicitacao || this.getCurrentDate();
+        
         this.requestForm.patchValue({
-          complemento: solicitacao.complemento || '',
           tipoSolicitacao: solicitacao.tipoSolicitacao?.idtiposolicitacao || null,
           status: solicitacao.statusSolicitacao?.idstatus || (this.statuses && this.statuses.length > 0 ? this.statuses[0].status : 'PENDENTE'),
           processo: solicitacao.processo?.id || null,
           correspondente: solicitacao.correspondente?.id || null,
-          comarca: solicitacao.comarca?.id || null,
           usuario: solicitacao.usuario?.id || null,
-          dataPrazo: solicitacao.dataPrazo || '',
-          observacao: solicitacao.observacao || '',
-          instrucoes: solicitacao.instrucoes || ''
+          dataSolicitacao: dataSolicitacaoValue,
+          dataPrazo: solicitacao.dataprazo || '',
+          instrucoes: solicitacao.instrucoes || '',
+          // Conditional fields
+          dataAgendamento: solicitacao.dataagendamento || '',
+          horaAudiencia: solicitacao.horaudiencia || '',
+          valor: solicitacao.valor || ''
         });
+        
+        // Check if we need to show conditional fields based on the loaded tipoSolicitacao
+        if (solicitacao.tipoSolicitacao?.idtiposolicitacao) {
+          this.updateConditionalFields(solicitacao.tipoSolicitacao.idtiposolicitacao);
+        }
+        
         this.loading = false;
       },
       error: (error) => {
@@ -233,6 +252,80 @@ export class RequestFormComponent implements OnInit {
     });
   }
 
+  // Method to format currency input for Brazilian format
+  formatCurrency(event: any): void {
+    const input = event.target;
+    let value = input.value.replace(/\D/g, ''); // Remove all non-digit characters
+    
+    // Handle empty value
+    if (value === '') {
+      this.requestForm.get('valor')?.setValue(null, { emitEvent: false });
+      return;
+    }
+    
+    // Convert to number by inserting decimal point in the correct position
+    // For Brazilian format, last 2 digits are decimal places
+    let formattedValue: string;
+    if (value.length <= 2) {
+      formattedValue = '0.' + value.padStart(2, '0');
+    } else {
+      const integerPart = value.slice(0, -2);
+      const decimalPart = value.slice(-2);
+      formattedValue = integerPart + '.' + decimalPart;
+    }
+    
+    // Convert to number
+    const numberValue = parseFloat(formattedValue);
+    if (!isNaN(numberValue)) {
+      // Update the form control with the numeric value
+      this.requestForm.get('valor')?.setValue(numberValue, { emitEvent: false });
+    }
+  }
+
+  // Method to format a number as Brazilian currency for display
+  formatCurrencyDisplay(value: number | null): string {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    
+    // Format as Brazilian currency without the R$ symbol
+    return value.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  // Method to handle tipoSolicitacao selection change
+  onTipoSolicitacaoChange(tipoSolicitacaoId: number): void {
+    this.updateConditionalFields(tipoSolicitacaoId);
+  }
+
+  // Method to update visibility of conditional fields based on tipoSolicitacao
+  private updateConditionalFields(tipoSolicitacaoId: number): void {
+    // Find the selected tipoSolicitacao
+    const selectedTipo = this.tiposSolicitacao.find(tipo => tipo.idtiposolicitacao === tipoSolicitacaoId);
+    
+    if (selectedTipo) {
+      // Check if it's "Audiência" (case insensitive, with or without accents)
+      const especie = selectedTipo.especie?.toLowerCase() || '';
+      const tipo = selectedTipo.tipo?.toLowerCase() || '';
+      
+      const isAudiencia = especie.includes('audiencia') || especie.includes('audiência') || 
+                          tipo.includes('audiencia') || tipo.includes('audiência');
+      
+      const isDiligencia = especie.includes('diligencia') || especie.includes('diligência') || 
+                           tipo.includes('diligencia') || tipo.includes('diligência');
+      
+      // Show/hide fields based on tipo
+      this.showAudienciaFields = isAudiencia;
+      this.showValorField = isAudiencia || isDiligencia;
+    } else {
+      // Default to hiding conditional fields
+      this.showAudienciaFields = false;
+      this.showValorField = false;
+    }
+  }
+
   onSubmit(): void {
     if (this.requestForm.invalid) {
       this.markFormGroupTouched();
@@ -242,21 +335,39 @@ export class RequestFormComponent implements OnInit {
     this.loading = true;
     
     // Prepare the solicitacao object
-    const formValue = this.requestForm.value;
-    
-    // Find the selected status object
-    const selectedStatus = this.statuses.find(s => s.status === formValue.status);
+    const formValue = this.requestForm.getRawValue(); // Use getRawValue to include disabled fields
     
     const solicitacao: any = {
-      complemento: formValue.complemento,
-      dataPrazo: formValue.dataPrazo || null,
-      observacao: formValue.observacao || null,
+      datasolicitacao: formValue.dataSolicitacao || this.getCurrentDate(), // Ensure we always have a value
+      dataprazo: formValue.dataPrazo || null,
       instrucoes: formValue.instrucoes || null,
       ativo: true
     };
 
+    // Add conditional fields if they should be included
+    if (this.showAudienciaFields) {
+      solicitacao.dataagendamento = formValue.dataAgendamento || null;
+      solicitacao.horaudiencia = formValue.horaAudiencia || null;
+    }
+    
+    if (this.showValorField) {
+      // The valor is already stored as a number in the form control
+      solicitacao.valor = formValue.valor || null;
+    }
+
     // Add relationships if selected
-    if(formValue.status){
+    // Set default status for new solicitations
+    if (!this.isEditMode) {
+      // Find "Aguardando Confirmação" status
+      const aguardandoConfirmacaoStatus = this.statuses.find(s => s.status === 'Aguardando Confirmação' || s.status === 'Aguardando Confirmacao');
+      if (aguardandoConfirmacaoStatus) {
+        solicitacao.statusSolicitacao = { idstatus: aguardandoConfirmacaoStatus.idstatus };
+      } else {
+        // Fallback to first status if "Aguardando Confirmação" is not found
+        solicitacao.statusSolicitacao = { idstatus: this.statuses.length > 0 ? this.statuses[0].idstatus : 1 };
+      }
+    } else if(formValue.status){
+      // Use selected status for editing
       solicitacao.statusSolicitacao = { idstatus: formValue.status };
     }
 
@@ -270,10 +381,6 @@ export class RequestFormComponent implements OnInit {
     
     if (formValue.correspondente) {
       solicitacao.correspondente = { id: formValue.correspondente };
-    }
-    
-    if (formValue.comarca) {
-      solicitacao.comarca = { id: formValue.comarca };
     }
     
     if (formValue.usuario) {

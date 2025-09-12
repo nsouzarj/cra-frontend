@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HasPermissionDirective } from './directives/permission.directive';
 import { PasswordResetDialogComponent } from './components/password-reset-dialog/password-reset-dialog.component';
+import { DateFormatService } from './services/date-format.service';
 
 // Angular Material Modules needed for the password reset dialog
 import { MatDialogModule } from '@angular/material/dialog';
@@ -26,6 +27,9 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatFormFieldModule,
     MatIconModule,
     MatSnackBarModule
+  ],
+  providers: [
+    DateFormatService
   ],
   exports: [
     HasPermissionDirective,

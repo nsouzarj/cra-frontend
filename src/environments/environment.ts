@@ -6,7 +6,7 @@
 // Replace '192.168.1.103' with your actual machine's IP address
 export const environment = {
   production: false,
-  apiUrl: 'https://cra-backend-nnb0.onrender.com/cra-api'  // Updated to your machine's correct IP address
+  apiUrl: 'http://192.168.1.102:8081/cra-api'  // Updated to your machine's correct IP address
 };
 
 /*

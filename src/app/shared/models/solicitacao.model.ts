@@ -7,9 +7,10 @@ import { TipoSolicitacao } from './tiposolicitacao.model';
 export interface Solicitacao {
   id?: number;
   referenciaSolicitacao?: number;
-  datasolicitacao?: string;
-  dataconclusao?: string;
-  dataprazo?: string;
+  datasolicitacao?: Date;
+  dataconclusao?: Date;
+  dataprazo?: Date;
+  dataagendamento?: Date;
   observacao?: string;
   instrucoes?: string;
   complemento?: string;
@@ -18,7 +19,7 @@ export interface Solicitacao {
   numeroControle?: string;
   tempreposto?: boolean;
   convolada?: boolean;
-  horaAudiencia?: string;
+  horaudiencia?: string;
   statusExterno?: string;
   processo?: Processo;
   comarca?: Comarca;

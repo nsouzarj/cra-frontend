@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProcessoService } from '../../../core/services/processo.service';
-import { AuthService } from '../../../core/services/auth.service'; // Added AuthService
-import { PermissionService } from '../../../core/services/permission.service'; // Added PermissionService
+import { AuthService } from '../../../core/services/auth.service';
+import { PermissionService } from '../../../core/services/permission.service';
 import { Processo } from '../../../shared/models/processo.model';
+import { DateFormatService } from '../../../shared/services/date-format.service';
 
 @Component({
   selector: 'app-process-detail',
@@ -18,7 +19,8 @@ export class ProcessDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private processoService: ProcessoService,
-    public permissionService: PermissionService // Added PermissionService
+    public permissionService: PermissionService,
+    private dateFormatService: DateFormatService
   ) {}
 
   ngOnInit(): void {
@@ -66,5 +68,9 @@ export class ProcessDetailComponent implements OnInit {
       default:
         return 'status-default';
     }
+  }
+
+  formatDate(date: Date | string | undefined): string {
+    return this.dateFormatService.formatDate(date);
   }
 }

@@ -21,7 +21,7 @@
       <div class="filters-container" *ngIf="!loading">
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>Buscar</mat-label>
-          <input matInput placeholder="Buscar por complemento" [(ngModel)]="filterSearch" (input)="applyFilter()">
+          <input matInput placeholder="Buscar por processo" [(ngModel)]="filterSearch" (input)="applyFilter()">
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
         
@@ -69,12 +69,6 @@
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
             <td mat-cell *matCellDef="let solicitacao">{{ solicitacao.id }}</td>
-          </ng-container>
-          
-          <!-- Complement Column -->
-          <ng-container matColumnDef="complemento">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Complemento</th>
-            <td mat-cell *matCellDef="let solicitacao">{{ solicitacao.complemento }}</td>
           </ng-container>
           
           <!-- Type Column -->
