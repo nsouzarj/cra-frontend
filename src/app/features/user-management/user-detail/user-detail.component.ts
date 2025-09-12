@@ -11,6 +11,7 @@ import { User, UserType } from '../../../shared/models/user.model';
 import { Correspondente } from '../../../shared/models/correspondente.model';
 import { ConfirmationDialogComponent, ConfirmationDialogData } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { PasswordResetDialogComponent, PasswordResetDialogData } from '../../../shared/components/password-reset-dialog/password-reset-dialog.component';
+import { DateFormatService } from '../../../shared/services/date-format.service';
 
 @Component({
   selector: 'app-user-detail',
@@ -31,7 +32,8 @@ export class UserDetailComponent implements OnInit {
     public authService: AuthService,
     public permissionService: PermissionService,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private dateFormatService: DateFormatService
   ) {}
 
   ngOnInit(): void {
@@ -453,5 +455,9 @@ export class UserDetailComponent implements OnInit {
     // Check both the user type and role to be sure
     const isCorrespondentType = this.user?.tipo === UserType.CORRESPONDENTE;
     return isCorrespondentType;
+  }
+
+  formatDate(date: Date | string | undefined): string {
+    return this.dateFormatService.formatDate(date);
   }
 }

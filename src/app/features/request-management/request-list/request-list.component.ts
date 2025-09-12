@@ -25,7 +25,7 @@ export class RequestListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   dataSource = new MatTableDataSource<Solicitacao>();
-  displayedColumns: string[] = ['id', 'complemento', 'tipoSolicitacao', 'processo', 'correspondente', 'status', 'actions'];
+  displayedColumns: string[] = ['id', 'tipoSolicitacao', 'processo', 'correspondente', 'status', 'actions'];
   loading = true;
   statuses: SolicitacaoStatus[] = [];
   
@@ -149,17 +149,17 @@ export class RequestListComponent implements OnInit, AfterViewInit {
           this.refreshTable();
         }, 500);
         
-        // Forçando a atualização da tabela após um delay ainda maior
+        // Forçando a atualização da tabela após um delay muito maior
         setTimeout(() => {
           this.refreshTable();
         }, 1000);
         
-        // Forçando a atualização da tabela após um delay muito maior
+        // Forçando a atualização da tabela após um delay extremamente maior
         setTimeout(() => {
           this.refreshTable();
         }, 2000);
         
-        // Forçando a atualização da tabela após um delay extremamente maior
+        // Forçando a atualização da tabela após um delay extremamente maior ainda
         setTimeout(() => {
           this.refreshTable();
         }, 5000);
@@ -273,9 +273,9 @@ export class RequestListComponent implements OnInit, AfterViewInit {
       const statusMatch = this.filterStatus ? 
         solicitacao.statusSolicitacao?.status === this.filterStatus : true;
       
-      // Filter by search term (in complemento field)
-      const searchMatch = this.filterSearch ? 
-        solicitacao.complemento?.toLowerCase().includes(this.filterSearch.toLowerCase()) : true;
+      // Filter by search term (in complemento field) - removed as we're no longer using this field for filtering
+      // const searchMatch = this.filterSearch ? 
+      //   solicitacao.complemento?.toLowerCase().includes(this.filterSearch.toLowerCase()) : true;
       
       // Filter by processo
       const processoMatch = this.filterProcesso ? 
@@ -290,9 +290,9 @@ export class RequestListComponent implements OnInit, AfterViewInit {
         solicitacao.processo?.orgao?.id === this.filterOrgao : true;
       
       console.log('Resultado do filtro para solicitação', solicitacao.id, ':', 
-                  statusMatch && searchMatch && processoMatch && comarcaMatch && orgaoMatch); // Adicionando log para debug
+                  statusMatch && processoMatch && comarcaMatch && orgaoMatch); // Adicionando log para debug
       
-      return Boolean(statusMatch && searchMatch && processoMatch && comarcaMatch && orgaoMatch);
+      return Boolean(statusMatch && processoMatch && comarcaMatch && orgaoMatch);
     };
 
     // Trigger the filter

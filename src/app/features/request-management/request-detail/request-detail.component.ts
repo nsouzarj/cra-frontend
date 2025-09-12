@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SolicitacaoService } from '../../../core/services/solicitacao.service';
-import { PermissionService } from '../../../core/services/permission.service'; // Added PermissionService
+import { PermissionService } from '../../../core/services/permission.service';
 import { Solicitacao } from '../../../shared/models/solicitacao.model';
+import { DateFormatService } from '../../../shared/services/date-format.service';
 
 @Component({
   selector: 'app-request-detail',
@@ -18,8 +19,9 @@ export class RequestDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private solicitacaoService: SolicitacaoService,
-    public permissionService: PermissionService, // Added PermissionService
-    private snackBar: MatSnackBar
+    public permissionService: PermissionService,
+    private snackBar: MatSnackBar,
+    private dateFormatService: DateFormatService
   ) {}
 
   ngOnInit(): void {
@@ -36,6 +38,7 @@ export class RequestDetailComponent implements OnInit {
       next: (solicitacao) => {
         this.solicitacao = solicitacao;
         this.loading = false;
+        console.log('=== End of loadRequest ===');
       },
       error: (error) => {
         console.error('Error loading solicitacao:', error);
@@ -57,20 +60,45 @@ export class RequestDetailComponent implements OnInit {
   }
 
   getStatusText(status: string | undefined): string {
-    // Since we're now using dynamic statuses from endpoints, we'll just return the status value
-    // In a real implementation, you might want to map these to user-friendly labels
     return status || 'Pendente';
   }
 
   getProcessStatusText(status: string | undefined): string {
-    // Since we're now using dynamic statuses from endpoints, we'll just return the status value
-    // In a real implementation, you might want to map these to user-friendly labels
     return status || 'Não informado';
   }
 
   getStatusClass(status: string | undefined): string {
     if (!status) return 'status-pendente';
-    // Convert status to a CSS class-friendly format
     return `status-${status.toLowerCase().replace('_', '-')}`;
+  }
+
+  formatDate(date: Date | string | undefined): string {
+    return this.dateFormatService.formatDate(date);
+  }
+
+  // Helper method to check if the solicitation is of type Audiência
+  isAudiencia(): boolean {
+    if (!this.solicitacao?.tipoSolicitacao) {
+      return false;
+    }
+    
+    const especie = this.solicitacao.tipoSolicitacao.especie?.toLowerCase() || '';
+    const tipo = this.solicitacao.tipoSolicitacao.tipo?.toLowerCase() || '';
+    
+    return especie.includes('audiencia') || especie.includes('audiência') || 
+           tipo.includes('audiencia') || tipo.includes('audiência');
+  }
+
+  // Helper method to check if the solicitation is of type Diligência
+  isDiligencia(): boolean {
+    if (!this.solicitacao?.tipoSolicitacao) {
+      return false;
+    }
+    
+    const especie = this.solicitacao.tipoSolicitacao.especie?.toLowerCase() || '';
+    const tipo = this.solicitacao.tipoSolicitacao.tipo?.toLowerCase() || '';
+    
+    return especie.includes('diligencia') || especie.includes('diligência') || 
+           tipo.includes('diligencia') || tipo.includes('diligência');
   }
 }

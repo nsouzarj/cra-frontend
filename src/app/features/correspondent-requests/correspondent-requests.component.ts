@@ -20,7 +20,7 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   dataSource = new MatTableDataSource<Solicitacao>();
-  displayedColumns: string[] = ['id', 'complemento', 'tipoSolicitacao', 'processo', 'correspondente', 'status', 'actions'];
+  displayedColumns: string[] = ['id', 'tipoSolicitacao', 'processo', 'correspondente', 'status', 'actions'];
   loading = true;
   
   // Filter properties
@@ -151,9 +151,9 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
       const statusMatch = this.filterStatus ? 
         solicitacao.statusSolicitacao?.status === this.filterStatus : true;
       
-      // Filter by search term (in complemento field)
+      // Filter by search term (in processo field instead of complemento)
       const searchMatch = this.filterSearch ? 
-        solicitacao.complemento?.toLowerCase().includes(this.filterSearch.toLowerCase()) : true;
+        solicitacao.processo?.numeroprocesso?.toLowerCase().includes(this.filterSearch.toLowerCase()) : true;
       
       // Filter by processo
       const processoMatch = this.filterProcesso ? 
@@ -256,11 +256,7 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
       }
     };
     
-    // If status is "Finalizada", set dataConclusao
-    if (newStatus === 'Finalizada') {
-      updatedSolicitacao.dataConclusao = new Date().toISOString().split('T')[0];
-    }
-    
+ 
     // Show user-friendly status name in confirmation dialog
     const userFriendlyStatus = newStatus === 'Finalizada' ? 'Concluída' : newStatus;
     

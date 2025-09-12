@@ -6,32 +6,6 @@
     <mat-card-content>
       <form [formGroup]="requestForm" (ngSubmit)="onSubmit()">
         <mat-form-field class="full-width" appearance="outline">
-          <mat-label>Descrição *</mat-label>
-          <textarea matInput formControlName="complemento" rows="4"></textarea>
-          <mat-error *ngIf="requestForm.get('complemento')?.hasError('required')">
-            Descrição é obrigatória
-          </mat-error>
-        </mat-form-field>
-
-        <mat-form-field class="full-width" appearance="outline">
-          <mat-label>Tipo de Solicitação</mat-label>
-          <mat-select formControlName="tipoSolicitacao">
-            <mat-option *ngFor="let tipo of tiposSolicitacao" [value]="tipo.idtiposolicitacao">
-              {{ tipo.especie }} - {{ tipo.tipo }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field class="full-width" appearance="outline">
-          <mat-label>Status</mat-label>
-          <mat-select formControlName="status">
-            <mat-option *ngFor="let status of statuses" [value]="status.idstatus">
-              {{ status.status }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field class="full-width" appearance="outline">
           <mat-label>Processo</mat-label>
           <mat-select formControlName="processo">
             <mat-option *ngFor="let processo of filteredProcessos" [value]="processo.id">
@@ -50,10 +24,10 @@
         </mat-form-field>
 
         <mat-form-field class="full-width" appearance="outline">
-          <mat-label>Comarca</mat-label>
-          <mat-select formControlName="comarca">
-            <mat-option *ngFor="let comarca of comarcas" [value]="comarca.id">
-              {{ comarca.nome }} - {{ comarca.uf.sigla }}
+          <mat-label>Tipo de Solicitação</mat-label>
+          <mat-select formControlName="tipoSolicitacao" (selectionChange)="onTipoSolicitacaoChange($event.value)">
+            <mat-option *ngFor="let tipo of tiposSolicitacao" [value]="tipo.idtiposolicitacao">
+              {{ tipo.especie }} - {{ tipo.tipo }}
             </mat-option>
           </mat-select>
         </mat-form-field>
@@ -67,6 +41,14 @@
           </mat-select>
         </mat-form-field>
 
+        <!-- Data Solicitação (agora editável pelo usuário, com data atual como padrão) -->
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Data Solicitação</mat-label>
+          <input matInput [matDatepicker]="solicitacaoPicker" formControlName="dataSolicitacao">
+          <mat-datepicker-toggle matSuffix [for]="solicitacaoPicker"></mat-datepicker-toggle>
+          <mat-datepicker #solicitacaoPicker></mat-datepicker>
+        </mat-form-field>
+
         <mat-form-field class="full-width" appearance="outline">
           <mat-label>Data Prazo</mat-label>
           <input matInput [matDatepicker]="prazoPicker" formControlName="dataPrazo">
@@ -74,9 +56,42 @@
           <mat-datepicker #prazoPicker></mat-datepicker>
         </mat-form-field>
 
-        <mat-form-field class="full-width" appearance="outline">
-          <mat-label>Observação</mat-label>
-          <textarea matInput formControlName="observacao" rows="3"></textarea>
+        <!-- Conditional fields for Audiência -->
+        <div *ngIf="showAudienciaFields">
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Data do Agendamento</mat-label>
+            <input matInput [matDatepicker]="agendamentoPicker" formControlName="dataAgendamento">
+            <mat-datepicker-toggle matSuffix [for]="agendamentoPicker"></mat-datepicker-toggle>
+            <mat-datepicker #agendamentoPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Hora da Audiência</mat-label>
+            <input matInput type="time" formControlName="horaAudiencia">
+          </mat-form-field>
+        </div>
+
+        <!-- Valor field (always shown for Audiência and Diligência) -->
+        <mat-form-field class="full-width" appearance="outline" *ngIf="showValorField">
+          <mat-label>Valor</mat-label>
+          <span matPrefix>R$&nbsp;</span>
+          <input matInput type="text" [value]="formatCurrencyDisplay(requestForm.get('valor')?.value)" (input)="formatCurrency($event)" placeholder="0,00">
+        </mat-form-field>
+
+        <!-- Status field - only shown when editing -->
+        <mat-form-field class="full-width" appearance="outline" *ngIf="isEditMode">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option *ngFor="let status of statuses" [value]="status.idstatus">
+              {{ status.status }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Default status display for new solicitations -->
+        <mat-form-field class="full-width" appearance="outline" *ngIf="!isEditMode" readonly>
+          <mat-label>Status</mat-label>
+          <input matInput value="Aguardando Confirmação" readonly>
         </mat-form-field>
 
         <mat-form-field class="full-width" appearance="outline">

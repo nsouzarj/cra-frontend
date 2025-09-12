@@ -4,9 +4,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { CorrespondenteService } from '../../../core/services/correspondente.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { PermissionService } from '../../../core/services/permission.service'; // Added PermissionService
+import { PermissionService } from '../../../core/services/permission.service';
 import { ConfirmationDialogComponent, ConfirmationDialogData } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { Correspondente } from '../../../shared/models/correspondente.model';
+import { DateFormatService } from '../../../shared/services/date-format.service';
 
 @Component({
   selector: 'app-correspondent-detail',
@@ -22,9 +23,10 @@ export class CorrespondentDetailComponent implements OnInit {
     private router: Router,
     private correspondenteService: CorrespondenteService,
     private authService: AuthService,
-    public permissionService: PermissionService, // Added PermissionService
+    public permissionService: PermissionService,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private dateFormatService: DateFormatService
   ) {}
 
   ngOnInit(): void {
@@ -155,5 +157,9 @@ export class CorrespondentDetailComponent implements OnInit {
       default:
         return type || 'Não informado';
     }
+  }
+
+  formatDate(date: Date | string | undefined): string {
+    return this.dateFormatService.formatDate(date);
   }
 }

@@ -74,15 +74,30 @@
           </div>
           <div class="info-item">
             <span class="info-label">Data de Solicitação:</span>
-            <span class="info-value">{{ solicitacao?.dataSolicitacao ? (solicitacao?.dataSolicitacao | date:'dd/MM/yyyy') : 'Não informado' }}</span>
+            <span class="info-value">{{formatDate(solicitacao?.datasolicitacao) }}</span>
+          </div>
+          <!-- Conditional field for Audiência: Data do Agendamento -->
+          <div class="info-item" *ngIf="isAudiencia() && solicitacao?.dataagendamento">
+            <span class="info-label">Data do Agendamento:</span>
+            <span class="info-value">{{ formatDate(solicitacao?.dataagendamento) }}</span>
+          </div>
+          <!-- Conditional field for Audiência: Hora da Audiência -->
+          <div class="info-item" *ngIf="isAudiencia() && solicitacao?.horaudiencia">
+            <span class="info-label">Hora da Audiência:</span>
+            <span class="info-value">{{ solicitacao?.horaudiencia }}</span>
+          </div>
+          <!-- Conditional field for Audiência or Diligência: Valor -->
+          <div class="info-item" *ngIf="(isAudiencia() || isDiligencia()) && solicitacao?.valor">
+            <span class="info-label">Valor:</span>
+            <span class="info-value">R$ {{ solicitacao?.valor | number:'1.2-2':'pt-BR' }}</span>
           </div>
           <div class="info-item">
             <span class="info-label">Data de Prazo:</span>
-            <span class="info-value">{{ solicitacao?.dataPrazo ? (solicitacao?.dataPrazo | date:'dd/MM/yyyy') : 'Não informado' }}</span>
+            <span class="info-value">{{ formatDate(solicitacao?.dataprazo)}}</span>
           </div>
           <div class="info-item">
             <span class="info-label">Data de Conclusão:</span>
-            <span class="info-value">{{ solicitacao?.dataConclusao ? (solicitacao?.dataConclusao | date:'dd/MM/yyyy') : 'Não informado' }}</span>
+            <span class="info-value">{{ formatDate(solicitacao?.dataconclusao)}}</span>
           </div>
         </div>
       </mat-card-content>

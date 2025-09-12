@@ -31,7 +31,7 @@ export class SolicitacaoService {
         catchError(this.handleError),
         // Adicionando log para debug
         tap((solicitacoes) => {
-          console.log('Dados das solicitações recebidos do backend:', solicitacoes);
+          console.log('Dados das solicitações recebidos do backend:', JSON.stringify(solicitacoes));
           console.log('Quantidade de solicitações recebidas:', solicitacoes.length);
         })
       );
