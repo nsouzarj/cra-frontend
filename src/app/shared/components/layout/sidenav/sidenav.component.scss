@@ -281,3 +281,30 @@ mat-icon[matListItemIcon] {
     padding-bottom: 12px;
   }
 }
+
+/* Logout button styles */
+.logout-container {
+  margin-top: auto;
+  display: none; /* Hidden by default */
+}
+
+/* Show logout button only on mobile */
+@media (max-width: 768px) {
+  .logout-container {
+    display: block; /* Show on mobile */
+  }
+}
+
+/* Ensure sidenav logout button doesn't affect header logout button */
+.logout-item {
+  color: #f44336 !important; /* Red color for logout */
+  font-weight: 500;
+}
+
+.logout-item:hover {
+  background-color: rgba(244, 67, 54, 0.1) !important;
+}
+
+.logout-item mat-icon {
+  color: #f44336 !important;
+}

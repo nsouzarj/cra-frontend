@@ -27,6 +27,7 @@ import { ThemeTestComponent } from '../../theme-test.component';
 import { ThemeDebugComponent } from '../../theme-debug.component';
 import { ThemeTroubleshootComponent } from '../../theme-troubleshoot.component';
 import { ThemeQuickTestComponent } from '../../theme-quick-test.component';
+import { MatTooltip } from "@angular/material/tooltip";
 
 @NgModule({
   declarations: [
@@ -57,8 +58,9 @@ import { ThemeQuickTestComponent } from '../../theme-quick-test.component';
     MatSelectModule,
     MatOptionModule,
     MatFormFieldModule,
-    MatDialogModule
-  ],
+    MatDialogModule,
+    MatTooltip
+],
   exports: [
     UnauthorizedComponent,
     NotFoundComponent,

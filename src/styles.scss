@@ -871,33 +871,6 @@ html, body {
     color: #ffffff !important;
   }
   
-  }
-  
-  .success-snackbar {
-    background-color: #4caf50 !important;
-  }
-  
-  .info-snackbar {
-    background-color: #2196f3 !important;
-  }
-  
-  .warning-snackbar {
-    background-color: #ff9800 !important;
-  }
-  
-  /* Ensure all headers maintain proper styling */
-  .app-header {
-    background-color: #4caf50 !important;
-  }
-  
-  .app-title {
-    color: #ffffff !important;
-  }
-  
-  .user-welcome {
-    color: rgba(255, 255, 255, 0.9) !important;
-  }
-  
   /* Ensure mat-toolbar maintains proper styling */
   .mat-toolbar {
     background-color: #4caf50 !important;
@@ -1025,6 +998,9 @@ html, body {
   .user-role {
     color: #9c27b0;
   }
+}
+
+/* Add any additional global styles here */
   
   /* Snackbar colors remain the same */
   .error-snackbar {

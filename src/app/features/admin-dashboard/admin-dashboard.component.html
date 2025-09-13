@@ -301,7 +301,6 @@
         <mat-card-content>
           <mat-icon>person_add</mat-icon>
           <h3>Cadastrar Usuário</h3>
-          <p>Adicionar novo usuário</p>
           <button mat-raised-button color="primary" routerLink="/register">
             Cadastrar
           </button>
@@ -312,7 +311,6 @@
         <mat-card-content>
           <mat-icon>business</mat-icon>
           <h3>Novo Correspondente</h3>
-          <p>Cadastrar correspondente</p>
           <button mat-raised-button color="primary" routerLink="/correspondentes/novo">
             Cadastrar
           </button>
@@ -323,7 +321,6 @@
         <mat-card-content>
           <mat-icon>folder_open</mat-icon>
           <h3>Novo Processo</h3>
-          <p>Registrar novo processo</p>
           <button mat-raised-button color="primary" routerLink="/processos/novo">
             Cadastrar
           </button>
@@ -334,7 +331,6 @@
         <mat-card-content>
           <mat-icon>assignment_add</mat-icon>
           <h3>Nova Solicitação</h3>
-          <p>Criar solicitação</p>
           <button mat-raised-button color="primary" routerLink="/solicitacoes/novo">
             Criar
           </button>
@@ -358,7 +354,7 @@
   <!-- Recent Activity (Future Enhancement) -->
   <div class="recent-activity" *ngIf="!loading">
     <h2>Atividade Recente</h2>
-    <mat-card>
+    <mat-card class="centered-card">
       <mat-card-content>
         <p class="coming-soon">Funcionalidade em desenvolvimento...</p>
       </mat-card-content>

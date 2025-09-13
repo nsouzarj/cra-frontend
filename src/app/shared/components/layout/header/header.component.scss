@@ -86,6 +86,38 @@
   font-weight: 500;
 }
 
+// Logout button in header
+.logout-button-header {
+  color: white !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 50%;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+  }
+}
+
+// Ensure user menu button is always visible
+.mat-icon-button[aria-label="User menu"] {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+// Ensure tooltips appear above header and are visible
+.mat-tooltip {
+  z-index: 1100 !important;
+  font-size: 12px !important;
+  padding: 8px 12px !important;
+  border-radius: 4px !important;
+  overflow: visible !important;
+}
+
+// Ensure tooltip container is not clipped by header
+.cdk-overlay-container {
+  z-index: 1100 !important;
+}
+
 @media (max-width: 768px) {
   .user-welcome {
     display: none;
@@ -195,4 +227,11 @@
     transform: scale(0.95);
     transition: transform 0.1s ease;
   }
+}
+
+/* Ensure logout button is always visible in header menu */
+.logout-button {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }

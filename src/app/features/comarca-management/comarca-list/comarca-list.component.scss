@@ -160,6 +160,7 @@ mat-paginator {
     flex-direction: column;
     gap: 16px;
     align-items: stretch;
+    margin-bottom: 30px; // Add more spacing on mobile
     
     h1 {
       font-size: 24px;

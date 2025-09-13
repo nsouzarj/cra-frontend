@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { filter } from 'rxjs/operators';
@@ -18,6 +18,7 @@ interface MenuItem {
   styleUrls: ['./sidenav.component.scss']
 })
 export class SidenavComponent implements OnInit {
+  isMobile: boolean = false;
   currentRoute = '';
   
   menuItems: MenuItem[] = [
@@ -146,6 +147,9 @@ export class SidenavComponent implements OnInit {
 
   ngOnInit(): void {
     console.log('SidenavComponent: ngOnInit called');
+    // Check screen size on init
+    this.checkScreenSize();
+    
     // Track current route
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -166,6 +170,15 @@ export class SidenavComponent implements OnInit {
     });
     
     console.log('SidenavComponent: Current route:', this.currentRoute);
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.checkScreenSize();
+  }
+  
+  checkScreenSize() {
+    this.isMobile = window.innerWidth <= 768;
   }
 
   hasPermission(roles?: string[]): boolean {
@@ -198,5 +211,9 @@ export class SidenavComponent implements OnInit {
         );
       }
     });
+  }
+  
+  logout(): void {
+    this.authService.logout();
   }
 }

@@ -140,7 +140,7 @@
 /* Actions Grid */
 .actions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
   margin-bottom: 30px;
 }
@@ -396,6 +396,10 @@
 /* Recent Activity */
 .recent-activity {
   margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .recent-activity h2 {
@@ -404,10 +408,18 @@
   font-size: 24px;
 }
 
+.centered-card {
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
 .coming-soon {
   text-align: center;
   color: #666;
   font-style: italic;
+  padding: 40px 20px;
+  margin: 0;
 }
 
 /* Responsive Design */

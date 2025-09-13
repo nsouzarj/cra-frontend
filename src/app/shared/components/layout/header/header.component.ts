@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, HostListener, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, HostListener, OnDestroy, ChangeDetectorRef, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ThemeService, Theme } from '../../../../core/services/theme.service';
@@ -12,6 +12,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
+  @Input() isMobile: boolean = false;
   currentUser: User | null = null;
   private currentUserSubscription: Subscription | null = null;
   private themeSubscription: Subscription | null = null;

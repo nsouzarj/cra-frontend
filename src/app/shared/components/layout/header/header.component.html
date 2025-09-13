@@ -1,7 +1,7 @@
 <mat-toolbar class="app-header">
   <div class="header-content">
     <div class="header-left">
-      <button mat-icon-button (click)="onToggleSidenav()">
+      <button mat-icon-button (click)="onToggleSidenav()" matTooltip="Abrir/fechar menu" matTooltipPosition="below">
         <mat-icon>menu</mat-icon>
       </button>
       <span class="app-title">SCB - Sistema de Correspondentes</span>
@@ -9,21 +9,27 @@
     
     <div class="header-right">
       <!-- Zoom Controls -->
-      <button mat-icon-button (click)="zoomOut()" matTooltip="Diminuir zoom (Ctrl+-)">
+      <button mat-icon-button (click)="zoomOut()" matTooltip="Diminuir zoom (Ctrl+-)" matTooltipPosition="below">
         <mat-icon>zoom_out</mat-icon>
       </button>
-      <button mat-icon-button (click)="resetZoom()" matTooltip="Redefinir zoom (Ctrl+0)">
+      <button mat-icon-button (click)="resetZoom()" matTooltip="Redefinir zoom (Ctrl+0)" matTooltipPosition="below">
         <span style="font-size: 14px; font-weight: 500;">{{ getZoomLevel() }}%</span>
       </button>
-      <button mat-icon-button (click)="zoomIn()" matTooltip="Aumentar zoom (Ctrl+)">
+      <button mat-icon-button (click)="zoomIn()" matTooltip="Aumentar zoom (Ctrl+)" matTooltipPosition="below">
         <mat-icon>zoom_in</mat-icon>
+      </button>
+      
+      <!-- Logout button - moved from user menu to header -->
+      <button mat-icon-button (click)="logout()" matTooltip="Sair do sistema" matTooltipPosition="below" class="logout-button-header">
+        <mat-icon>exit_to_app</mat-icon>
       </button>
       
       <span class="user-welcome" *ngIf="currentUser">
         Olá, {{ currentUser.nomecompleto || currentUser.login || 'Usuário' }}
       </span>
       
-      <button mat-icon-button [matMenuTriggerFor]="userMenu">
+      <!-- User menu button - without logout option now -->
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="User menu"  matTooltip="Menu do usuário" matTooltipPosition="below">
         <mat-icon>account_circle</mat-icon>
       </button>
       
@@ -42,10 +48,7 @@
           <mat-icon>palette</mat-icon>
           <span>Temas</span>
         </button>
-        <button mat-menu-item (click)="logout()">
-          <mat-icon>exit_to_app</mat-icon>
-          <span>Sair</span>
-        </button>
+        <!-- Logout button removed from here -->
       </mat-menu>
     </div>
   </div>

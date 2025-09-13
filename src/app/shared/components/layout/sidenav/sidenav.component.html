@@ -46,4 +46,13 @@
       </div>
     </div>
   </ng-container>
+  
+  <!-- Logout button for mobile - only visible on mobile devices -->
+  <div class="logout-container" *ngIf="isMobile">
+    <mat-divider class="nav-divider"></mat-divider>
+    <a mat-list-item (click)="logout()" class="nav-item logout-item">
+      <mat-icon matListItemIcon>exit_to_app</mat-icon>
+      <span matListItemTitle>Sair</span>
+    </a>
+  </div>
 </mat-nav-list>

@@ -1,6 +1,6 @@
 <div class="app-container">
   <ng-container *ngIf="authService.isAuthenticated; else loginLayout">
-    <app-header (toggleSidenav)="toggleSidenav()"></app-header>
+    <app-header (toggleSidenav)="toggleSidenav()" [isMobile]="isMobile"></app-header>
     <mat-sidenav-container class="sidenav-container">
       <mat-sidenav #sidenav [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile || isSidenavOpen" class="sidenav">
         <app-sidenav></app-sidenav>
