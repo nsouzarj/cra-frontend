@@ -1,7 +1,12 @@
 .dashboard-container {
   padding: 20px;
-  max-width: 1200px;
+  max-width: 100%; /* Changed from 1200px to 100% for better mobile fit */
   margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden; /* Prevent horizontal overflow */
+  overflow-y: auto; /* Allow vertical scrolling if needed */
+  position: relative;
 }
 
 .dashboard-header {
@@ -160,35 +165,52 @@
 .chart-card {
   border-radius: 8px;
   box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-width: 100%;
+  position: relative;
+  overflow: hidden; /* Contain all content */
+  max-height: 500px; /* Limit card height */
 }
 
 .chart-card mat-card-header {
   padding: 16px;
   border-bottom: 1px solid rgba(0,0,0,.12);
+  flex-shrink: 0; /* Prevent header from shrinking */
 }
 
-.chart-card mat-card-title {
-  font-size: 20px;
-  margin: 0;
+.chart-card mat-card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
 }
 
-.chart-card mat-card-subtitle {
-  margin: 5px 0 0 0;
+/* Make the entire card content scrollable if needed */
+.chart-card .mat-card-content {
+  overflow-x: hidden; /* Prevent horizontal overflow */
+  overflow-y: auto; /* Vertical scrolling if content is tall */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
 .chart-container {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
   padding: 20px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
 }
 
 .pie-chart {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 20px;
   align-items: center;
-  justify-content: center;
+  min-width: 400px; /* Ensure minimum width to trigger scrolling on smaller screens */
 }
 
 .pie-chart-container {
@@ -231,16 +253,15 @@
 }
 
 .pie-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-width: 300px;
+  min-width: 200px; /* Ensure legend has minimum width */
+  white-space: nowrap; /* Prevent text wrapping to ensure proper width */
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  min-width: 150px; /* Ensure each legend item has minimum width */
 }
 
 .legend-color {
@@ -251,8 +272,9 @@
 }
 
 .legend-label {
-  font-size: 14px;
-  color: #333;
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bar-chart {
@@ -300,10 +322,15 @@
 
 .horizontal-scroll-container {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
 }
 
 .responsive-bar-chart {
   min-width: 500px;
+  width: 100%;
+  overflow-x: auto; /* Enable horizontal scrolling */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
 /* Loading State */
@@ -395,10 +422,14 @@
   
   .chart-container {
     flex-direction: column;
+    overflow-x: auto; /* Enable horizontal scrolling on mobile */
+    overflow-y: hidden; /* Prevent vertical overflow */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
   }
   
   .pie-chart {
-    flex-direction: column;
+    flex-direction: row; /* Keep row direction for proper scrolling */
+    min-width: 300px; /* Adjust minimum width for mobile */
   }
   
   .pie-chart-container {
@@ -417,9 +448,17 @@
   .chart-bars {
     height: 150px;
   }
+  
+  .chart-card {
+    max-height: 400px; /* Limit card height on mobile */
+  }
 }
 
 @media (max-width: 480px) {
+  .dashboard-container {
+    padding: 12px;
+  }
+  
   .dashboard-header h1 {
     font-size: 24px;
   }
@@ -444,5 +483,38 @@
   
   .primary-number {
     font-size: 24px;
+  }
+  
+  .chart-container {
+    padding: 15px;
+    overflow-x: auto; /* Enable horizontal scrolling on mobile */
+    overflow-y: hidden; /* Prevent vertical overflow */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  }
+  
+  .pie-chart {
+    min-width: 250px; /* Further adjust minimum width for small screens */
+    flex-direction: row; /* Keep row direction for proper scrolling */
+  }
+  
+  .pie-chart-container {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .pie-total {
+    font-size: 20px;
+  }
+  
+  .responsive-bar-chart {
+    min-width: 200px;
+  }
+  
+  .chart-bars {
+    height: 120px;
+  }
+  
+  .chart-card {
+    max-height: 350px; /* Further limit card height on small screens */
   }
 }

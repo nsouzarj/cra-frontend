@@ -12,6 +12,12 @@ html, body {
   margin: 0; 
   padding: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif; 
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+/* Enable smooth scrolling for all elements */
+* {
+  -webkit-overflow-scrolling: touch;
 }
 
 .mat-toolbar {
@@ -24,6 +30,9 @@ html, body {
 .content-container {
   padding: 20px;
   min-height: calc(100vh - 64px);
+  overflow-x: hidden; /* Prevent horizontal overflow */
+  overflow-y: auto; /* Allow vertical scrolling */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
 .form-container {
@@ -248,6 +257,106 @@ html, body {
 
 .password-requirements li.unmet {
   color: #f44336;
+}
+
+/* Responsive Design Utilities */
+.horizontal-scroll-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}
+
+.vertical-scroll-container {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Chart container scrolling */
+.chart-container {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}
+
+/* Pie chart specific styles for scrolling */
+.pie-chart {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 20px;
+  align-items: center;
+  min-width: 400px; /* Ensure minimum width to trigger scrolling on smaller screens */
+}
+
+.pie-legend {
+  min-width: 200px; /* Ensure legend has minimum width */
+  white-space: nowrap; /* Prevent text wrapping to ensure proper width */
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 150px; /* Ensure each legend item has minimum width */
+}
+
+.legend-label {
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ensure all elements properly contain content */
+* {
+  box-sizing: border-box;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+  .content-container {
+    padding: 16px;
+  }
+  
+  .form-container {
+    padding: 16px;
+  }
+  
+  .search-container {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .search-field {
+    width: 100%;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .action-buttons .mat-raised-button,
+  .action-buttons .mat-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-container {
+    padding: 12px;
+  }
+  
+  .form-container {
+    padding: 12px;
+  }
+  
+  .form-field {
+    margin-bottom: 12px;
+  }
+  
+  .button-container {
+    margin-top: 16px;
+  }
 }
 
 /* Light Theme (Default) */
@@ -759,6 +868,33 @@ html, body {
   }
   
   .user-welcome {
+    color: #ffffff !important;
+  }
+  
+  }
+  
+  .success-snackbar {
+    background-color: #4caf50 !important;
+  }
+  
+  .info-snackbar {
+    background-color: #2196f3 !important;
+  }
+  
+  .warning-snackbar {
+    background-color: #ff9800 !important;
+  }
+  
+  /* Ensure all headers maintain proper styling */
+  .app-header {
+    background-color: #4caf50 !important;
+  }
+  
+  .app-title {
+    color: #ffffff !important;
+  }
+  
+  .user-welcome {
     color: rgba(255, 255, 255, 0.9) !important;
   }
   
@@ -767,7 +903,6 @@ html, body {
     background-color: #4caf50 !important;
     color: #ffffff !important;
   }
-}
 
 /* Purple Theme Styles */
 .purple-theme {
