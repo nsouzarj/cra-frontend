@@ -40,7 +40,7 @@ interface TipoSolicitacaoCount {
 @Component({
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.component.html',
-  styleUrls: ['./admin-dashboard.component.scss']
+  styleUrls: ['./dashboard-common.scss'] // Use common dashboard SCSS
 })
 export class AdminDashboardComponent implements OnInit {
   currentUser: User | null = null;

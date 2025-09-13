@@ -23,7 +23,7 @@ interface TipoSolicitacaoCount {
 @Component({
   selector: 'app-correspondent-dashboard-simple',
   templateUrl: './correspondent-dashboard-simple.component.html',
-  styleUrls: ['./correspondent-dashboard-simple.component.scss']
+  styleUrls: ['../admin-dashboard/dashboard-common.scss'] // Use common dashboard SCSS
 })
 export class CorrespondentDashboardSimpleComponent implements OnInit {
   currentUser: User | null = null;
@@ -121,7 +121,8 @@ export class CorrespondentDashboardSimpleComponent implements OnInit {
       catchError((error: any) => {
         console.error('Error fetching solicitacao statuses:', error);
         return of([]);
-      })
+      }
+    )
     ).subscribe({
       next: (statuses: SolicitacaoStatus[]) => {
         console.log('Loaded solicitacao statuses:', statuses);
