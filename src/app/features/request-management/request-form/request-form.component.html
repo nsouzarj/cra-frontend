@@ -69,14 +69,14 @@
           
           <div class="form-row">
             <mat-form-field class="form-field" appearance="outline">
-              <mat-label>Data Solicitação</mat-label>
+              <mat-label>Data da Solicitação</mat-label>
               <input matInput [matDatepicker]="solicitacaoPicker" formControlName="dataSolicitacao">
               <mat-datepicker-toggle matSuffix [for]="solicitacaoPicker"></mat-datepicker-toggle>
               <mat-datepicker #solicitacaoPicker></mat-datepicker>
             </mat-form-field>
 
             <mat-form-field class="form-field" appearance="outline">
-              <mat-label>Data Prazo</mat-label>
+              <mat-label>Data do Prazo</mat-label>
               <input matInput [matDatepicker]="prazoPicker" formControlName="dataPrazo">
               <mat-datepicker-toggle matSuffix [for]="prazoPicker"></mat-datepicker-toggle>
               <mat-datepicker #prazoPicker></mat-datepicker>
@@ -101,40 +101,42 @@
           </div>
         </div>
 
-        <!-- Value Information -->
+        <!-- Value and Status Information -->
         <div class="form-section">
-          <h3>Informações Financeiras</h3>
+          <h3>Valor e Status (Já Preenchido) </h3>
           
-          <!-- Valor field (always shown for Audiência and Diligência) -->
-          <mat-form-field class="form-field full-width" appearance="outline" *ngIf="showValorField">
-            <mat-label>Valor *</mat-label>
-            <span matPrefix>R$&nbsp;</span>
-            <input matInput type="text" [value]="formatCurrencyDisplay(requestForm.get('valor')?.value)" (input)="formatCurrency($event)" placeholder="0,00">
-            <mat-error *ngIf="isFieldInvalid('valor')">
-              {{ getFieldErrorMessage('valor') }}
-            </mat-error>
-          </mat-form-field>
+          <div class="form-row">
+            <!-- Valor field (always shown for Audiência and Diligência) -->
+            <mat-form-field class="form-field" appearance="outline" *ngIf="showValorField">
+              <mat-label>Valor *</mat-label>
+              <span matPrefix>R$&nbsp;</span>
+              <input matInput type="text" [value]="formatCurrencyDisplay(requestForm.get('valor')?.value)" (input)="formatCurrency($event)" placeholder="0,00">
+              <mat-error *ngIf="isFieldInvalid('valor')">
+                {{ getFieldErrorMessage('valor') }}
+              </mat-error>
+            </mat-form-field>
 
-          <!-- Status field - only shown when editing -->
-          <mat-form-field class="form-field full-width" appearance="outline" *ngIf="isEditMode">
-            <mat-label>Status</mat-label>
-            <mat-select formControlName="status">
-              <mat-option *ngFor="let status of statuses" [value]="status.idstatus">
-                {{ status.status }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+            <!-- Status field - only shown when editing -->
+            <mat-form-field class="form-field" appearance="outline" *ngIf="isEditMode">
+              <mat-label>Status da Solicitação</mat-label>
+              <mat-select formControlName="status">
+                <mat-option *ngFor="let status of statuses" [value]="status.idstatus">
+                  {{ status.status }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
 
-          <!-- Default status display for new solicitations -->
-          <mat-form-field class="form-field full-width" appearance="outline" *ngIf="!isEditMode" readonly>
-            <mat-label>Status</mat-label>
-            <input matInput value="Aguardando Confirmação" readonly>
-          </mat-form-field>
+            <!-- Default status display for new solicitations -->
+            <mat-form-field class="form-field" appearance="outline" *ngIf="!isEditMode" readonly>
+              <mat-label>Status</mat-label>
+              <input matInput value="Aguardando Confirmação" readonly>
+            </mat-form-field>
+          </div>
         </div>
 
         <!-- Instructions -->
         <div class="form-section">
-          <h3>Instruções</h3>
+          <h3>Instruções da Solicitação</h3>
           
           <mat-form-field class="form-field full-width" appearance="outline">
             <mat-label>Instruções</mat-label>
