@@ -1,11 +1,12 @@
 <div class="request-list-container">
-  <div class="page-header">
-    <h1>Gerenciamento de Solicitações</h1>
+  <mat-toolbar class="toolbar">
+    <h1>Solicitações Elaboradas</h1>
+    <span class="spacer"></span>
     <button *ngIf="permissionService.canCreateRequests()" mat-raised-button color="primary" routerLink="/solicitacoes/novo">
       <mat-icon>add</mat-icon>
       Nova Solicitação
     </button>
-  </div>
+  </mat-toolbar>
 
   <!-- Filter Section -->
   <mat-card class="filter-card">
@@ -104,21 +105,22 @@
             </td>
           </ng-container>
 
+          <!-- Actions Column -->
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Ações</th>
             <td mat-cell *matCellDef="let solicitacao">
               <div class="action-buttons">
-                <button mat-icon-button [routerLink]="['/solicitacoes/visualizar', solicitacao.id]">
+                <button mat-icon-button [routerLink]="['/solicitacoes/visualizar', solicitacao.id]" class="view-action">
                   <mat-icon>visibility</mat-icon>
                 </button>
                 
                 <!-- Using Permission Service -->
-                <button *ngIf="permissionService.canEditRequests()" mat-icon-button [routerLink]="['/solicitacoes/editar', solicitacao.id]">
+                <button *ngIf="permissionService.canEditRequests()" mat-icon-button [routerLink]="['/solicitacoes/editar', solicitacao.id]" class="edit-action">
                   <mat-icon>edit</mat-icon>
                 </button>
                 
                 <!-- Delete button only for admins -->
-                <button *ngIf="authService.isAdminUser" mat-icon-button (click)="deleteRequest(solicitacao.id)">
+                <button *ngIf="authService.isAdminUser" mat-icon-button (click)="deleteRequest(solicitacao.id)" class="delete-action">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>

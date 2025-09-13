@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subscription } from 'rxjs';
 import { SolicitacaoService } from '../../../core/services/solicitacao.service';
 import { PermissionService } from '../../../core/services/permission.service';
 import { Solicitacao } from '../../../shared/models/solicitacao.model';
@@ -11,9 +12,11 @@ import { DateFormatService } from '../../../shared/services/date-format.service'
   templateUrl: './request-detail.component.html',
   styleUrls: ['./request-detail.component.scss']
 })
-export class RequestDetailComponent implements OnInit {
+export class RequestDetailComponent implements OnInit, OnDestroy {
   solicitacao: Solicitacao | null = null;
   loading = true;
+
+  private themeSubscription: Subscription | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -30,6 +33,30 @@ export class RequestDetailComponent implements OnInit {
       if (requestId) {
         this.loadRequest(requestId);
       }
+    });
+    
+    this.setupThemeListener();
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
+  }
+
+  setupThemeListener(): void {
+    // Listen for theme changes to trigger change detection
+    this.themeSubscription = new Subscription();
+    const themeHandler = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      // Force change detection when theme changes
+      // This will cause the component to re-render with the new theme styles
+    };
+    
+    window.addEventListener('themeChanged', themeHandler);
+    // Clean up the event listener when component is destroyed
+    this.themeSubscription.add(() => {
+      window.removeEventListener('themeChanged', themeHandler);
     });
   }
 

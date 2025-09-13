@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
@@ -15,13 +15,14 @@ import { Orgao } from '../../../shared/models/orgao.model';
 import { AuthService } from '@/app/core/services/auth.service';
 import { PermissionService } from '@/app/core/services/permission.service';
 import { ConfirmationDialogComponent } from '@/app/shared/components/confirmation-dialog/confirmation-dialog.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-request-list',
   templateUrl: './request-list.component.html',
   styleUrls: ['./request-list.component.scss']
 })
-export class RequestListComponent implements OnInit, AfterViewInit {
+export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   dataSource = new MatTableDataSource<Solicitacao>();
@@ -41,6 +42,8 @@ export class RequestListComponent implements OnInit, AfterViewInit {
   comarcas: Comarca[] = [];
   orgaos: Orgao[] = [];
 
+  private themeSubscription: Subscription | null = null;
+
   constructor(
     private solicitacaoService: SolicitacaoService,
     private solicitacaoStatusService: SolicitacaoStatusService,
@@ -59,6 +62,7 @@ export class RequestListComponent implements OnInit, AfterViewInit {
     this.loadRequests();
     this.loadStatuses();
     this.loadFilterOptions();
+    this.setupThemeListener();
     
     // Verificando se o paginator está disponível
     console.log('Paginator disponível no ngOnInit:', this.paginator); // Adicionando log para debug
@@ -74,6 +78,29 @@ export class RequestListComponent implements OnInit, AfterViewInit {
     // Forçando a detecção de mudanças
     this.cdr.detectChanges();
     console.log('Detecção de mudanças forçada após configuração do paginator'); // Adicionando log para debug
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
+  }
+
+  setupThemeListener(): void {
+    // Listen for theme changes to trigger change detection
+    this.themeSubscription = new Subscription();
+    const themeHandler = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      // Force change detection when theme changes
+      // This will cause the component to re-render with the new theme styles
+      this.cdr.detectChanges();
+    };
+    
+    window.addEventListener('themeChanged', themeHandler);
+    // Clean up the event listener when component is destroyed
+    this.themeSubscription.add(() => {
+      window.removeEventListener('themeChanged', themeHandler);
+    });
   }
 
   loadRequests(): void {
@@ -149,12 +176,12 @@ export class RequestListComponent implements OnInit, AfterViewInit {
           this.refreshTable();
         }, 500);
         
-        // Forçando a atualização da tabela após um delay muito maior
+        // Forçando a atualização da tabela após um delay extremamente maior
         setTimeout(() => {
           this.refreshTable();
         }, 1000);
         
-        // Forçando a atualização da tabela após um delay extremamente maior
+        // Forçando a atualização da tabela após um delay extremamente maior ainda
         setTimeout(() => {
           this.refreshTable();
         }, 2000);

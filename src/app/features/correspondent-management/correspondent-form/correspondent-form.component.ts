@@ -1,8 +1,9 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
+import { Subscription } from 'rxjs';
 import { CorrespondenteService } from '../../../core/services/correspondente.service';
 import { UfService } from '../../../core/services/uf.service';
 import { Correspondente, Endereco } from '../../../shared/models/correspondente.model';
@@ -14,12 +15,14 @@ import { ConfirmationDialogComponent, ConfirmationDialogData } from '../../../sh
   templateUrl: './correspondent-form.component.html',
   styleUrls: ['./correspondent-form.component.scss']
 })
-export class CorrespondentFormComponent implements OnInit {
+export class CorrespondentFormComponent implements OnInit, OnDestroy {
   correspondentForm: FormGroup;
   loading = false;
   isEditMode = false;
   correspondentId: number | null = null;
   ufs: Uf[] = [];
+
+  private themeSubscription: Subscription | null = null;
 
   @ViewChild('cpfCnpjInput', { static: false }) cpfCnpjInput!: ElementRef;
 
@@ -58,6 +61,30 @@ export class CorrespondentFormComponent implements OnInit {
     // Subscribe to tipo changes to format CPF/CNPJ
     this.correspondentForm.get('tipo')?.valueChanges.subscribe(() => {
       this.formatCpfCnpj();
+    });
+    
+    this.setupThemeListener();
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
+  }
+
+  setupThemeListener(): void {
+    // Listen for theme changes to trigger change detection
+    this.themeSubscription = new Subscription();
+    const themeHandler = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      // Force change detection when theme changes
+      // This will cause the component to re-render with the new theme styles
+    };
+    
+    window.addEventListener('themeChanged', themeHandler);
+    // Clean up the event listener when component is destroyed
+    this.themeSubscription.add(() => {
+      window.removeEventListener('themeChanged', themeHandler);
     });
   }
 

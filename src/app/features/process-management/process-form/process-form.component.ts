@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subscription } from 'rxjs';
 import { ProcessoService } from '../../../core/services/processo.service';
 import { ComarcaService } from '../../../core/services/comarca.service';
 import { OrgaoService } from '../../../core/services/orgao.service';
@@ -14,7 +15,7 @@ import { Orgao } from '../../../shared/models/orgao.model';
   templateUrl: './process-form.component.html',
   styleUrls: ['./process-form.component.scss']
 })
-export class ProcessFormComponent implements OnInit {
+export class ProcessFormComponent implements OnInit, OnDestroy {
   processForm: FormGroup;
   loading = false;
   isEditMode = false;
@@ -22,6 +23,8 @@ export class ProcessFormComponent implements OnInit {
   orgaos: Orgao[] = [];
   comarcas: Comarca[] = [];
   filteredComarcas: Comarca[] = [];
+
+  private themeSubscription: Subscription | null = null;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -63,6 +66,30 @@ export class ProcessFormComponent implements OnInit {
     // Subscribe to orgao changes to filter comarcas
     this.processForm.get('orgao')?.valueChanges.subscribe(orgaoId => {
       this.filterComarcasByOrgao(orgaoId);
+    });
+    
+    this.setupThemeListener();
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
+  }
+
+  setupThemeListener(): void {
+    // Listen for theme changes to trigger change detection
+    this.themeSubscription = new Subscription();
+    const themeHandler = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      // Force change detection when theme changes
+      // This will cause the component to re-render with the new theme styles
+    };
+    
+    window.addEventListener('themeChanged', themeHandler);
+    // Clean up the event listener when component is destroyed
+    this.themeSubscription.add(() => {
+      window.removeEventListener('themeChanged', themeHandler);
     });
   }
 

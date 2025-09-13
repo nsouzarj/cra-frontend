@@ -14,6 +14,7 @@ import { Subscription } from 'rxjs';
 export class HeaderComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
   private currentUserSubscription: Subscription | null = null;
+  private themeSubscription: Subscription | null = null;
   
   @Output() toggleSidenav = new EventEmitter<void>();
 
@@ -30,11 +31,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     console.log('HeaderComponent: Current theme on init:', this.getCurrentTheme());
     
     // Listen for theme changes
-    window.addEventListener('themeChanged', (event: Event) => {
-      const customEvent = event as CustomEvent;
-      console.log('HeaderComponent: Theme changed to', customEvent.detail);
-      this.cdr.markForCheck();
-    });
+    this.setupThemeListener();
     
     // Subscribe to user changes to ensure we get updates when user logs in
     this.currentUserSubscription = this.authService.currentUser.subscribe(user => {
@@ -47,6 +44,26 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.currentUserSubscription) {
       this.currentUserSubscription.unsubscribe();
     }
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
+  }
+
+  setupThemeListener(): void {
+    // Listen for theme changes to trigger change detection
+    this.themeSubscription = new Subscription();
+    const themeHandler = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      console.log('HeaderComponent: Theme changed to', customEvent.detail);
+      // Force change detection when theme changes
+      this.cdr.detectChanges();
+    };
+    
+    window.addEventListener('themeChanged', themeHandler);
+    // Clean up the event listener when component is destroyed
+    this.themeSubscription.add(() => {
+      window.removeEventListener('themeChanged', themeHandler);
+    });
   }
 
   /**

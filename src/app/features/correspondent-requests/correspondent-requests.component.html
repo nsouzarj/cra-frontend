@@ -1,15 +1,15 @@
 <div class="requests-container">
+  <mat-toolbar class="toolbar">
+    <h1>Minhas Solicitações</h1>
+    <span class="spacer"></span>
+    <button mat-icon-button (click)="refreshData()" matTooltip="Atualizar dados">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </mat-toolbar>
+  
+  <p class="subtitle">Lista de solicitações atribuídas a você como correspondente</p>
+  
   <mat-card class="requests-card">
-    <mat-card-header>
-      <mat-card-title>
-        <h2>Minhas Solicitações</h2>
-        <p class="subtitle">Lista de solicitações atribuídas a você como correspondente</p>
-      </mat-card-title>
-      <button mat-icon-button (click)="refreshData()" matTooltip="Atualizar dados">
-        <mat-icon>refresh</mat-icon>
-      </button>
-    </mat-card-header>
-    
     <mat-card-content>
       <!-- Loading indicator -->
       <div class="loading-container" *ngIf="loading">
@@ -111,7 +111,8 @@
             <td mat-cell *matCellDef="let solicitacao">
               <button mat-icon-button color="primary" 
                       [routerLink]="['/minhas-solicitacoes/visualizar', solicitacao.id]"
-                      matTooltip="Visualizar">
+                      matTooltip="Visualizar"
+                      class="view-action">
                 <mat-icon>visibility</mat-icon>
               </button>
               
@@ -123,7 +124,8 @@
                   <button mat-icon-button color="warn" 
                           *ngIf="solicitacao.statusSolicitacao?.status === 'Em Andamento'"
                           (click)="updateStatus(solicitacao, 'Finalizada')"
-                          matTooltip="Finalizar">
+                          matTooltip="Finalizar solicitação"
+                          class="status-action">
                     <mat-icon>check</mat-icon>
                   </button>
                 </ng-container> 
@@ -132,7 +134,8 @@
                 <button mat-icon-button color="primary" 
                         *ngIf="canAdminOrLawyerChangeStatus() && solicitacao.statusSolicitacao?.status === 'Finalizada'"
                         (click)="updateStatus(solicitacao, 'Em Andamento')"
-                        matTooltip="Reabrir">
+                        matTooltip="Reabrir solicitação"
+                        class="reopen-action">
                   <mat-icon>replay</mat-icon>
                 </button> 
               </ng-container>

@@ -21,6 +21,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatListModule } from '@angular/material/list';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 // Components
 import { UserListComponent } from './user-list/user-list.component';
@@ -86,7 +87,8 @@ const routes: Routes = [
     MatSlideToggleModule,
     MatTooltipModule,
     MatMenuModule,
-    MatListModule
+    MatListModule,
+    MatToolbarModule
   ]
 })
 export class UserManagementModule { }

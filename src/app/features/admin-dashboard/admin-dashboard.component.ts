@@ -5,10 +5,12 @@ import { CorrespondenteService } from '../../core/services/correspondente.servic
 import { ProcessoService } from '../../core/services/processo.service';
 import { SolicitacaoService } from '../../core/services/solicitacao.service';
 import { SolicitacaoStatusService } from '../../core/services/solicitacao-status.service';
+import { TipoSolicitacaoService } from '../../core/services/tiposolicitacao.service';
 import { User } from '../../shared/models/user.model';
 import { Correspondente } from '../../shared/models/correspondente.model';
 import { Processo } from '../../shared/models/processo.model';
 import { Solicitacao, SolicitacaoStatus } from '../../shared/models/solicitacao.model';
+import { TipoSolicitacao } from '../../shared/models/tiposolicitacao.model';
 import { forkJoin } from 'rxjs';
 import { catchError, of } from 'rxjs';
 import { Router } from '@angular/router';
@@ -30,6 +32,11 @@ interface ChartData {
   colors: string[];
 }
 
+interface TipoSolicitacaoCount {
+  audiencia: number;
+  diligencia: number;
+}
+
 @Component({
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.component.html',
@@ -47,6 +54,11 @@ export class AdminDashboardComponent implements OnInit {
     processosEmAndamento: 0,
     totalSolicitacoes: 0,
     solicitacoesPendentes: 0
+  };
+
+  tipoSolicitacaoCounts: TipoSolicitacaoCount = {
+    audiencia: 0,
+    diligencia: 0
   };
 
   // Chart data
@@ -121,6 +133,7 @@ export class AdminDashboardComponent implements OnInit {
     private processoService: ProcessoService,
     private solicitacaoService: SolicitacaoService,
     private solicitacaoStatusService: SolicitacaoStatusService,
+    private tipoSolicitacaoService: TipoSolicitacaoService,
     private router: Router
   ) {}
 
@@ -179,6 +192,14 @@ export class AdminDashboardComponent implements OnInit {
       }))
     );
 
+    // Add tipo solicitacao requests
+    requests.push(
+      this.tipoSolicitacaoService.getTiposSolicitacao().pipe(catchError((error) => {
+        console.error('Error fetching tipo solicitacoes:', error);
+        return of([]);
+      }))
+    );
+
     forkJoin(requests).subscribe({
       next: (results) => {
         const [
@@ -186,8 +207,9 @@ export class AdminDashboardComponent implements OnInit {
           allCorrespondentes, activeCorrespondentes,
           allProcessos, processosEmAndamento,
           allSolicitacoes, solicitacoesPendentes,
-          solicitacaoStatuses
-        ] = results as [User[], User[], Correspondente[], Correspondente[], Processo[], Processo[], Solicitacao[], Solicitacao[], SolicitacaoStatus[]];
+          solicitacaoStatuses,
+          tipoSolicitacoes
+        ] = results as [User[], User[], Correspondente[], Correspondente[], Processo[], Processo[], Solicitacao[], Solicitacao[], SolicitacaoStatus[], TipoSolicitacao[]];
 
         console.log('Dashboard data loaded:', {
           allUsers: allUsers.length,
@@ -198,7 +220,8 @@ export class AdminDashboardComponent implements OnInit {
           processosEmAndamento: processosEmAndamento.length,
           allSolicitacoes: allSolicitacoes.length,
           solicitacoesPendentes: solicitacoesPendentes.length,
-          solicitacaoStatuses: solicitacaoStatuses.length
+          solicitacaoStatuses: solicitacaoStatuses.length,
+          tipoSolicitacoes: tipoSolicitacoes.length
         });
 
         this.stats = {
@@ -211,6 +234,9 @@ export class AdminDashboardComponent implements OnInit {
           totalSolicitacoes: allSolicitacoes.length,
           solicitacoesPendentes: solicitacoesPendentes.length
         };
+
+        // Count audiencia and diligencia types
+        this.countTipoSolicitacoes(allSolicitacoes);
 
         // Update chart data
         this.updateChartData();
@@ -228,6 +254,28 @@ export class AdminDashboardComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  private countTipoSolicitacoes(solicitacoes: Solicitacao[]): void {
+    // Reset counts
+    this.tipoSolicitacaoCounts = {
+      audiencia: 0,
+      diligencia: 0
+    };
+
+    // Count audiencia and diligencia types
+    solicitacoes.forEach(solicitacao => {
+      if (solicitacao.tipoSolicitacao?.especie) {
+        const especie = solicitacao.tipoSolicitacao.especie.toLowerCase();
+        if (especie.includes('audiencia') || especie.includes('audiência')) {
+          this.tipoSolicitacaoCounts.audiencia++;
+        } else if (especie.includes('diligencia') || especie.includes('diligência')) {
+          this.tipoSolicitacaoCounts.diligencia++;
+        }
+      }
+    });
+
+    console.log('Tipo solicitacao counts:', this.tipoSolicitacaoCounts);
   }
 
   private loadSolicitacoesPorStatusData(statuses: SolicitacaoStatus[]): void {

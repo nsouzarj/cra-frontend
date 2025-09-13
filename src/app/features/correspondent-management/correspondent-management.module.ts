@@ -23,6 +23,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 // Components
 import { CorrespondentListComponent } from './correspondent-list/correspondent-list.component';
@@ -86,7 +87,8 @@ const routes: Routes = [
     MatMenuModule,
     MatTabsModule,
     MatExpansionModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatToolbarModule
   ]
 })
 export class CorrespondentManagementModule { }

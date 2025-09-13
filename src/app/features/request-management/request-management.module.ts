@@ -17,7 +17,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatDialogModule } from '@angular/material/dialog'; // Added MatDialogModule
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 // Components
 import { RequestListComponent } from './request-list/request-list.component';
@@ -64,7 +65,8 @@ const routes: Routes = [
     MatChipsModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatDialogModule // Added MatDialogModule
+    MatDialogModule,
+    MatToolbarModule
   ],
   providers: [
     TipoSolicitacaoService,

@@ -4,6 +4,63 @@
     <p>Bem-vindo ao Sistema SCB, {{ currentUser?.nomecompleto }}!</p>
   </div>
 
+  <!-- Quick Stats Section -->
+  <div class="stats-section" *ngIf="!loading">
+    <h2>Resumo das Solicitações</h2>
+    <div class="stats-grid">
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon audiencia">
+              <mat-icon>campaign</mat-icon>
+            </div>
+            <div class="stat-details">
+              <h3>Audiências</h3>
+              <div class="stat-numbers">
+                <span class="primary-number">{{ tipoSolicitacaoCounts.audiencia }}</span>
+                <span class="secondary-number">solicitações</span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon diligencia">
+              <mat-icon>work</mat-icon>
+            </div>
+            <div class="stat-details">
+              <h3>Diligências</h3>
+              <div class="stat-numbers">
+                <span class="primary-number">{{ tipoSolicitacaoCounts.diligencia }}</span>
+                <span class="secondary-number">solicitações</span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon total">
+              <mat-icon>assignment</mat-icon>
+            </div>
+            <div class="stat-details">
+              <h3>Total</h3>
+              <div class="stat-numbers">
+                <span class="primary-number">{{ stats.totalSolicitacoes }}</span>
+                <span class="secondary-number">solicitações</span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
   <div class="actions-grid" *ngIf="!loading">
     <!-- Users Stats (Admin/Advogado only) -->
     <mat-card class="stat-card" *ngIf="canViewUsers()">
@@ -53,24 +110,6 @@
             <div class="stat-numbers">
               <span class="primary-number">{{ stats.totalProcessos }}</span>
               <span class="secondary-number">{{ stats.processosEmAndamento }} em andamento</span>
-            </div>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Solicitações Stats -->
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <div class="stat-icon solicitacoes">
-            <mat-icon>assignment</mat-icon>
-          </div>
-          <div class="stat-details">
-            <h3>Solicitações</h3>
-            <div class="stat-numbers">
-              <span class="primary-number">{{ stats.totalSolicitacoes }}</span>
-              <span class="secondary-number">{{ stats.solicitacoesPendentes }} pendentes</span>
             </div>
           </div>
         </div>
@@ -262,7 +301,7 @@
         <mat-card-content>
           <mat-icon>person_add</mat-icon>
           <h3>Cadastrar Usuário</h3>
-          <p>Adicionar novo usuário ao sistema</p>
+          <p>Adicionar novo usuário</p>
           <button mat-raised-button color="primary" routerLink="/register">
             Cadastrar
           </button>

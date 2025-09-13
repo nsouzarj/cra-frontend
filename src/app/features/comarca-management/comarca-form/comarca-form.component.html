@@ -1,0 +1,55 @@
+<div class="comarca-form-container">
+  <mat-toolbar class="toolbar">
+    <h1>{{ isEditMode ? 'Editar Comarca' : 'Nova Comarca' }}</h1>
+  </mat-toolbar>
+
+  <mat-card class="form-card">
+    <mat-card-content>
+      <form [formGroup]="comarcaForm" (ngSubmit)="onSubmit()" class="comarca-form">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Nome</mat-label>
+            <input matInput formControlName="nome" placeholder="Nome da comarca">
+            <mat-error *ngIf="comarcaForm.get('nome')?.hasError('required')">
+              Nome é obrigatório
+            </mat-error>
+            <mat-error *ngIf="comarcaForm.get('nome')?.hasError('maxlength')">
+              Nome não pode ter mais de 255 caracteres
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Estado</mat-label>
+            <mat-select formControlName="uf">
+              <mat-option *ngFor="let uf of ufs" [value]="uf.id">
+                {{ uf.sigla }} - {{ uf.nome }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="comarcaForm.get('uf')?.hasError('required')">
+              Estado é obrigatório
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-checkbox formControlName="ativo">
+            Ativo
+          </mat-checkbox>
+        </div>
+
+        <div class="form-actions">
+          <button mat-button type="button" (click)="onCancel()" [disabled]="loading">
+            Cancelar
+          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="loading || comarcaForm.invalid">
+            <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+            <span *ngIf="!loading">{{ isEditMode ? 'Atualizar' : 'Criar' }}</span>
+            <span *ngIf="loading">Salvando...</span>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

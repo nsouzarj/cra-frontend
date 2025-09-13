@@ -11,7 +11,6 @@ import { CorrespondenteGuard } from './core/guards/correspondente.guard';
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
 import { AdminDashboardComponent } from './features/admin-dashboard/admin-dashboard.component';
-import { CorrespondentDashboardSimpleComponent } from './features/correspondent-dashboard/correspondent-dashboard-simple.component';
 import { UnauthorizedComponent } from './shared/components/unauthorized/unauthorized.component';
 import { NotFoundComponent } from './shared/components/not-found/not-found.component';
 import { ProfileComponent } from './features/auth/profile/profile.component';
@@ -37,7 +36,7 @@ const routes: Routes = [
   },
   {
     path: 'correspondent-dashboard',
-    component: CorrespondentDashboardSimpleComponent,
+    loadChildren: () => import('./features/correspondent-dashboard/correspondent-dashboard.module').then(m => m.CorrespondentDashboardModule),
     canActivate: [CorrespondenteGuard]
   },
   {
@@ -70,6 +69,11 @@ const routes: Routes = [
     path: 'minhas-solicitacoes',
     loadChildren: () => import('./features/correspondent-requests/correspondent-requests.module').then(m => m.CorrespondentRequestsModule),
     canActivate: [CorrespondenteGuard]
+  },
+  {
+    path: 'comarcas',
+    loadChildren: () => import('./features/comarca-management/comarca-management.module').then(m => m.ComarcaManagementModule),
+    canActivate: [AuthGuard]
   },
   { path: 'theme-test', component: ThemeTestComponent }, // Added theme test route
   { path: 'theme-debug', component: ThemeDebugComponent }, // Added theme debug route

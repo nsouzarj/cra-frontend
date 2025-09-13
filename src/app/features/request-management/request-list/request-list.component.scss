@@ -1,15 +1,28 @@
-.request-list-container { 
-  padding: 20px; 
-  max-width: 1200px; 
-  margin: 0 auto; 
+.request-list-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.page-header { 
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
-  margin-bottom: 20px; 
-  color: #1526de;
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  background-color: var(--header-background, #3f51b5);
+  color: var(--header-color, #ffffff);
+  border-radius: 4px;
+  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+  
+  h1 {
+    margin: 0;
+    color: var(--header-color, #ffffff);
+    font-size: 28px;
+  }
+}
+
+.spacer {
+  flex: 1 1 auto;
 }
 
 .filter-card {
@@ -18,14 +31,14 @@
 
 .filter-row {
   display: flex;
-  gap: 15px;
-  align-items: center;
   flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
 }
 
 .filter-row mat-form-field {
   flex: 1;
-  min-width: 150px;
+  min-width: 200px;
 }
 
 .filter-actions {
@@ -34,7 +47,7 @@
 }
 
 .filter-actions button {
-  height: 40px; /* Standard button height */
+  height: 40px;
   padding: 0 16px;
   font-size: 14px;
   white-space: nowrap;
@@ -42,96 +55,88 @@
   border-radius: 4px;
 }
 
-.filter-actions mat-icon {
-  margin-right: 6px;
-}
-
-.loading-container { 
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
-  padding: 60px; 
-  gap: 20px; 
-}
-
-.no-data {
-  text-align: center;
-  padding: 40px;
-  color: #666;
-}
-
-.status-pendente {
-  background-color: #ffeb3b !important;
-  color: #333 !important;
-}
-
-.status-andamento {
-  background-color: #2196f3 !important;
-  color: white !important;
-}
-
-.status-finalizada {
-  background-color: #4caf50 !important;
-  color: white !important;
-}
-
-.status-cancelada {
-  background-color: #f44336 !important;
-  color: white !important;
-}
-
-.mat-row {
-  cursor: pointer;
-}
-
-.mat-row:hover {
-  background-color: #f5f5f5;
-}
-
-.button-align{
-  display: flex !important;
-  justify-content: flex-end !important;
-  align-items: center !important;
-  bottom: 10px !important;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-}
-
-.table-info {
-  margin-bottom: 10px;
-  font-weight: bold;
-}
-
-// Add explicit styling for the paginator
-.mat-paginator {
-  display: block !important;
-  margin-top: 20px !important;
-  border-top: 1px solid #e0e0e0 !important;
-  padding-top: 20px !important;
-}
-
 .table-container {
   overflow-x: auto;
 }
 
-// Ensure paginator is visible
-mat-paginator {
-  display: block;
-  margin-top: 20px;
+.table-info {
+  margin-bottom: 16px;
+  font-weight: 500;
+  color: #666;
 }
 
+.action-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.view-action {
+  color: #2196f3 !important; /* Blue color for view actions */
+}
+
+.view-action:hover {
+  background-color: rgba(33, 150, 243, 0.1) !important;
+}
+
+.edit-action {
+  color: #ff9800 !important; /* Orange color for edit actions */
+}
+
+.edit-action:hover {
+  background-color: rgba(255, 152, 0, 0.1) !important;
+}
+
+.delete-action {
+  color: #f44336 !important;
+}
+
+.delete-action:hover {
+  background-color: rgba(244, 67, 54, 0.1) !important;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 20px;
+}
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  gap: 16px;
+  color: #666;
+}
+
+// Responsive
 @media (max-width: 768px) {
+  .request-list-container {
+    padding: 16px;
+  }
+  
+  .toolbar {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+    
+    h1 {
+      font-size: 24px;
+    }
+  }
+  
   .filter-row {
     flex-direction: column;
     align-items: stretch;
   }
   
   .filter-row mat-form-field {
-    min-width: auto;
+    min-width: unset;
   }
   
   .filter-actions {
@@ -142,4 +147,21 @@ mat-paginator {
   .filter-actions button {
     width: 100%;
   }
+}
+
+// Paginator
+.mat-paginator, mat-paginator {
+  display: block;
+  margin-top: 20px;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 20px;
+}
+
+.button-align {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  bottom: 10px !important;
+  background-color: rgb(31, 31, 183);
+  color: white;
 }

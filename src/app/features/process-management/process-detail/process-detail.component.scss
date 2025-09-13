@@ -9,19 +9,25 @@
   gap: 16px;
   margin-bottom: 20px;
   flex-wrap: wrap;
+  background-color: var(--header-background, #3f51b5);
+  color: var(--header-color, #ffffff);
+  border-radius: 4px;
+  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+  padding: 16px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 24px;
+  color: var(--header-color, #ffffff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header-content {
   flex: 1;
   min-width: 0;
-}
-
-.header-content h1 {
-  margin: 0;
-  font-size: 24px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .header-badges {

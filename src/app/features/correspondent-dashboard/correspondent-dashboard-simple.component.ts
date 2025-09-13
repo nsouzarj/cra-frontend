@@ -2,8 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { SolicitacaoService } from '../../core/services/solicitacao.service';
 import { SolicitacaoStatusService } from '../../core/services/solicitacao-status.service';
+import { TipoSolicitacaoService } from '../../core/services/tiposolicitacao.service';
 import { User } from '../../shared/models/user.model';
 import { Solicitacao, SolicitacaoStatus } from '../../shared/models/solicitacao.model';
+import { TipoSolicitacao } from '../../shared/models/tiposolicitacao.model';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -13,9 +15,14 @@ interface ChartData {
   colors: string[];
 }
 
+interface TipoSolicitacaoCount {
+  audiencia: number;
+  diligencia: number;
+}
+
 @Component({
   selector: 'app-correspondent-dashboard-simple',
-  templateUrl: './correspondent-dashboard.component.html',
+  templateUrl: './correspondent-dashboard-simple.component.html',
   styleUrls: ['./correspondent-dashboard-simple.component.scss']
 })
 export class CorrespondentDashboardSimpleComponent implements OnInit {
@@ -26,6 +33,11 @@ export class CorrespondentDashboardSimpleComponent implements OnInit {
     labels: [],
     values: [],
     colors: []
+  };
+
+  tipoSolicitacaoCounts: TipoSolicitacaoCount = {
+    audiencia: 0,
+    diligencia: 0
   };
 
   private statusColors: { [key: string]: string } = {
@@ -77,7 +89,8 @@ export class CorrespondentDashboardSimpleComponent implements OnInit {
   constructor(
     public authService: AuthService,
     private solicitacaoService: SolicitacaoService,
-    private solicitacaoStatusService: SolicitacaoStatusService
+    private solicitacaoStatusService: SolicitacaoStatusService,
+    private tipoSolicitacaoService: TipoSolicitacaoService
   ) {}
 
   ngOnInit(): void {
@@ -165,6 +178,9 @@ export class CorrespondentDashboardSimpleComponent implements OnInit {
         console.log(`Fetched ${solicitacoes.length} solicitacoes for current user`);
         console.log('Sample of fetched solicitacoes:', solicitacoes.slice(0, 3)); // Log first 3 solicitations
         
+        // Count audiencia and diligencia types
+        this.countTipoSolicitacoes(solicitacoes);
+        
         // Group solicitations by status
         const solicitacoesPorStatus: { [key: string]: number } = {};
         
@@ -208,6 +224,28 @@ export class CorrespondentDashboardSimpleComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  private countTipoSolicitacoes(solicitacoes: Solicitacao[]): void {
+    // Reset counts
+    this.tipoSolicitacaoCounts = {
+      audiencia: 0,
+      diligencia: 0
+    };
+
+    // Count audiencia and diligencia types
+    solicitacoes.forEach(solicitacao => {
+      if (solicitacao.tipoSolicitacao?.especie) {
+        const especie = solicitacao.tipoSolicitacao.especie.toLowerCase();
+        if (especie.includes('audiencia') || especie.includes('audiência')) {
+          this.tipoSolicitacaoCounts.audiencia++;
+        } else if (especie.includes('diligencia') || especie.includes('diligência')) {
+          this.tipoSolicitacaoCounts.diligencia++;
+        }
+      }
+    });
+
+    console.log('Tipo solicitacao counts:', this.tipoSolicitacaoCounts);
   }
 
   // Chart helper methods

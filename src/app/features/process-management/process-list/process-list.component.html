@@ -1,11 +1,12 @@
 <div class="process-list-container">
-  <div class="page-header">
-    <h1>Gerenciamento de Processos</h1>
+  <mat-toolbar class="toolbar">
+    <h1>Processos</h1>
+    <span class="spacer"></span>
     <button mat-raised-button color="primary" routerLink="/processos/novo">
       <mat-icon>add</mat-icon>
       Novo Processo
     </button>
-  </div>
+  </mat-toolbar>
 
   <!-- Search and Filters -->
   <mat-card class="filters-card">
@@ -131,10 +132,10 @@
             <th mat-header-cell *matHeaderCellDef>Ações</th>
             <td mat-cell *matCellDef="let processo">
               <div class="action-buttons">
-                <button mat-icon-button (click)="viewProcess(processo)" matTooltip="Visualizar">
+                <button mat-icon-button (click)="viewProcess(processo)" matTooltip="Visualizar" class="view-action">
                   <mat-icon>visibility</mat-icon>
                 </button>
-                <button *ngIf="permissionService.canEditRequests()" mat-icon-button (click)="editProcess(processo)" matTooltip="Editar">
+                <button *ngIf="permissionService.canEditRequests()" mat-icon-button (click)="editProcess(processo)" matTooltip="Editar" class="edit-action">
                   <mat-icon>edit</mat-icon>
                 </button>
               </div>

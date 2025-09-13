@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -7,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { FormControl } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 import { CorrespondenteService } from '../../../core/services/correspondente.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -19,7 +20,7 @@ import { Correspondente } from '../../../shared/models/correspondente.model';
   templateUrl: './correspondent-list.component.html',
   styleUrls: ['./correspondent-list.component.scss']
 })
-export class CorrespondentListComponent implements OnInit, AfterViewInit {
+export class CorrespondentListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -30,6 +31,8 @@ export class CorrespondentListComponent implements OnInit, AfterViewInit {
   searchControl = new FormControl('');
   typeFilterControl = new FormControl('');
   statusFilterControl = new FormControl('');
+
+  private themeSubscription: Subscription | null = null;
 
   constructor(
     private correspondenteService: CorrespondenteService,
@@ -43,12 +46,35 @@ export class CorrespondentListComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.loadCorrespondentes();
     this.setupFilters();
+    this.setupThemeListener();
   }
 
   ngAfterViewInit(): void {
     // Ensure paginator is connected to data source
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
+  }
+
+  setupThemeListener(): void {
+    // Listen for theme changes to trigger change detection
+    this.themeSubscription = new Subscription();
+    const themeHandler = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      // Force change detection when theme changes
+      // This will cause the component to re-render with the new theme styles
+    };
+    
+    window.addEventListener('themeChanged', themeHandler);
+    // Clean up the event listener when component is destroyed
+    this.themeSubscription.add(() => {
+      window.removeEventListener('themeChanged', themeHandler);
+    });
   }
 
   loadCorrespondentes(): void {

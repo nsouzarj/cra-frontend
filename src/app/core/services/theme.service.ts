@@ -80,8 +80,140 @@ export class ThemeService {
     const themeClass = `${this.currentTheme}-theme`;
     document.body.classList.add(themeClass);
     
+    // Set CSS variables for header colors based on theme
+    this.setHeaderCssVariables(this.currentTheme);
+    
     // Dispatch a custom event to notify other components of theme change
     const event = new CustomEvent('themeChanged', { detail: this.currentTheme });
     window.dispatchEvent(event);
+  }
+
+  /**
+   * Set CSS variables for header colors based on theme
+   */
+  private setHeaderCssVariables(theme: Theme): void {
+    const root = document.documentElement;
+    
+    // Define theme-specific header colors
+    const themeColors: { [key in Theme]: { background: string; color: string; welcomeColor: string; userInfoBg: string; userNameColor: string; userEmailColor: string; userRoleColor: string } } = {
+      light: {
+        background: '#3f51b5',
+        color: '#ffffff',
+        welcomeColor: 'rgba(255, 255, 255, 0.8)',
+        userInfoBg: '#f5f5f5',
+        userNameColor: '#333333',
+        userEmailColor: '#666666',
+        userRoleColor: '#3f51b5'
+      },
+      dark: {
+        background: '#2c2c2c',
+        color: '#ffffff',
+        welcomeColor: 'rgba(255, 255, 255, 0.8)',
+        userInfoBg: '#424242',
+        userNameColor: '#ffffff',
+        userEmailColor: '#bbbbbb',
+        userRoleColor: '#90caf9'
+      },
+      green: {
+        background: '#4caf50',
+        color: '#ffffff',
+        welcomeColor: 'rgba(255, 255, 255, 0.8)',
+        userInfoBg: '#e8f5e9',
+        userNameColor: '#2e7d32',
+        userEmailColor: '#388e3c',
+        userRoleColor: '#1b5e20'
+      },
+      purple: {
+        background: '#9c27b0',
+        color: '#ffffff',
+        welcomeColor: 'rgba(255, 255, 255, 0.8)',
+        userInfoBg: '#f3e5f5',
+        userNameColor: '#7b1fa2',
+        userEmailColor: '#9c27b0',
+        userRoleColor: '#4a148c'
+      },
+      amber: {
+        background: '#ffc107',
+        color: '#212121',
+        welcomeColor: 'rgba(33, 33, 33, 0.8)',
+        userInfoBg: '#fff8e1',
+        userNameColor: '#ff6f00',
+        userEmailColor: '#ff8f00',
+        userRoleColor: '#ffab00'
+      },
+      yellow: {
+        background: '#ffeb3b',
+        color: '#212121',
+        welcomeColor: 'rgba(33, 33, 33, 0.8)',
+        userInfoBg: '#fffde7',
+        userNameColor: '#f57f17',
+        userEmailColor: '#f9a825',
+        userRoleColor: '#fbc02d'
+      },
+      salmon: {
+        background: '#fa8072',
+        color: '#ffffff',
+        welcomeColor: 'rgba(255, 255, 255, 0.8)',
+        userInfoBg: '#ffebee',
+        userNameColor: '#d32f2f',
+        userEmailColor: '#f44336',
+        userRoleColor: '#b71c1c'
+      },
+      midnightblue: {
+        background: '#1976d2',
+        color: '#ffffff',
+        welcomeColor: 'rgba(255, 255, 255, 0.8)',
+        userInfoBg: '#e3f2fd',
+        userNameColor: '#0d47a1',
+        userEmailColor: '#1565c0',
+        userRoleColor: '#01579b'
+      },
+      olive: {
+        background: '#808000',
+        color: '#ffffff',
+        welcomeColor: 'rgba(255, 255, 255, 0.8)',
+        userInfoBg: '#f0f0f0',
+        userNameColor: '#556b2f',
+        userEmailColor: '#6b8e23',
+        userRoleColor: '#8fbc8f'
+      },
+      slategrey: {
+        background: '#708090',
+        color: '#ffffff',
+        welcomeColor: 'rgba(255, 255, 255, 0.8)',
+        userInfoBg: '#e6e6fa',
+        userNameColor: '#2f4f4f',
+        userEmailColor: '#696969',
+        userRoleColor: '#778899'
+      },
+      red: {
+        background: '#f44336',
+        color: '#ffffff',
+        welcomeColor: 'rgba(255, 255, 255, 0.8)',
+        userInfoBg: '#ffebee',
+        userNameColor: '#d32f2f',
+        userEmailColor: '#f44336',
+        userRoleColor: '#b71c1c'
+      },
+      lightsteelblue: {
+        background: '#b0c4de',
+        color: '#212121',
+        welcomeColor: 'rgba(33, 33, 33, 0.8)',
+        userInfoBg: '#f0f8ff',
+        userNameColor: '#4682b4',
+        userEmailColor: '#5f9ea0',
+        userRoleColor: '#6495ed'
+      }
+    };
+
+    // Set CSS variables
+    const colors = themeColors[theme];
+    root.style.setProperty('--header-background', colors.background);
+    root.style.setProperty('--header-color', colors.color);
+    root.style.setProperty('--header-welcome-color', colors.welcomeColor);
+    root.style.setProperty('--header-user-info-bg', colors.userInfoBg);
+    root.style.setProperty('--header-user-name-color', colors.userNameColor);
+    root.style.setProperty('--header-user-email-color', colors.userEmailColor);
+    root.style.setProperty('--header-user-role-color', colors.userRoleColor);
   }
 }

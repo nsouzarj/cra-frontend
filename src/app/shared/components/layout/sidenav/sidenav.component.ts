@@ -74,6 +74,23 @@ export class SidenavComponent implements OnInit {
       roles: ['ROLE_ADMIN', 'ROLE_ADVOGADO'] // Only Admins and Lawyers can manage processes
     },
     {
+      label: 'Comarcas',
+      icon: 'location_city',
+      children: [
+        {
+          label: 'Listar',
+          icon: 'list',
+          route: '/comarcas'
+        },
+        {
+          label: 'Cadastrar',
+          icon: 'add',
+          route: '/comarcas/nova'
+        }
+      ],
+      roles: ['ROLE_ADMIN'] // Only Admins can manage comarcas
+    },
+    {
       label: 'Solicitações',
       icon: 'assignment',
       children: [

@@ -1,0 +1,69 @@
+.comarca-form-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.toolbar {
+  margin-bottom: 20px;
+  background-color: var(--header-background, #3f51b5);
+  color: var(--header-color, #ffffff);
+  border-radius: 4px;
+  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+  
+  h1 {
+    margin: 0;
+    color: var(--header-color, #ffffff);
+    font-size: 1.5rem;
+  }
+}
+
+.form-card {
+  mat-card-content {
+    padding: 20px;
+  }
+}
+
+.comarca-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.form-field {
+  flex: 1;
+  min-width: 250px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  
+  button {
+    min-width: 100px;
+  }
+  
+  mat-spinner {
+    display: inline-block;
+    margin-right: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .form-field {
+    min-width: 100%;
+  }
+}

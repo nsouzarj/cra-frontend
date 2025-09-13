@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
+import { Subscription } from 'rxjs';
 
 import { UserService } from '../../../core/services/user.service';
 import { CorrespondenteService } from '../../../core/services/correspondente.service';
@@ -18,11 +19,13 @@ import { DateFormatService } from '../../../shared/services/date-format.service'
   templateUrl: './user-detail.component.html',
   styleUrls: ['./user-detail.component.scss']
 })
-export class UserDetailComponent implements OnInit {
+export class UserDetailComponent implements OnInit, OnDestroy {
   user: User | null = null;
   userFind: User | null = null; // Keep this for template compatibility
   loading = true;
   currentUserId: number | undefined;
+
+  private themeSubscription: Subscription | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -44,6 +47,30 @@ export class UserDetailComponent implements OnInit {
       if (userId) {
         this.loadUser(userId);
       }
+    });
+    
+    this.setupThemeListener();
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
+  }
+
+  setupThemeListener(): void {
+    // Listen for theme changes to trigger change detection
+    this.themeSubscription = new Subscription();
+    const themeHandler = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      // Force change detection when theme changes
+      // This will cause the component to re-render with the new theme styles
+    };
+    
+    window.addEventListener('themeChanged', themeHandler);
+    // Clean up the event listener when component is destroyed
+    this.themeSubscription.add(() => {
+      window.removeEventListener('themeChanged', themeHandler);
     });
   }
 

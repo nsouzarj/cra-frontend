@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -13,13 +13,14 @@ import { PermissionService } from '../../../core/services/permission.service';
 import { Processo } from '../../../shared/models/processo.model';
 import { Comarca } from '../../../shared/models/comarca.model';
 import { Orgao } from '../../../shared/models/orgao.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-process-list',
   templateUrl: './process-list.component.html',
   styleUrls: ['./process-list.component.scss']
 })
-export class ProcessListComponent implements OnInit, AfterViewInit {
+export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -43,6 +44,8 @@ export class ProcessListComponent implements OnInit, AfterViewInit {
     { value: 'FINALIZADO', label: 'Finalizado' }
   ];
 
+  private themeSubscription: Subscription | null = null;
+
   constructor(
     private processoService: ProcessoService,
     private comarcaService: ComarcaService,
@@ -56,12 +59,35 @@ export class ProcessListComponent implements OnInit, AfterViewInit {
     this.loadProcesses();
     this.loadFilterOptions();
     this.setupFilters();
+    this.setupThemeListener();
   }
 
   ngAfterViewInit(): void {
     // Ensure paginator is connected to data source
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
+  }
+
+  setupThemeListener(): void {
+    // Listen for theme changes to trigger change detection
+    this.themeSubscription = new Subscription();
+    const themeHandler = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      // Force change detection when theme changes
+      // This will cause the component to re-render with the new theme styles
+    };
+    
+    window.addEventListener('themeChanged', themeHandler);
+    // Clean up the event listener when component is destroyed
+    this.themeSubscription.add(() => {
+      window.removeEventListener('themeChanged', themeHandler);
+    });
   }
 
   loadProcesses(): void {

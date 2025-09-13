@@ -1,7 +1,6 @@
-// User list styles - optimized for size
-.user-list-container {
+.comarca-list-container {
   padding: 20px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -26,37 +25,23 @@
   flex: 1 1 auto;
 }
 
-.filters-card {
+.filter-card {
   margin-bottom: 20px;
 }
 
-.button-align {
-  display: flex !important;
-  justify-content: flex-end !important;
-  align-items: center !important;
-  bottom: 10px !important;
-  background-color: rgb(31, 31, 183);
-  color: white;
-}
-
-.search-container {
+.filters-container {
   display: flex;
+  flex-wrap: wrap;
   gap: 16px;
   align-items: center;
-  flex-wrap: wrap;
 }
 
-.search-field {
+.filter-field {
   flex: 1;
   min-width: 250px;
 }
 
-.filter-actions {
-  display: flex;
-  align-items: center;
-}
-
-.filter-actions button {
+.clear-filters-btn {
   height: 40px;
   padding: 0 16px;
   font-size: 14px;
@@ -65,27 +50,14 @@
   border-radius: 4px;
 }
 
-.table-card {
-  overflow: hidden;
-}
-
-.table-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.total-count {
-  font-weight: 500;
-  color: #666;
-}
-
 .table-container {
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
   overflow-x: auto;
 }
 
-.users-table {
+.comarca-table {
   width: 100%;
   min-width: 800px;
 }
@@ -119,53 +91,68 @@
   background-color: rgba(244, 67, 54, 0.1) !important;
 }
 
-.loading-container {
+/* Status chips */
+.status-active {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+.status-inactive {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+.loading-shade {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 56px;
+  right: 0;
+  background: rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.no-data {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 56px;
+  right: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
-  gap: 20px;
+  color: rgba(0, 0, 0, 0.54);
+  
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 10px;
+  }
 }
 
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-  text-align: center;
-  gap: 16px;
+mat-paginator {
+  background: white;
+  display: block;
+  margin-top: 20px;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 20px;
 }
 
-.empty-state mat-icon {
-  font-size: 64px;
-  width: 64px;
-  height: 64px;
-  color: #ccc;
-  margin-bottom: 20px;
+.button-align {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  bottom: 10px !important;
+  background-color: rgb(31, 31, 183);
+  color: white;
 }
-
-.empty-state h3 {
-  color: #666;
-  margin-bottom: 12px;
-}
-
-.empty-state p {
-  color: #999;
-  margin-bottom: 24px;
-}
-
-/* Chips */
-.status-active { background-color: #4caf50 !important; color: white !important; }
-.status-inactive { background-color: #f44336 !important; color: white !important; }
-.type-admin { background-color: #3f51b5 !important; color: white !important; }
-.type-advogado { background-color: #ff9800 !important; color: white !important; }
-.type-correspondente { background-color: #009688 !important; color: white !important; }
-
-// Responsive
 @media (max-width: 768px) {
-  .user-list-container {
+  .comarca-list-container {
     padding: 16px;
   }
   
@@ -179,29 +166,23 @@
     }
   }
   
-  .search-container {
+  .filters-container {
     flex-direction: column;
     align-items: stretch;
   }
   
-  .search-field {
+  .filter-field {
     min-width: unset;
   }
   
-  .filter-actions {
+  .clear-filters-btn {
+    margin-left: 0;
+    height: auto;
     width: 100%;
     margin-top: 8px;
   }
   
-  .filter-actions button {
-    width: 100%;
+  .comarca-table {
+    min-width: 600px;
   }
-}
-
-// Paginator
-.mat-paginator, mat-paginator {
-  display: block;
-  margin-top: 20px;
-  border-top: 1px solid #e0e0e0;
-  padding-top: 20px;
 }

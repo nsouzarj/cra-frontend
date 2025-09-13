@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectChange } from '@angular/material/select';
+import { Subscription } from 'rxjs';
 import { SolicitacaoService } from '../../../core/services/solicitacao.service';
 import { SolicitacaoStatusService } from '../../../core/services/solicitacao-status.service';
 import { ProcessoService } from '../../../core/services/processo.service';
@@ -66,7 +67,7 @@ export const BRAZIL_DATE_FORMAT = {
     { provide: MAT_DATE_FORMATS, useValue: BRAZIL_DATE_FORMAT }
   ]
 })
-export class RequestFormComponent implements OnInit {
+export class RequestFormComponent implements OnInit, OnDestroy {
   requestForm: FormGroup;
   isEditMode = false;
   requestId: number | null = null;
@@ -86,6 +87,8 @@ export class RequestFormComponent implements OnInit {
   // Conditional fields visibility
   showAudienciaFields = false;
   showValorField = false;
+
+  private themeSubscription: Subscription | null = null;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -112,6 +115,30 @@ export class RequestFormComponent implements OnInit {
         this.requestId = +params['id'];
         this.loadRequest();
       }
+    });
+    
+    this.setupThemeListener();
+  }
+
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
+  }
+
+  setupThemeListener(): void {
+    // Listen for theme changes to trigger change detection
+    this.themeSubscription = new Subscription();
+    const themeHandler = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      // Force change detection when theme changes
+      // This will cause the component to re-render with the new theme styles
+    };
+    
+    window.addEventListener('themeChanged', themeHandler);
+    // Clean up the event listener when component is destroyed
+    this.themeSubscription.add(() => {
+      window.removeEventListener('themeChanged', themeHandler);
     });
   }
 

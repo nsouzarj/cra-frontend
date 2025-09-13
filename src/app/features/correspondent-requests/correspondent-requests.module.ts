@@ -18,6 +18,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 // Components
 import { CorrespondentRequestsComponent } from './correspondent-requests.component';
@@ -57,7 +58,8 @@ const routes: Routes = [
     MatChipsModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatDialogModule
+    MatDialogModule,
+    MatToolbarModule
   ],
   providers: [
     TipoSolicitacaoService

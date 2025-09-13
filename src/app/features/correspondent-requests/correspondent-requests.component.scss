@@ -4,26 +4,38 @@
   margin: 0 auto;
 }
 
-.requests-card {
-  margin-bottom: 20px;
-}
-
-.requests-card mat-card-header {
-  margin-bottom: 15px;
+.toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 20px;
+  background-color: var(--header-background, #3f51b5);
+  color: var(--header-color, #ffffff);
+  border-radius: 4px;
+  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+  padding: 16px 24px;
 }
 
-.requests-card h2 {
+.toolbar h1 {
   margin: 0;
-  color: #1526de;
+  color: var(--header-color, #ffffff);
+  font-size: 28px;
+}
+
+.spacer {
+  flex: 1 1 auto;
 }
 
 .subtitle {
-  margin: 5px 0 0 0;
-  color: #666;
-  font-size: 14px;
+  margin: 10px 0 20px 0;
+  color: rgba(0, 0, 0, 0.7);
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.requests-card {
+  margin-bottom: 20px;
 }
 
 .filters-container {
@@ -128,18 +140,68 @@
   margin-top: 2px;
 }
 
-
-.button-align{
+.button-align {
   display: flex !important;
   justify-content: flex-end !important;
   align-items: center !important;
   bottom: 10px !important;
-  color: #1526de;
+  background-color: rgb(31, 31, 183);
+  color: white;
+}
+
+.view-action {
+  color: #2196f3 !important; /* Blue color for view actions */
+}
+
+.view-action:hover {
+  background-color: rgba(33, 150, 243, 0.1) !important;
+}
+
+.edit-action {
+  color: #ff9800 !important; /* Orange color for edit actions */
+}
+
+.edit-action:hover {
+  background-color: rgba(255, 152, 0, 0.1) !important;
+}
+
+.delete-action {
+  color: #f44336 !important;
+}
+
+.delete-action:hover {
+  background-color: rgba(244, 67, 54, 0.1) !important;
+}
+
+.status-action {
+  color: #4caf50 !important; /* Green color for status actions */
+}
+
+.status-action:hover {
+  background-color: rgba(76, 175, 80, 0.1) !important;
+}
+
+.reopen-action {
+  color: #2196f3 !important; /* Blue color for reopen actions */
+}
+
+.reopen-action:hover {
+  background-color: rgba(33, 150, 243, 0.1) !important;
 }
 
 @media (max-width: 768px) {
   .requests-container {
     padding: 10px;
+  }
+  
+  .toolbar {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+    
+    h1 {
+      font-size: 24px;
+    }
   }
   
   .filters-container {
