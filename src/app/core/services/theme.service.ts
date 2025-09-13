@@ -95,7 +95,7 @@ export class ThemeService {
     const root = document.documentElement;
     
     // Define theme-specific header colors
-    const themeColors: { [key in Theme]: { background: string; color: string; welcomeColor: string; userInfoBg: string; userNameColor: string; userEmailColor: string; userRoleColor: string } } = {
+    const themeColors: { [key in Theme]: { background: string; color: string; welcomeColor: string; userInfoBg: string; userNameColor: string; userEmailColor: string; userRoleColor: string; textColor: string; secondaryTextColor: string } } = {
       light: {
         background: '#3f51b5',
         color: '#ffffff',
@@ -103,7 +103,9 @@ export class ThemeService {
         userInfoBg: '#f5f5f5',
         userNameColor: '#333333',
         userEmailColor: '#666666',
-        userRoleColor: '#3f51b5'
+        userRoleColor: '#3f51b5',
+        textColor: '#333333',
+        secondaryTextColor: '#666666'
       },
       dark: {
         background: '#2c2c2c',
@@ -112,7 +114,9 @@ export class ThemeService {
         userInfoBg: '#424242',
         userNameColor: '#ffffff',
         userEmailColor: '#bbbbbb',
-        userRoleColor: '#90caf9'
+        userRoleColor: '#90caf9',
+        textColor: '#ffffff',
+        secondaryTextColor: '#bbbbbb'
       },
       green: {
         background: '#4caf50',
@@ -121,7 +125,9 @@ export class ThemeService {
         userInfoBg: '#e8f5e9',
         userNameColor: '#2e7d32',
         userEmailColor: '#388e3c',
-        userRoleColor: '#1b5e20'
+        userRoleColor: '#1b5e20',
+        textColor: '#1b5e20',
+        secondaryTextColor: '#2e7d32'
       },
       purple: {
         background: '#9c27b0',
@@ -130,7 +136,9 @@ export class ThemeService {
         userInfoBg: '#f3e5f5',
         userNameColor: '#7b1fa2',
         userEmailColor: '#9c27b0',
-        userRoleColor: '#4a148c'
+        userRoleColor: '#4a148c',
+        textColor: '#4a148c',
+        secondaryTextColor: '#7b1fa2'
       },
       amber: {
         background: '#ffc107',
@@ -139,7 +147,9 @@ export class ThemeService {
         userInfoBg: '#fff8e1',
         userNameColor: '#ff6f00',
         userEmailColor: '#ff8f00',
-        userRoleColor: '#ffab00'
+        userRoleColor: '#ffab00',
+        textColor: '#5d4037',
+        secondaryTextColor: '#795548'
       },
       yellow: {
         background: '#ffeb3b',
@@ -148,7 +158,9 @@ export class ThemeService {
         userInfoBg: '#fffde7',
         userNameColor: '#f57f17',
         userEmailColor: '#f9a825',
-        userRoleColor: '#fbc02d'
+        userRoleColor: '#fbc02d',
+        textColor: '#f57f17',
+        secondaryTextColor: '#f9a825'
       },
       salmon: {
         background: '#fa8072',
@@ -157,7 +169,9 @@ export class ThemeService {
         userInfoBg: '#ffebee',
         userNameColor: '#d32f2f',
         userEmailColor: '#f44336',
-        userRoleColor: '#b71c1c'
+        userRoleColor: '#b71c1c',
+        textColor: '#d84315',
+        secondaryTextColor: '#e64a19'
       },
       midnightblue: {
         background: '#1976d2',
@@ -166,7 +180,9 @@ export class ThemeService {
         userInfoBg: '#e3f2fd',
         userNameColor: '#0d47a1',
         userEmailColor: '#1565c0',
-        userRoleColor: '#01579b'
+        userRoleColor: '#01579b',
+        textColor: '#e3f2fd',
+        secondaryTextColor: '#bbdefb'
       },
       olive: {
         background: '#808000',
@@ -175,7 +191,9 @@ export class ThemeService {
         userInfoBg: '#f0f0f0',
         userNameColor: '#556b2f',
         userEmailColor: '#6b8e23',
-        userRoleColor: '#8fbc8f'
+        userRoleColor: '#8fbc8f',
+        textColor: '#33691e',
+        secondaryTextColor: '#558b2f'
       },
       slategrey: {
         background: '#708090',
@@ -184,7 +202,9 @@ export class ThemeService {
         userInfoBg: '#e6e6fa',
         userNameColor: '#2f4f4f',
         userEmailColor: '#696969',
-        userRoleColor: '#778899'
+        userRoleColor: '#778899',
+        textColor: '#212121',
+        secondaryTextColor: '#424242'
       },
       red: {
         background: '#f44336',
@@ -193,7 +213,9 @@ export class ThemeService {
         userInfoBg: '#ffebee',
         userNameColor: '#d32f2f',
         userEmailColor: '#f44336',
-        userRoleColor: '#b71c1c'
+        userRoleColor: '#b71c1c',
+        textColor: '#b71c1c',
+        secondaryTextColor: '#c62828'
       },
       lightsteelblue: {
         background: '#b0c4de',
@@ -202,7 +224,9 @@ export class ThemeService {
         userInfoBg: '#f0f8ff',
         userNameColor: '#4682b4',
         userEmailColor: '#5f9ea0',
-        userRoleColor: '#6495ed'
+        userRoleColor: '#6495ed',
+        textColor: '#0d47a1',
+        secondaryTextColor: '#1565c0'
       }
     };
 
@@ -215,5 +239,7 @@ export class ThemeService {
     root.style.setProperty('--header-user-name-color', colors.userNameColor);
     root.style.setProperty('--header-user-email-color', colors.userEmailColor);
     root.style.setProperty('--header-user-role-color', colors.userRoleColor);
+    root.style.setProperty('--text-color', colors.textColor);
+    root.style.setProperty('--secondary-text-color', colors.secondaryTextColor);
   }
 }

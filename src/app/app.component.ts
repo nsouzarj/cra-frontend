@@ -29,20 +29,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     // Initialize theme
     // Theme is now initialized in the service constructor
     
-    // Check if user is authenticated on app start
-    if (this.authService.isAuthenticated) {
-      // Validate token and get current user info
-      this.authService.getCurrentUser().subscribe({
-        next: (user) => {
-          console.log('User authenticated:', user);
-        },
-        error: (error) => {
-          console.error('Authentication error:', error);
-          this.authService.logout();
-        }
-      });
-    }
-    
     // Listen for theme changes
     window.addEventListener('themeChanged', (event: Event) => {
       const customEvent = event as CustomEvent;

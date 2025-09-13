@@ -15,12 +15,14 @@
 }
 
 .dashboard-header h1 {
-  color: #3f51b5;
+  /* Use theme-aware colors */
+  color: var(--header-color, #3f51b5);
   margin-bottom: 10px;
 }
 
 .dashboard-header p {
-  color: #666;
+  /* Use theme-aware colors */
+  color: var(--header-welcome-color, #666);
   font-size: 18px;
 }
 
@@ -30,7 +32,8 @@
 }
 
 .stats-section h2 {
-  color: #333;
+  /* Use theme-aware colors */
+  color: var(--text-color, #333);
   margin-bottom: 20px;
   font-size: 24px;
 }
@@ -117,7 +120,8 @@
 
 .stat-details h3 {
   margin: 0 0 5px 0;
-  color: #333;
+  /* Use theme-aware colors */
+  color: var(--text-color, #333);
   font-size: 18px;
 }
 
@@ -129,12 +133,14 @@
 .primary-number {
   font-size: 28px;
   font-weight: bold;
-  color: #333;
+  /* Use theme-aware colors */
+  color: var(--text-color, #333);
 }
 
 .secondary-number {
   font-size: 14px;
-  color: #666;
+  /* Use theme-aware colors */
+  color: var(--secondary-text-color, #666);
 }
 
 /* Actions Grid */
@@ -151,7 +157,8 @@
 }
 
 .charts-section h2 {
-  color: #333;
+  /* Use theme-aware colors */
+  color: var(--text-color, #333);
   margin-bottom: 20px;
   font-size: 24px;
 }
@@ -244,12 +251,14 @@
 .pie-total {
   font-size: 32px;
   font-weight: bold;
-  color: #333;
+  /* Use theme-aware colors */
+  color: var(--text-color, #333);
 }
 
 .pie-label {
   font-size: 14px;
-  color: #666;
+  /* Use theme-aware colors */
+  color: var(--secondary-text-color, #666);
 }
 
 .pie-legend {
@@ -275,6 +284,8 @@
   white-space: nowrap; /* Prevent text wrapping */
   overflow: hidden;
   text-overflow: ellipsis;
+  /* Use theme-aware colors */
+  color: var(--text-color, #333);
 }
 
 .bar-chart {
@@ -309,7 +320,8 @@
   margin-top: 10px;
   font-size: 12px;
   text-align: center;
-  color: #666;
+  /* Use theme-aware colors */
+  color: var(--secondary-text-color, #666);
   word-break: break-word;
 }
 
@@ -317,7 +329,8 @@
   margin-top: 5px;
   font-size: 14px;
   font-weight: bold;
-  color: #333;
+  /* Use theme-aware colors */
+  color: var(--text-color, #333);
 }
 
 .horizontal-scroll-container {
@@ -348,7 +361,8 @@
 }
 
 .quick-actions h2 {
-  color: #333;
+  /* Use theme-aware colors */
+  color: var(--text-color, #333);
   margin-bottom: 20px;
   font-size: 24px;
 }
@@ -385,12 +399,14 @@
 
 .action-card h3 {
   margin: 0 0 10px 0;
-  color: #333;
+  /* Use theme-aware colors */
+  color: var(--text-color, #333);
 }
 
 .action-card p {
   margin: 0 0 20px 0;
-  color: #666;
+  /* Use theme-aware colors */
+  color: var(--secondary-text-color, #666);
 }
 
 /* Recent Activity */
@@ -403,7 +419,8 @@
 }
 
 .recent-activity h2 {
-  color: #333;
+  /* Use theme-aware colors */
+  color: var(--text-color, #333);
   margin-bottom: 20px;
   font-size: 24px;
 }
@@ -416,7 +433,8 @@
 
 .coming-soon {
   text-align: center;
-  color: #666;
+  /* Use theme-aware colors */
+  color: var(--secondary-text-color, #666);
   font-style: italic;
   padding: 40px 20px;
   margin: 0;
