@@ -1,39 +1,37 @@
+/* Dashboard Container */
 .dashboard-container {
   padding: 20px;
-  max-width: 100%; /* Changed from 1200px to 100% for better mobile fit */
+  max-width: 100%;
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
-  overflow-x: hidden; /* Prevent horizontal overflow */
-  overflow-y: auto; /* Allow vertical scrolling if needed */
+  overflow-x: hidden;
+  overflow-y: auto;
   position: relative;
 }
 
+/* Dashboard Header */
 .dashboard-header {
   text-align: center;
-  margin-bottom: 20px;
-  /* Use theme-aware background color */
-  background-color: var(--header-background, #061462);
-  padding: 10px;
+  margin-bottom: 30px;
+  background-color: var(--header-background, #3f51b5);
+  padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
   margin-top: 5px; /* Reduced from 20px to 5px to bring closer to header */
 }
 
 .dashboard-header h1 {
-  /* Use theme-aware colors */
   color: var(--header-color, #3f51b5);
   margin-bottom: 10px;
 }
 
 .dashboard-header .dashboard-title {
-  /* Use theme-aware colors */
   color: var(--header-color, #3f51b5);
   margin-bottom: 10px;
 }
 
 .dashboard-header p {
-  /* Use theme-aware colors */
   color: var(--header-welcome-color, #666);
   font-size: 18px;
 }
@@ -44,7 +42,6 @@
 }
 
 .stats-section h2 {
-  /* Use theme-aware colors */
   color: var(--text-color, #333);
   margin-bottom: 20px;
   font-size: 24px;
@@ -132,7 +129,6 @@
 
 .stat-details h3 {
   margin: 0 0 5px 0;
-  /* Use theme-aware colors */
   color: var(--text-color, #333);
   font-size: 18px;
 }
@@ -145,13 +141,11 @@
 .primary-number {
   font-size: 28px;
   font-weight: bold;
-  /* Use theme-aware colors */
   color: var(--text-color, #333);
 }
 
 .secondary-number {
   font-size: 14px;
-  /* Use theme-aware colors */
   color: var(--secondary-text-color, #666);
 }
 
@@ -169,7 +163,6 @@
 }
 
 .charts-section h2 {
-  /* Use theme-aware colors */
   color: var(--text-color, #333);
   margin-bottom: 20px;
   font-size: 24px;
@@ -191,14 +184,14 @@
   min-width: 0;
   max-width: 100%;
   position: relative;
-  overflow: hidden; /* Contain all content */
-  max-height: 500px; /* Limit card height */
+  overflow: hidden;
+  max-height: 500px;
 }
 
 .chart-card mat-card-header {
   padding: 16px;
   border-bottom: 1px solid rgba(0,0,0,.12);
-  flex-shrink: 0; /* Prevent header from shrinking */
+  flex-shrink: 0;
 }
 
 .chart-card mat-card-content {
@@ -209,11 +202,10 @@
   padding: 0;
 }
 
-/* Make the entire card content scrollable if needed */
 .chart-card .mat-card-content {
-  overflow-x: hidden; /* Prevent horizontal overflow */
-  overflow-y: auto; /* Vertical scrolling if content is tall */
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .chart-container {
@@ -227,15 +219,21 @@
 .pie-chart {
   display: flex;
   flex-wrap: nowrap;
-  gap: 20px;
+  gap: 15px;
   align-items: center;
-  min-width: 400px; /* Ensure minimum width to trigger scrolling on smaller screens */
+  justify-content: flex-start;
+  width: 100%;
+  flex: 1;
+  min-width: 0;
+  flex-shrink: 0;
 }
 
 .pie-chart-container {
   position: relative;
-  width: 200px;
-  height: 200px;
+  width: 180px;
+  height: 180px;
+  flex-shrink: 0;
+  margin: 0 auto;
 }
 
 .pie-svg {
@@ -261,57 +259,69 @@
 }
 
 .pie-total {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: bold;
-  /* Use theme-aware colors */
   color: var(--text-color, #333);
 }
 
 .pie-label {
-  font-size: 14px;
-  /* Use theme-aware colors */
+  font-size: 12px;
   color: var(--secondary-text-color, #666);
 }
 
 .pie-legend {
-  min-width: 200px; /* Ensure legend has minimum width */
-  white-space: nowrap; /* Prevent text wrapping to ensure proper width */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  flex-shrink: 0;
+  overflow-y: auto;
+  max-height: 180px;
+  margin: 0 auto;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-width: 150px; /* Ensure each legend item has minimum width */
+  min-width: 0;
 }
 
 .legend-color {
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
   flex-shrink: 0;
 }
 
 .legend-label {
-  white-space: nowrap; /* Prevent text wrapping */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  /* Use theme-aware colors */
+  font-size: 12px;
   color: var(--text-color, #333);
+  word-break: break-word;
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .bar-chart {
   flex: 1;
   min-width: 300px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
 }
 
 .chart-bars {
   display: flex;
   align-items: flex-end;
-  height: 200px;
-  gap: 15px;
-  padding: 20px;
+  height: 180px;
+  gap: 12px;
+  padding: 15px;
   border-bottom: 1px solid #eee;
+  min-width: 100%;
+  box-sizing: border-box;
+  flex: 1;
 }
 
 .bar-container {
@@ -319,29 +329,32 @@
   flex-direction: column;
   align-items: center;
   flex: 1;
-  min-width: 50px;
+  min-width: 30px;
+  max-width: 80px;
 }
 
 .bar {
   width: 100%;
-  border-radius: 4px 4px 0 0;
+  border-radius: 3px 3px 0 0;
   transition: height 0.3s ease;
 }
 
 .bar-label {
-  margin-top: 10px;
-  font-size: 12px;
+  margin-top: 8px;
+  font-size: 10px;
   text-align: center;
-  /* Use theme-aware colors */
   color: var(--secondary-text-color, #666);
   word-break: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .bar-value {
-  margin-top: 5px;
-  font-size: 14px;
+  margin-top: 4px;
+  font-size: 12px;
   font-weight: bold;
-  /* Use theme-aware colors */
   color: var(--text-color, #333);
 }
 
@@ -351,11 +364,39 @@
   width: 100%;
 }
 
+.pie-chart {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 15px;
+  align-items: center;
+  min-width: 350px;
+}
+
+.pie-legend {
+  min-width: 180px;
+  white-space: nowrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 140px;
+}
+
+.legend-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .responsive-bar-chart {
-  min-width: 500px;
+  min-width: 300px;
   width: 100%;
-  overflow-x: auto; /* Enable horizontal scrolling */
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  display: block;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
 }
 
 /* Loading State */
@@ -373,7 +414,6 @@
 }
 
 .quick-actions h2 {
-  /* Use theme-aware colors */
   color: var(--text-color, #333);
   margin-bottom: 20px;
   font-size: 24px;
@@ -411,13 +451,11 @@
 
 .action-card h3 {
   margin: 0 0 10px 0;
-  /* Use theme-aware colors */
   color: var(--text-color, #333);
 }
 
 .action-card p {
   margin: 0 0 20px 0;
-  /* Use theme-aware colors */
   color: var(--secondary-text-color, #666);
 }
 
@@ -431,7 +469,6 @@
 }
 
 .recent-activity h2 {
-  /* Use theme-aware colors */
   color: var(--text-color, #333);
   margin-bottom: 20px;
   font-size: 24px;
@@ -445,7 +482,6 @@
 
 .coming-soon {
   text-align: center;
-  /* Use theme-aware colors */
   color: var(--secondary-text-color, #666);
   font-style: italic;
   padding: 40px 20px;
@@ -460,10 +496,9 @@
   
   .dashboard-header {
     margin-bottom: 20px;
-    /* Use theme-aware background color */
     background-color: var(--header-background, #3f51b5);
     padding: 15px;
-    margin-top: 5px; /* Reduced from 15px to 5px to bring closer to header */
+    margin-top: 5px;
   }
   
   .dashboard-header h1 {
@@ -480,14 +515,14 @@
   
   .chart-container {
     flex-direction: column;
-    overflow-x: auto; /* Enable horizontal scrolling on mobile */
-    overflow-y: hidden; /* Prevent vertical overflow */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
   }
   
   .pie-chart {
-    flex-direction: row; /* Keep row direction for proper scrolling */
-    min-width: 300px; /* Adjust minimum width for mobile */
+    flex-direction: row;
+    min-width: 300px;
   }
   
   .pie-chart-container {
@@ -508,7 +543,7 @@
   }
   
   .chart-card {
-    max-height: 400px; /* Limit card height on mobile */
+    max-height: 400px;
   }
 }
 
@@ -519,10 +554,9 @@
   
   .dashboard-header {
     margin-bottom: 15px;
-    /* Use theme-aware background color */
     background-color: var(--header-background, #3f51b5);
     padding: 12px;
-    margin-top: 5px; /* Reduced from 10px to 5px to bring closer to header */
+    margin-top: 5px;
   }
   
   .dashboard-header h1 {
@@ -553,14 +587,14 @@
   
   .chart-container {
     padding: 15px;
-    overflow-x: auto; /* Enable horizontal scrolling on mobile */
-    overflow-y: hidden; /* Prevent vertical overflow */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
   }
   
   .pie-chart {
-    min-width: 250px; /* Further adjust minimum width for small screens */
-    flex-direction: row; /* Keep row direction for proper scrolling */
+    min-width: 250px;
+    flex-direction: row;
   }
   
   .pie-chart-container {
@@ -581,6 +615,6 @@
   }
   
   .chart-card {
-    max-height: 350px; /* Further limit card height on small screens */
+    max-height: 350px;
   }
 }
