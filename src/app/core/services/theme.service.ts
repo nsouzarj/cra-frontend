@@ -174,7 +174,7 @@ export class ThemeService {
         secondaryTextColor: '#e64a19'
       },
       midnightblue: {
-        background: '#1976d2',
+        background: '#1a237e',
         color: '#ffffff',
         welcomeColor: 'rgba(255, 255, 255, 0.8)',
         userInfoBg: '#e3f2fd',
