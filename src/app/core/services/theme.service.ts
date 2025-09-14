@@ -174,15 +174,15 @@ export class ThemeService {
         secondaryTextColor: '#e64a19'
       },
       midnightblue: {
-        background: '#1a237e',
-        color: '#ffffff',
-        welcomeColor: 'rgba(255, 255, 255, 0.8)',
-        userInfoBg: '#e3f2fd',
-        userNameColor: '#0d47a1',
-        userEmailColor: '#1565c0',
-        userRoleColor: '#01579b',
-        textColor: '#e3f2fd',
-        secondaryTextColor: '#bbdefb'
+        background: '#0d1b3d', // Deep midnight blue
+        color: '#ffffff', // White for better contrast on dark background
+        welcomeColor: 'rgba(255, 255, 255, 0.9)', // White with transparency
+        userInfoBg: '#1976d2', // Vibrant blue for user info background
+        userNameColor: '#ffffff', // White for user name
+        userEmailColor: '#bbdefb', // Light blue for user email
+        userRoleColor: '#64b5f6', // Medium blue for user role
+        textColor: '#ffffff', // White for better contrast on dark background
+        secondaryTextColor: '#e3f2fd' // Light blue for secondary text
       },
       olive: {
         background: '#808000',

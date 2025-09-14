@@ -22,7 +22,8 @@
 }
 
 .charts-section h2 {
-  color: #333;
+  /* Use theme-aware colors */
+  color: var(--text-color, #333);
   margin-bottom: 20px;
   font-size: 24px;
   word-break: break-word;
@@ -132,12 +133,14 @@
 .pie-total {
   font-size: 28px;
   font-weight: bold;
-  color: #333;
+  /* Use theme-aware colors */
+  color: var(--text-color, #333);
 }
 
 .pie-label {
   font-size: 12px;
-  color: #666;
+  /* Use theme-aware colors */
+  color: var(--secondary-text-color, #666);
 }
 
 .pie-legend {
@@ -167,7 +170,8 @@
 
 .legend-label {
   font-size: 12px;
-  color: #333;
+  /* Use theme-aware colors */
+  color: var(--text-color, #333);
   word-break: break-word;
   flex: 1;
   min-width: 0;
@@ -288,6 +292,10 @@
   
   .dashboard-header {
     margin-bottom: 20px;
+    /* Use theme-aware background color */
+    background-color: var(--header-background, #3f51b5);
+    padding: 15px;
+    margin-top: 5px; /* Reduced from 15px to 5px to bring closer to header */
   }
   
   .dashboard-header h1 {
@@ -436,6 +444,10 @@
   
   .dashboard-header {
     margin-bottom: 15px;
+    /* Use theme-aware background color */
+    background-color: var(--header-background, #3f51b5);
+    padding: 12px;
+    margin-top: 5px; /* Reduced from 10px to 5px to bring closer to header */
   }
   
   .dashboard-header h1 {
@@ -594,17 +606,23 @@
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
+  /* Use theme-aware background color */
+  background-color: var(--header-background, #3f51b5);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
+  margin-top: 5px; /* Reduced from 20px to 5px to bring closer to header */
 }
 
 .dashboard-header h1 {
-  color: #3f51b5;
+  color: var(--header-color, #3f51b5);
   margin-bottom: 10px;
   word-break: break-word;
   overflow-wrap: break-word;
 }
 
 .dashboard-header p {
-  color: #666;
+  color: var(--header-welcome-color, #666);
   font-size: 18px;
   word-break: break-word;
   overflow-wrap: break-word;
@@ -619,7 +637,8 @@
 }
 
 .stats-section h2 {
-  color: #333;
+  /* Use theme-aware colors */
+  color: var(--text-color, #333);
   margin-bottom: 20px;
   font-size: 24px;
   word-break: break-word;
@@ -699,7 +718,8 @@
 
 .stat-details h3 {
   margin: 0 0 5px 0;
-  color: #333;
+  /* Use theme-aware colors */
+  color: var(--text-color, #333);
   font-size: 18px;
   white-space: nowrap;
   overflow: hidden;
@@ -715,12 +735,14 @@
 .primary-number {
   font-size: 28px;
   font-weight: bold;
-  color: #333;
+  /* Use theme-aware colors */
+  color: var(--text-color, #333);
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .secondary-number {
   font-size: 14px;
-  color: #666;
+  /* Use theme-aware colors */
+  color: var(--secondary-text-color, #666);
 }

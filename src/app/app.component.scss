@@ -97,6 +97,20 @@
   }
 }
 
+/* Midnight Blue Theme Overrides */
+.midnightblue-theme {
+  background-color: #0d1b3d !important; /* Deep midnight blue */
+  
+  .main-content {
+    background-color: #152955 !important; /* Medium midnight blue */
+  }
+  
+  .sidenav {
+    background-color: #152955 !important; /* Medium midnight blue */
+    border-right: 1px solid #284a8c !important; /* Slightly lighter blue */
+  }
+}
+
 /* Responsive styles for mobile */
 @media (max-width: 768px) {
   .sidenav {
