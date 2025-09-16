@@ -258,8 +258,15 @@ export class CorrespondentRequestDetailComponent implements OnInit {
       if ((this.authService.isAdmin() || this.authService.isAdvogado()) && 
           this.isStatusFinalizada()) {
         return 'Não é possível excluir arquivos pois a solicitação já foi finalizada';
+      } else if (this.authService.isCorrespondente()) {
+        const status = this.solicitacao?.statusSolicitacao?.status;
+        if (status === 'Finalizada' || status === 'Finalizado') {
+          return 'Não é possível excluir arquivos pois a solicitação já foi finalizada';
+        } else {
+          return 'Não é possível excluir arquivos nesta fase da solicitação';
+        }
       } else if (!(this.authService.isAdmin() || this.authService.isAdvogado()) && 
-                 !(this.solicitacao?.statusSolicitacao?.status === 'Em Andamento' || this.isStatusConcluido())) {
+                 !(this.solicitacao?.statusSolicitacao?.status === 'Em Produção' || this.isStatusConcluido())) {
         return 'Não é possível excluir arquivos pois a solicitação já foi finalizada pelo solicitante';
       }
       return 'Não é possível excluir arquivos';
@@ -320,6 +327,15 @@ export class CorrespondentRequestDetailComponent implements OnInit {
         status: newStatus
       }
     };
+
+    // Handle dataconclusao based on status changes
+    if (newStatus === 'Concluído' || newStatus === 'Finalizada') {
+      // When correspondent concludes the solicitation, set dataconclusao to current date
+      updatedSolicitacao.dataconclusao = new Date();
+    } else if (newStatus === 'Aguardando Confirmação') {
+      // When setting to Aguardando Confirmação, clear dataconclusao
+      updatedSolicitacao.dataconclusao = undefined;
+    }
 
     this.solicitacaoService.updateSolicitacao(this.solicitacao.id, updatedSolicitacao).subscribe({
       next: (updated) => {
@@ -383,9 +399,11 @@ export class CorrespondentRequestDetailComponent implements OnInit {
       return !this.isStatusFinalizada();
     }
     
-    // For other users, check the status
+    // For correspondents, check the status
+    // Correspondents can upload files when status is "Em Produção" or "Concluído"
+    // But not when status is "Finalizado"
     const status = this.solicitacao?.statusSolicitacao?.status;
-    return status === 'Em Andamento' || this.isStatusConcluido();
+    return status === 'Em Produção' || this.isStatusConcluido();
   }
 
   // Method to get tooltip message for file upload button
@@ -398,8 +416,15 @@ export class CorrespondentRequestDetailComponent implements OnInit {
     if ((this.authService.isAdmin() || this.authService.isAdvogado()) && 
         this.isStatusFinalizada()) {
       return 'Não é possível adicionar arquivos pois a solicitação já foi finalizada';
+    } else if (this.authService.isCorrespondente()) {
+      const status = this.solicitacao?.statusSolicitacao?.status;
+      if (status === 'Finalizada' || status === 'Finalizado') {
+        return 'Não é possível adicionar arquivos pois a solicitação já foi finalizada';
+      } else {
+        return 'Não é possível adicionar arquivos nesta fase da solicitação';
+      }
     } else if (!(this.authService.isAdmin() || this.authService.isAdvogado()) && 
-               !(this.solicitacao?.statusSolicitacao?.status === 'Em Andamento' || this.isStatusConcluido())) {
+               !(this.solicitacao?.statusSolicitacao?.status === 'Em Produção' || this.isStatusConcluido())) {
       return 'Não é possível adicionar arquivos pois a solicitação já foi finalizada pelo solicitante';
     }
     

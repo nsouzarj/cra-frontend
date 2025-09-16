@@ -256,6 +256,15 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
       }
     };
     
+    // Handle dataconclusao based on status changes
+    if (newStatus === 'Finalizada') {
+      // When correspondent concludes the solicitation, set dataconclusao to current date
+      updatedSolicitacao.dataconclusao = new Date();
+    } else if (newStatus === 'Aguardando Confirmação') {
+      // When setting to Aguardando Confirmação, clear dataconclusao
+      updatedSolicitacao.dataconclusao = undefined;
+    }
+    
  
     // Show user-friendly status name in confirmation dialog
     const userFriendlyStatus = newStatus === 'Finalizada' ? 'Concluída' : newStatus;

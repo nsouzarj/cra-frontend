@@ -529,9 +529,18 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         // Fallback to first status if "Aguardando Confirmação" is not found
         solicitacao.statusSolicitacao = { idstatus: this.statuses.length > 0 ? this.statuses[0].idstatus : 1 };
       }
+      
+      // When creating a new solicitation with "Aguardando Confirmação" status, clear dataconclusao
+      solicitacao.dataconclusao = undefined;
     } else if(formValue.status){
       // Use selected status for editing
       solicitacao.statusSolicitacao = { idstatus: formValue.status };
+      
+      // When editing, check if status is "Aguardando Confirmação" and clear dataconclusao if so
+      const selectedStatus = this.statuses.find(s => s.idstatus === formValue.status);
+      if (selectedStatus && (selectedStatus.status === 'Aguardando Confirmação' || selectedStatus.status === 'Aguardando Confirmacao')) {
+        solicitacao.dataconclusao = undefined;
+      }
     }
 
     if (formValue.tipoSolicitacao) {
