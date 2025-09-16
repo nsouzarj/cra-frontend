@@ -15,12 +15,14 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule } from '@angular/material/dialog';
 
 // Components
 import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
+import { ObservationDialogComponent } from './observation-dialog/observation-dialog.component';
 import { HeaderComponent } from './layout/header/header.component';
 import { SidenavComponent } from './layout/sidenav/sidenav.component';
 import { ThemeTestComponent } from '../../theme-test.component';
@@ -34,6 +36,7 @@ import { MatTooltip } from "@angular/material/tooltip";
     UnauthorizedComponent,
     NotFoundComponent,
     ConfirmationDialogComponent,
+    ObservationDialogComponent,
     HeaderComponent,
     SidenavComponent,
     ThemeTestComponent,
@@ -58,6 +61,7 @@ import { MatTooltip } from "@angular/material/tooltip";
     MatSelectModule,
     MatOptionModule,
     MatFormFieldModule,
+    MatInputModule,
     MatDialogModule,
     MatTooltip
 ],
@@ -65,6 +69,7 @@ import { MatTooltip } from "@angular/material/tooltip";
     UnauthorizedComponent,
     NotFoundComponent,
     ConfirmationDialogComponent,
+    ObservationDialogComponent,
     HeaderComponent,
     SidenavComponent,
     ThemeTestComponent,
@@ -83,7 +88,9 @@ import { MatTooltip } from "@angular/material/tooltip";
     MatSelectModule,
     MatOptionModule,
     MatFormFieldModule,
-    MatDialogModule
+    MatInputModule,
+    MatDialogModule,
+    MatTooltip
   ]
 })
 export class SharedComponentsModule { }

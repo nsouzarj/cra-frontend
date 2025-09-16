@@ -15,6 +15,7 @@ import { DateFormatService } from '../../../shared/services/date-format.service'
 import { HttpEventType } from '@angular/common/http';
 // Add import for confirmation dialog component
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
+import { ObservationDialogComponent } from '../../../shared/components/observation-dialog/observation-dialog.component';
 
 @Component({
   selector: 'app-correspondent-request-detail',
@@ -302,6 +303,35 @@ export class CorrespondentRequestDetailComponent implements OnInit {
   updateStatus(newStatus: string): void {
     if (!this.solicitacao || !this.solicitacao.id) return;
 
+    // If the correspondent is concluding the work, show observation dialog first
+    if (newStatus === 'Finalizada' && this.authService.isCorrespondente()) {
+      const observationDialogRef = this.dialog.open(ObservationDialogComponent, {
+        width: '500px',
+        data: {
+          title: 'Observação do Correspondente',
+          message: 'Por favor, informe sua observação sobre a conclusão desta solicitação:',
+          observationLabel: 'Observação:',
+          confirmText: 'OK',
+          cancelText: 'CANCELAR'
+        }
+      });
+
+      observationDialogRef.afterClosed().subscribe(observation => {
+        if (observation !== null) {
+          // After getting observation, show confirmation dialog
+          this.showConfirmationDialog(newStatus, observation);
+        }
+      });
+    } else {
+      // For other status changes, show confirmation dialog directly
+      this.showConfirmationDialog(newStatus, null);
+    }
+  }
+
+  // Helper method to show confirmation dialog
+  private showConfirmationDialog(newStatus: string, observation: string | null): void {
+    if (!this.solicitacao || !this.solicitacao.id) return;
+
     // Determine the correct idstatus based on the new status
     let idstatus: number;
     switch (newStatus) {
@@ -328,6 +358,11 @@ export class CorrespondentRequestDetailComponent implements OnInit {
       }
     };
 
+    // If we have an observation, add it to the solicitacao
+    if (observation !== null) {
+      updatedSolicitacao.observacao = observation;
+    }
+
     // Handle dataconclusao based on status changes
     if (newStatus === 'Concluído' || newStatus === 'Finalizada') {
       // When correspondent concludes the solicitation, set dataconclusao to current date
@@ -337,18 +372,37 @@ export class CorrespondentRequestDetailComponent implements OnInit {
       updatedSolicitacao.dataconclusao = undefined;
     }
 
-    this.solicitacaoService.updateSolicitacao(this.solicitacao.id, updatedSolicitacao).subscribe({
-      next: (updated) => {
-        this.solicitacao = updated;
-        // Refresh attachments to ensure button states are updated
-        if (this.solicitacao?.id) {
-          this.loadAnexos(this.solicitacao.id);
-        }
-        this.snackBar.open('Status atualizado com sucesso!', 'Fechar', { duration: 3000 });
-      },
-      error: (error) => {
-        console.error('Error updating status:', error);
-        this.snackBar.open('Erro ao atualizar status', 'Fechar', { duration: 5000 });
+    // Show user-friendly status name in confirmation dialog
+    const userFriendlyStatus = newStatus === 'Finalizada' ? 'Concluída' : newStatus;
+    
+    // Show confirmation dialog
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Confirmar Alteração de Status',
+        message: `Tem certeza que deseja alterar o status da solicitação ${this.solicitacao.id} para "${userFriendlyStatus}"?`,
+        confirmText: 'SIM',
+        cancelText: 'NÃO'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // User confirmed, proceed with status update
+        this.solicitacaoService.updateSolicitacao(this.solicitacao!.id!, updatedSolicitacao).subscribe({
+          next: (updated) => {
+            this.solicitacao = updated;
+            // Refresh attachments to ensure button states are updated
+            if (this.solicitacao?.id) {
+              this.loadAnexos(this.solicitacao.id);
+            }
+            this.snackBar.open('Status atualizado com sucesso!', 'Fechar', { duration: 3000 });
+          },
+          error: (error) => {
+            console.error('Error updating status:', error);
+            this.snackBar.open('Erro ao atualizar status', 'Fechar', { duration: 5000 });
+          }
+        });
       }
     });
   }

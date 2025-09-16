@@ -268,6 +268,12 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         // Ensure dataSolicitacao is populated with current date if empty
         const dataSolicitacaoValue = solicitacao.datasolicitacao || this.getCurrentDate();
         
+        // Format the valor for display if it exists
+        let formattedValor = null;
+        if (solicitacao.valor !== null && solicitacao.valor !== undefined) {
+          formattedValor = solicitacao.valor;
+        }
+        
         this.requestForm.patchValue({
           tipoSolicitacao: solicitacao.tipoSolicitacao?.idtiposolicitacao || null,
           status: solicitacao.statusSolicitacao?.idstatus || (this.statuses && this.statuses.length > 0 ? this.statuses[0].status : 'PENDENTE'),
@@ -280,7 +286,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
           // Conditional fields
           dataAgendamento: solicitacao.dataagendamento || '',
           horaAudiencia: solicitacao.horaudiencia || '',
-          valor: solicitacao.valor || ''
+          valor: formattedValor
         });
         
         // Check if we need to show conditional fields based on the loaded tipoSolicitacao
@@ -357,13 +363,26 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   }
 
   // Method to format a number as Brazilian currency for display
-  formatCurrencyDisplay(value: number | null): string {
-    if (value === null || value === undefined) {
+  formatCurrencyDisplay(value: number | string | null): string {
+    if (value === null || value === undefined || value === '') {
       return '';
     }
     
+    // Convert string to number if needed
+    let numericValue: number;
+    if (typeof value === 'string') {
+      // Remove any existing formatting
+      const cleanValue = value.replace(/[^0-9,]/g, '').replace(',', '.');
+      numericValue = parseFloat(cleanValue);
+      if (isNaN(numericValue)) {
+        return '';
+      }
+    } else {
+      numericValue = value;
+    }
+    
     // Format as Brazilian currency without the R$ symbol
-    return value.toLocaleString('pt-BR', {
+    return numericValue.toLocaleString('pt-BR', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     });
@@ -434,6 +453,11 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       // Also check if the current tipoSolicitacao is Audiência
       if (selectedTipo && this.isTipoAudiencia(selectedTipo)) {
         this.showAudienciaFields = true;
+      }
+      
+      // Ensure valor field is visible if there's a value
+      if (formValue.valor) {
+        this.showValorField = true;
       }
     }
   }

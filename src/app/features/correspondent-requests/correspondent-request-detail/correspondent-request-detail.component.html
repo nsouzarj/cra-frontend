@@ -155,8 +155,8 @@
             <span class="info-label">Hora da Audiência:</span>
             <span class="info-value">{{ solicitacao?.horaudiencia }}</span>
           </div>
-          <!-- Conditional field for Audiência or Diligência: Valor -->
-          <div class="info-item" *ngIf="(isAudiencia() || isDiligencia()) && solicitacao?.valor">
+          <!-- Valor field for all solicitation types -->
+          <div class="info-item" *ngIf="solicitacao?.valor">
             <span class="info-label">Valor:</span>
             <span class="info-value">R$ {{ solicitacao?.valor | number:'1.2-2':'pt-BR' }}</span>
           </div>
@@ -367,13 +367,30 @@
       </mat-card-header>
       <mat-card-content>
         <div class="info-list">
-          <div class="info-item" *ngIf="solicitacao?.observacao">
+          <div class="info-item" *ngIf="solicitacao?.observacao && solicitacao?.statusSolicitacao?.status !== 'Finalizada'">
             <span class="info-label">Observação:</span>
             <span class="info-value">{{ solicitacao?.observacao }}</span>
           </div>
           <div class="info-item" *ngIf="solicitacao?.instrucoes">
             <span class="info-label">Instruções:</span>
             <span class="info-value">{{ solicitacao?.instrucoes }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Correspondent Observation -->
+    <mat-card class="info-card" *ngIf="solicitacao?.observacao && solicitacao?.statusSolicitacao?.status === 'Finalizada'">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>comment</mat-icon>
+          Observação do Correspondente
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-value">{{ solicitacao?.observacao }}</span>
           </div>
         </div>
       </mat-card-content>
