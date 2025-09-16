@@ -16,18 +16,85 @@
     </button>
     <!-- Status change buttons for correspondents, admins and lawyers -->
     <div *ngIf="canChangeStatus()" class="status-buttons">
-      <!-- Show buttons for correspondents only if status is not "Finalizada" -->
-      <ng-container *ngIf="canCorrespondentChangeStatus() || canAdminOrLawyerChangeStatus() || solicitacao?.statusSolicitacao?.status === 'Concluído' || solicitacao?.statusSolicitacao?.status === 'Aguardando Confirmação'">
+      <!-- Show buttons for correspondents based on status rules -->
+      <ng-container *ngIf="canCorrespondentChangeStatus() || isStatusConcluido() || isStatusFinalizada()">
+        <!-- When status is "Aguardando Confirmação" - Iniciar Trabalho active, Concluir Trabalho inactive -->
         <button mat-raised-button 
                 color="primary" 
                 (click)="updateStatus('Em Produção')"
-                [disabled]="solicitacao?.statusSolicitacao?.status === 'Em Produção' || solicitacao?.statusSolicitacao?.status === 'Concluído' || solicitacao?.statusSolicitacao?.status === 'Finalizada'">
+                *ngIf="solicitacao?.statusSolicitacao?.status === 'Aguardando Confirmação'"
+                [disabled]="false">
           Iniciar Trabalho
         </button>
         <button mat-raised-button 
                 color="accent" 
                 (click)="updateStatus('Finalizada')"
-                [disabled]="solicitacao?.statusSolicitacao?.status === 'Concluído' || solicitacao?.statusSolicitacao?.status === 'Finalizada' || solicitacao?.statusSolicitacao?.status === 'Aguardando Confirmação'">
+                *ngIf="solicitacao?.statusSolicitacao?.status === 'Aguardando Confirmação'"
+                [disabled]="true">
+          Concluir Trabalho
+        </button>
+        
+        <!-- When status is "Em Produção" - Iniciar Trabalho inactive, Concluir Trabalho active -->
+        <button mat-raised-button 
+                color="primary" 
+                (click)="updateStatus('Em Produção')"
+                *ngIf="solicitacao?.statusSolicitacao?.status === 'Em Produção'"
+                [disabled]="true">
+          Iniciar Trabalho
+        </button>
+        <button mat-raised-button 
+                color="accent" 
+                (click)="updateStatus('Finalizada')"
+                *ngIf="solicitacao?.statusSolicitacao?.status === 'Em Produção'"
+                [disabled]="false">
+          Concluir Trabalho
+        </button>
+        
+        <!-- When status is "Finalizada" - Both buttons inactive but visible -->
+        <button mat-raised-button 
+                color="primary" 
+                (click)="updateStatus('Em Produção')"
+                *ngIf="isStatusFinalizada()"
+                [disabled]="true">
+          Iniciar Trabalho
+        </button>
+        <button mat-raised-button 
+                color="accent" 
+                (click)="updateStatus('Finalizada')"
+                *ngIf="isStatusFinalizada()"
+                [disabled]="true">
+          Concluir Trabalho
+        </button>
+        
+        <!-- When status is "Concluído" - Both buttons inactive but visible -->
+        <button mat-raised-button 
+                color="primary" 
+                (click)="updateStatus('Em Produção')"
+                *ngIf="isStatusConcluido()"
+                [disabled]="true">
+          Iniciar Trabalho
+        </button>
+        <button mat-raised-button 
+                color="accent" 
+                (click)="updateStatus('Finalizada')"
+                *ngIf="isStatusConcluido()"
+                [disabled]="true">
+          Concluir Trabalho
+        </button>
+      </ng-container>
+      
+      <!-- Show buttons for admins/lawyers when status is "Concluído" or "Aguardando Confirmação" -->
+      <ng-container *ngIf="canAdminOrLawyerChangeStatus() && (isStatusConcluido() || solicitacao?.statusSolicitacao?.status === 'Aguardando Confirmação')">
+        <button mat-raised-button 
+                color="primary" 
+                (click)="updateStatus('Em Produção')"
+                [disabled]="solicitacao?.statusSolicitacao?.status === 'Em Produção'">
+          Iniciar Trabalho
+        </button>
+        <button mat-raised-button 
+                color="accent" 
+                (click)="updateStatus('Finalizada')"
+                [disabled]="isStatusFinalizada()">
           Concluir Trabalho
         </button>
       </ng-container>
@@ -36,7 +103,7 @@
       <button mat-raised-button 
               color="warn" 
               (click)="updateStatus('Em Andamento')"
-              *ngIf="canAdminOrLawyerChangeStatus() && (solicitacao?.statusSolicitacao?.status === 'Finalizada' || solicitacao?.statusSolicitacao?.status === 'Concluído')"
+              *ngIf="canAdminOrLawyerChangeStatus() && (isStatusFinalizada() || isStatusConcluido())"
               [disabled]="shouldDisableAllButtons()">
         Reabrir Solicitação
       </button>
@@ -70,6 +137,8 @@
             <span class="info-label">Status:</span>
             <span class="info-value" [ngClass]="'status-' + (solicitacao?.statusSolicitacao?.status || '').toLowerCase().replace('_', '-')">
               {{ getStatusText(solicitacao?.statusSolicitacao?.status) }}
+              <!-- Debug info -->
+              <span style="font-size: 0.8em; color: #666;"> ({{ solicitacao?.statusSolicitacao?.status }})</span>
             </span>
           </div>
           <div class="info-item">
@@ -172,6 +241,117 @@
           <div class="info-item">
             <span class="info-label">CPF/CNPJ:</span>
             <span class="info-value">{{ solicitacao?.correspondente?.cpfcnpj || 'Não informado' }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- File Attachments Section -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>attachment</mat-icon>
+          Anexos
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <!-- File upload section -->
+        <div class="file-upload-section">
+          <div class="file-input-container">
+            <input type="file" #fileInput (change)="selectFiles($event)" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
+            <button mat-raised-button 
+                    type="button" 
+                    (click)="fileInput.click()" 
+                    [disabled]="loading || !canUploadFiles()"
+                    matTooltip="{{ getFileUploadTooltip() }}">
+              Selecionar Arquivos
+            </button>
+            <span class="file-info" *ngIf="selectedFiles.length > 0">
+              {{ selectedFiles.length }} arquivo(s) selecionado(s)
+            </span>
+          </div>
+
+          <!-- List of selected files -->
+          <div *ngIf="selectedFiles.length > 0" class="selected-files">
+            <h4>Arquivos Selecionados:</h4>
+            <div *ngFor="let file of selectedFiles; let i = index" class="file-item">
+              <mat-icon>description</mat-icon>
+              <span>{{ file.name }}</span>
+              <button mat-icon-button (click)="removeSelectedFile(i)" matTooltip="Remover arquivo">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Upload button -->
+          <div *ngIf="selectedFiles.length > 0" class="upload-button-container">
+            <button mat-raised-button 
+                    color="primary" 
+                    (click)="onUploadFiles()" 
+                    [disabled]="loading || !canUploadFiles()"
+                    matTooltip="{{ getFileUploadTooltip() }}">
+              <span *ngIf="!loading">Enviar Arquivos</span>
+              <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+            </button>
+          </div>
+
+          <!-- Progress bars for uploads -->
+          <div *ngIf="progressInfos.length > 0" class="progress-container">
+            <div *ngFor="let progressInfo of progressInfos; let i = index" class="progress-item">
+              <span>{{ progressInfo.fileName }}</span>
+              <mat-progress-bar mode="determinate" [value]="progressInfo.value"></mat-progress-bar>
+            </div>
+          </div>
+
+          <!-- Message display -->
+          <div *ngIf="message" class="message-container">
+            {{ message }}
+          </div>
+
+          <!-- List of existing attachments -->
+          <div *ngIf="anexos.length > 0" class="attachments-list">
+            <h4>Arquivos Anexados:</h4>
+            <div *ngFor="let anexo of anexos" class="attachment-item" [ngClass]="getAttachmentClass(anexo)">
+              <mat-icon>description</mat-icon>
+              <div class="attachment-info">
+                <span class="attachment-name">{{ anexo.nomearquivo }}</span>
+                <span class="attachment-date" *ngIf="anexo.dataInclusao">
+                  Adicionado em: {{ formatDateTime(anexo.dataInclusao) }}
+                </span>
+                <span class="attachment-origin" *ngIf="anexo.origem">
+                  Origem: {{ anexo.origem === 'correspondente' ? 'Correspondente' : 'Solicitante' }}
+                </span>
+              </div>
+              <div class="attachment-actions">
+                <button mat-icon-button 
+                        (click)="downloadAnexo(anexo.id!, anexo.nomearquivo)" 
+                        [attr.aria-label]="'Baixar ' + anexo.nomearquivo"
+                        matTooltip="Baixar arquivo"
+                        class="download-button">
+                  <mat-icon>download</mat-icon>
+                </button>
+                <!-- Span wrapper to ensure tooltip works on disabled button -->
+                <span class="tooltip-wrapper"
+                      matTooltip="{{ getDeleteTooltip(anexo) }}" 
+                      matTooltipPosition="above"
+                      matTooltipShowDelay="0"
+                      matTooltipHideDelay="1000"
+                      [class.disabled]="!canUploadFiles() || !canDeleteAttachment(anexo)">
+                  <button mat-icon-button 
+                          (click)="deleteAnexo(anexo)" 
+                          [attr.aria-label]="'Excluir ' + anexo.nomearquivo"
+                          [disabled]="!canUploadFiles() || !canDeleteAttachment(anexo)"
+                          class="delete-button">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Message when no attachments exist -->
+          <div *ngIf="anexos.length === 0 && selectedFiles.length === 0" class="no-attachments">
+            Nenhum arquivo anexado.
           </div>
         </div>
       </mat-card-content>

@@ -1,11 +1,23 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
 import { SolicitacaoService } from '../../../core/services/solicitacao.service';
 import { PermissionService } from '../../../core/services/permission.service';
+// Add import for the new attachment service
+import { SolicitacaoAnexoService } from '../../../core/services/solicitacao-anexo.service';
 import { Solicitacao } from '../../../shared/models/solicitacao.model';
+// Add import for the attachment model
+import { SolicitacaoAnexo } from '../../../shared/models/solicitacao-anexo.model';
 import { DateFormatService } from '../../../shared/services/date-format.service';
+// Add MatDialog import for confirmation dialog
+import { MatDialog } from '@angular/material/dialog';
+// Add import for confirmation dialog component
+import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
+// Add HttpEventType import for file upload progress handling
+import { HttpEventType } from '@angular/common/http';
+// Add AuthService import for role-based functionality
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-request-detail',
@@ -15,6 +27,13 @@ import { DateFormatService } from '../../../shared/services/date-format.service'
 export class RequestDetailComponent implements OnInit, OnDestroy {
   solicitacao: Solicitacao | null = null;
   loading = true;
+  // Add property for attachments
+  anexos: SolicitacaoAnexo[] = [];
+  
+  // File attachment properties
+  selectedFiles: File[] = [];
+  progressInfos: any[] = [];
+  message = '';
 
   private themeSubscription: Subscription | null = null;
 
@@ -24,7 +43,13 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
     private solicitacaoService: SolicitacaoService,
     public permissionService: PermissionService,
     private snackBar: MatSnackBar,
-    private dateFormatService: DateFormatService
+    private dateFormatService: DateFormatService,
+    // Add the new attachment service to the constructor
+    private solicitacaoAnexoService: SolicitacaoAnexoService,
+    // Add MatDialog to the constructor
+    private dialog: MatDialog,
+    // Add AuthService to the constructor
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -32,6 +57,8 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
       const requestId = +params['id'];
       if (requestId) {
         this.loadRequest(requestId);
+        // Load attachments for this request
+        this.loadAnexos(requestId);
       }
     });
     
@@ -76,6 +103,146 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Load attachments for the current request
+  private loadAnexos(requestId: number): void {
+    this.solicitacaoAnexoService.getAnexosBySolicitacaoId(requestId).subscribe({
+      next: (anexos) => {
+        console.log('Attachments loaded in request detail:', anexos);
+        // Add debugging to check origin values
+        anexos.forEach(anexo => {
+          console.log(`Attachment ${anexo.nomearquivo} has origin:`, anexo.origem);
+        });
+        this.anexos = anexos;
+      },
+      error: (error) => {
+        console.error('Error loading attachments:', error);
+        this.snackBar.open('Erro ao carregar anexos', 'Fechar', { duration: 5000 });
+      }
+    });
+  }
+
+  // Method to handle file selection
+  selectFiles(event: any): void {
+    this.selectedFiles = Array.from(event.target.files);
+    this.progressInfos = [];
+    this.message = '';
+  }
+
+  // Method to upload all selected files
+  private uploadAnexos(solicitacaoId: number): void {
+    this.message = '';
+    this.progressInfos = [];
+
+    if (this.selectedFiles.length === 0) {
+      return;
+    }
+
+    for (let i = 0; i < this.selectedFiles.length; i++) {
+      this.progressInfos.push({ value: 0, fileName: this.selectedFiles[i].name });
+    }
+
+    for (let i = 0; i < this.selectedFiles.length; i++) {
+      this.uploadAnexo(solicitacaoId, this.selectedFiles[i], i);
+    }
+  }
+
+  // Method to upload a single file
+  private uploadAnexo(solicitacaoId: number, file: File, index: number): void {
+    this.solicitacaoAnexoService.uploadAnexo(file, solicitacaoId).subscribe({
+      next: (event: any) => {
+        if (event.type === HttpEventType.UploadProgress) {
+          // Upload progress
+          const progress = Math.round(100 * event.loaded / event.total);
+          this.progressInfos[index].value = progress;
+        } else if (event.type === HttpEventType.Response) {
+          // Upload complete
+          this.message = 'Arquivo(s) carregado(s) com sucesso!';
+          // Reload the current attachments
+          this.loadAnexos(solicitacaoId);
+          // Clear selected files
+          this.selectedFiles = [];
+          this.progressInfos = [];
+        }
+      },
+      error: (err: any) => {
+        this.progressInfos[index].value = 0;
+        this.message = 'Erro ao carregar arquivo: ' + file.name;
+        console.error('Error uploading file:', err);
+        this.snackBar.open('Erro ao carregar arquivo: ' + file.name, 'Fechar', { duration: 5000 });
+      }
+    });
+  }
+
+  // Method to remove a file from the selected files list
+  removeSelectedFile(index: number): void {
+    this.selectedFiles.splice(index, 1);
+    if (this.progressInfos[index]) {
+      this.progressInfos.splice(index, 1);
+    }
+  }
+
+  // Method triggered when user clicks the upload button
+  onUploadFiles(): void {
+    if (this.solicitacao?.id && this.selectedFiles.length > 0) {
+      this.uploadAnexos(this.solicitacao.id);
+    }
+  }
+
+  // Method to download an attachment
+  downloadAnexo(anexoId: number, nomeArquivo: string): void {
+    this.solicitacaoAnexoService.downloadAnexo(anexoId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = nomeArquivo;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (error) => {
+        console.error('Error downloading attachment:', error);
+        this.snackBar.open('Erro ao baixar anexo', 'Fechar', { duration: 5000 });
+      }
+    });
+  }
+
+  // Method to delete an attachment with confirmation
+  deleteAnexo(anexo: SolicitacaoAnexo): void {
+    if (!anexo.id) return;
+
+    // Check if the current user can delete this attachment
+    if (!this.canDeleteAttachment(anexo)) {
+      this.snackBar.open('Você não tem permissão para excluir este arquivo', 'Fechar', { duration: 5000 });
+      return;
+    }
+
+    // Open confirmation dialog
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Confirmar Exclusão',
+        message: `Tem certeza que deseja excluir o arquivo "${anexo.nomearquivo}"? Esta ação não pode ser desfeita.`
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // User confirmed deletion
+        this.solicitacaoAnexoService.deleteAnexo(anexo.id!).subscribe({
+          next: () => {
+            // Remove the attachment from the list
+            this.anexos = this.anexos.filter(a => a.id !== anexo.id);
+            this.snackBar.open('Arquivo excluído com sucesso', 'Fechar', { duration: 3000 });
+          },
+          error: (error) => {
+            console.error('Error deleting attachment:', error);
+            this.snackBar.open('Erro ao excluir arquivo', 'Fechar', { duration: 5000 });
+          }
+        });
+      }
+    });
+  }
+
   editRequest(): void {
     if (this.solicitacao?.id) {
       this.router.navigate(['/solicitacoes/editar', this.solicitacao.id]);
@@ -100,7 +267,23 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
   }
 
   formatDate(date: Date | string | undefined): string {
-    return this.dateFormatService.formatDate(date);
+    console.log('Formatting date in component:', date);
+    const result = this.dateFormatService.formatDate(date);
+    console.log('Formatted date result:', result);
+    return result;
+  }
+
+  /**
+   * Format dates with time for display (specifically for file upload timestamps)
+   * 
+   * @param date - Date object, string or undefined
+   * @returns Formatted date string in DD/MM/YYYY HH:mm format
+   */
+  formatDateTime(date: Date | string | undefined): string {
+    console.log('Formatting datetime in component:', date);
+    const result = this.dateFormatService.formatDateTime(date);
+    console.log('Formatted datetime result:', result);
+    return result;
   }
 
   // Helper method to check if the solicitation is of type Audiência
@@ -114,6 +297,86 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
     
     return especie.includes('audiencia') || especie.includes('audiência') || 
            tipo.includes('audiencia') || tipo.includes('audiência');
+  }
+
+  // Method to check if the current user can delete an attachment
+  canDeleteAttachment(anexo: SolicitacaoAnexo): boolean {
+    // Admins and lawyers can delete any attachment
+    if (this.authService.isAdmin() || this.authService.isAdvogado()) {
+      return true;
+    }
+    
+    // Correspondents can only delete their own attachments (origin = "correspondente")
+    if (this.authService.isCorrespondente()) {
+      return anexo.origem === 'correspondente';
+    }
+    
+    // Default to false for other roles
+    return false;
+  }
+
+  // Method to check if file upload is allowed
+  canUploadFiles(): boolean {
+    // Admins and lawyers can always upload files unless status is Finalizado
+    if (this.authService.isAdmin() || this.authService.isAdvogado()) {
+      return this.solicitacao?.statusSolicitacao?.status !== 'Finalizado';
+    }
+    
+    // For other users, check the status
+    const status = this.solicitacao?.statusSolicitacao?.status;
+    return status === 'Em Andamento' || status === 'Concluído';
+  }
+
+  // Method to get tooltip message for file upload button
+  getFileUploadTooltip(): string {
+    if (this.canUploadFiles()) {
+      return 'Adicionar arquivos';
+    }
+    
+    // Check if it's because of user role or status
+    if ((this.authService.isAdmin() || this.authService.isAdvogado()) && 
+        this.solicitacao?.statusSolicitacao?.status === 'Finalizado') {
+      return 'Não é possível adicionar arquivos pois a solicitação já foi finalizada';
+    } else if (!(this.authService.isAdmin() || this.authService.isAdvogado()) && 
+               !(this.solicitacao?.statusSolicitacao?.status === 'Em Andamento' || this.solicitacao?.statusSolicitacao?.status === 'Concluído')) {
+      return 'Não é possível adicionar arquivos pois a solicitação já foi finalizada pelo solicitante';
+    }
+    
+    return 'Não é possível adicionar arquivos';
+  }
+
+  // Method to get tooltip message for delete button
+  getDeleteTooltip(anexo: SolicitacaoAnexo): string {
+    if (!this.canUploadFiles()) {
+      // Check if it's because of user role or status
+      if ((this.authService.isAdmin() || this.authService.isAdvogado()) && 
+          this.solicitacao?.statusSolicitacao?.status === 'Finalizado') {
+        return 'Não é possível excluir arquivos pois a solicitação já foi finalizada';
+      } else if (!(this.authService.isAdmin() || this.authService.isAdvogado()) && 
+                 !(this.solicitacao?.statusSolicitacao?.status === 'Em Andamento' || this.solicitacao?.statusSolicitacao?.status === 'Concluído')) {
+        return 'Não é possível excluir arquivos pois a solicitação já foi finalizada pelo solicitante';
+      }
+      return 'Não é possível excluir arquivos';
+    }
+    
+    if (!this.canDeleteAttachment(anexo)) {
+      return 'Você não tem permissão para excluir este arquivo';
+    }
+    
+    return 'Excluir arquivo';
+  }
+
+  // Method to get the CSS class for an attachment based on its origin
+  getAttachmentClass(anexo: SolicitacaoAnexo): string {
+    console.log('Getting class for attachment in request detail:', anexo);
+    console.log('Attachment origin:', anexo.origem);
+    if (anexo.origem === 'correspondente') {
+      console.log('Returning attachment-correspondente class in request detail');
+      return 'attachment-correspondente';
+    } else {
+      console.log('Returning attachment-solicitante class in request detail');
+      return 'attachment-solicitante';
+    }
   }
 
   // Helper method to check if the solicitation is of type Diligência

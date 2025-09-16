@@ -1,16 +1,12 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA, LOCALE_ID } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-
-// Import locale registration
-import { registerLocaleData } from '@angular/common';
-import localePt from '@angular/common/locales/pt';
-
-// Register the Brazilian locale data
-registerLocaleData(localePt, 'pt-BR');
+import { AppRoutingModule } from './app-routing.module';
+import { SharedModule } from './shared/shared.module';
+import { SharedComponentsModule } from './shared/components/shared-components.module';
 
 // Angular Material Modules
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -21,7 +17,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule, MatPaginatorIntl } from '@angular/material/paginator';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginatorIntl } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -42,31 +39,28 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
-// App Components
-import { AppRoutingModule } from './app-routing.module';
+// Interceptors
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
+import { ErrorHandlingInterceptor } from './core/interceptors/error-handling.interceptor';
+
+// Services
+import { PaginatorI18nService } from './shared/services/paginator-i18n.service';
+
+// Components
 import { AppComponent } from './app.component';
-
-// Core Components
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
 import { ProfileComponent } from './features/auth/profile/profile.component';
-
-// New Dashboard Components
 import { AdminDashboardComponent } from './features/admin-dashboard/admin-dashboard.component';
 
-// Shared Components Module
-import { SharedComponentsModule } from './shared/components/shared-components.module';
-
-// Shared Services
-import { PaginatorI18nService } from './shared/services/paginator-i18n.service';
-
-// Shared Module
-import { SharedModule } from './shared/shared.module';
-
-// Interceptors
-import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
-import { ErrorHandlingInterceptor } from './core/interceptors/error-handling.interceptor';
+// Localization
+import { LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localePt from '@angular/common/locales/pt';
+registerLocaleData(localePt);
 
 @NgModule({
   declarations: [
@@ -119,7 +113,8 @@ import { ErrorHandlingInterceptor } from './core/interceptors/error-handling.int
     MatBadgeModule,
     MatTooltipModule,
     MatDividerModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatProgressBarModule
   ],
   providers: [
     {

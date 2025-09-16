@@ -115,23 +115,366 @@
   gap: 20px;
 }
 
-// Status chip styles - consolidated
-.status-pendente { background-color: #ffeb3b !important; color: rgba(0, 0, 0, 0.87) !important; }
-.status-andamento { background-color: #2196f3 !important; color: white !important; }
-.status-finalizada { background-color: #4caf50 !important; color: white !important; }
-.status-cancelada { background-color: #f44336 !important; color: white !important; }
+/* File upload section styles */
+.file-upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background-color: #fafafa;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px dashed #ccc;
+}
 
-// Status text styles - consolidated
-.status-andamento-text { color: #2196f3; font-weight: 500; }
-.status-pendente-text { color: #ff9800; font-weight: 500; }
-.status-finalizada-text { color: #4caf50; font-weight: 500; }
-.status-cancelada-text { color: #f44336; font-weight: 500; }
-.status-em-andamento-text { color: #4caf50; font-weight: 500; }
-.status-suspenso-text { color: #ffeb3b; font-weight: 500; }
-.status-arquivado-text { color: #9e9e9e; font-weight: 500; }
-.status-finalizado-text { color: #2196f3; font-weight: 500; }
+.file-input-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
 
-// Consolidated responsive design
+.file-input-container input[type="file"] {
+  display: none;
+}
+
+.file-info {
+  font-size: 14px;
+  color: #666;
+}
+
+.selected-files, .existing-files {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.selected-files h4, .existing-files h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.file-item mat-icon {
+  margin-right: 12px;
+  color: #666;
+  font-size: 20px;
+}
+
+.file-item span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.upload-button-container {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.progress-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.progress-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progress-item span {
+  font-size: 14px;
+  color: #666;
+}
+
+.message-container {
+  padding: 12px;
+  border-radius: 4px;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+.no-attachments {
+  padding: 16px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+.attachments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.attachments-list h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: #333;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e0e0e0;
+  font-weight: 600;
+}
+
+.no-attachments {
+  padding: 16px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+.attachment-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.attachment-item:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+
+.attachment-item.attachment-correspondente {
+  border-left: 4px solid #2196f3 !important; // Blue for correspondent
+  background: linear-gradient(90deg, rgba(33,150,243,0.05) 0%, rgba(33,150,243,0.0) 100%);
+}
+
+.attachment-item.attachment-solicitante {
+  border-left: 4px solid #4caf50 !important; // Green for requester
+  background: linear-gradient(90deg, rgba(76,175,80,0.05) 0%, rgba(76,175,80,0.0) 100%);
+}
+
+.attachment-item mat-icon {
+  margin-right: 12px;
+  color: #666;
+  font-size: 20px;
+}
+
+.attachment-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.attachment-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.attachment-date {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.attachment-origin {
+  font-size: 12px;
+  margin-top: 2px;
+  font-style: italic;
+  padding: 2px 8px;
+  border-radius: 10px;
+  display: inline-block;
+  width: fit-content;
+  font-weight: 500;
+}
+
+.attachment-item.attachment-correspondente .attachment-origin {
+  background-color: rgba(33,150,243,0.1);
+  color: #2196f3;
+  border: 1px solid rgba(33,150,243,0.2);
+}
+
+.attachment-item.attachment-solicitante .attachment-origin {
+  background-color: rgba(76,175,80,0.1);
+  color: #4caf50;
+  border: 1px solid rgba(76,175,80,0.2);
+}
+
+.attachment-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.attachment-actions button:not(.download-button):not(.delete-button) {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.attachment-actions button:not(.download-button):not(.delete-button):hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  transform: scale(1.1);
+}
+
+// Download button styling
+.download-button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  background-color: #2196f3 !important; /* Vibrant blue background */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add subtle shadow for better visibility */
+}
+
+.download-button:hover {
+  background-color: #1976d2 !important; /* Darker blue on hover */
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+}
+
+// Delete button styling
+.delete-button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  background-color: #f44336 !important; /* Vibrant red background */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add subtle shadow for better visibility */
+}
+
+.delete-button:hover {
+  background-color: #d32f2f !important; /* Darker red on hover */
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+}
+
+// Ensure download and delete icons are visible with white color and perfectly centered
+.download-button mat-icon,
+.delete-button mat-icon {
+  color: white !important;
+  font-size: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: 'Material Icons' !important;
+  font-weight: normal !important;
+  font-style: normal !important;
+  line-height: 1 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  word-wrap: normal !important;
+  white-space: nowrap !important;
+  direction: ltr !important;
+  -webkit-font-smoothing: antialiased !important;
+  text-rendering: optimizeLegibility !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  font-feature-settings: 'liga' !important;
+  margin: auto !important;
+  text-align: center !important;
+}
+
+// Ensure buttons are properly sized and icons are perfectly centered
+.download-button,
+.delete-button,
+.download-button mat-icon,
+.delete-button mat-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.download-button,
+.delete-button {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  margin: 0 !important;
+  position: relative !important;
+}
+
+// Additional centering for icon container
+.download-button .mat-icon-wrapper,
+.delete-button .mat-icon-wrapper,
+.download-button .mat-button-wrapper,
+.delete-button .mat-button-wrapper {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+// Ensure the button wrapper is also centered
+.attachment-actions .download-button,
+.attachment-actions .delete-button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+// Tooltip wrapper for disabled buttons
+.tooltip-wrapper {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.tooltip-wrapper.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.tooltip-wrapper .delete-button[disabled] {
+  pointer-events: none;
+  color: #f44336 !important;
+  background-color: rgba(244, 67, 54, 0.15) !important;
+}
+
+// Ensure tooltip wrapper doesn't hide disabled buttons
+.tooltip-wrapper .download-button[disabled],
+.tooltip-wrapper .delete-button[disabled] {
+  opacity: 0.7 !important;
+  cursor: not-allowed !important;
+  pointer-events: auto !important; // Allow tooltip to work
+}
+
 @media (max-width: 768px) {
   .request-detail-container {
     padding: 16px;
@@ -149,6 +492,11 @@
   .info-label {
     min-width: 120px;
   }
+  
+  .file-input-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 @media (max-width: 480px) {
@@ -160,5 +508,20 @@
   .info-label {
     min-width: auto;
     font-weight: 600;
+  }
+  
+  .attachment-item, .file-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .attachment-name {
+    white-space: normal;
+    word-break: break-word;
+  }
+  
+  .attachment-actions {
+    align-self: flex-end;
   }
 }

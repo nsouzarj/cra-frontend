@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectChange } from '@angular/material/select';
-import { Subscription } from 'rxjs';
+import { Subscription, finalize } from 'rxjs';
 import { SolicitacaoService } from '../../../core/services/solicitacao.service';
 import { SolicitacaoStatusService } from '../../../core/services/solicitacao-status.service';
 import { ProcessoService } from '../../../core/services/processo.service';
@@ -15,11 +15,19 @@ import { Processo } from '../../../shared/models/processo.model';
 import { Correspondente } from '../../../shared/models/correspondente.model';
 import { User } from '../../../shared/models/user.model';
 import { TipoSolicitacao } from '../../../shared/models/tiposolicitacao.model';
+// Add the import for the new attachment service
+import { SolicitacaoAnexoService } from '../../../core/services/solicitacao-anexo.service';
+// Import AuthService to determine user role
+import { AuthService } from '../../../core/services/auth.service';
+// Import the updated model
+import { SolicitacaoAnexo } from '../../../shared/models/solicitacao-anexo.model';
 
 // Import DateAdapter and related modules for date formatting
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { NativeDateAdapter } from '@angular/material/core';
+// Import HttpEventType for file upload progress handling
+import { HttpEventType } from '@angular/common/http';
 
 // Custom date adapter for Brazilian format
 export class BrazilianDateAdapter extends NativeDateAdapter {
@@ -88,6 +96,12 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   showAudienciaFields = false;
   showValorField = false;
 
+  // File attachment properties
+  selectedFiles: File[] = [];
+  currentFiles: SolicitacaoAnexo[] = [];
+  progressInfos: any[] = [];
+  message = '';
+
   private themeSubscription: Subscription | null = null;
 
   constructor(
@@ -100,7 +114,11 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     private processoService: ProcessoService,
     private correspondenteService: CorrespondenteService,
     private userService: UserService,
-    private tipoSolicitacaoService: TipoSolicitacaoService
+    private tipoSolicitacaoService: TipoSolicitacaoService,
+    // Add the new attachment service to the constructor
+    private solicitacaoAnexoService: SolicitacaoAnexoService,
+    // Inject AuthService to determine user role
+    private authService: AuthService
   ) {
     this.requestForm = this.createForm();
   }
@@ -114,6 +132,8 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         this.isEditMode = true;
         this.requestId = +params['id'];
         this.loadRequest();
+        // Load existing attachments for this request
+        this.loadAnexos();
       }
     });
     
@@ -268,6 +288,11 @@ export class RequestFormComponent implements OnInit, OnDestroy {
           this.updateConditionalFields(solicitacao.tipoSolicitacao.idtiposolicitacao);
         }
         
+        // Ensure conditional fields are shown if they have values (for edit mode)
+        if (solicitacao.dataagendamento || solicitacao.horaudiencia) {
+          this.showAudienciaFields = true;
+        }
+        
         this.loading = false;
       },
       error: (error) => {
@@ -277,6 +302,28 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         this.router.navigate(['/solicitacoes']);
       }
     });
+  }
+
+  // Load existing attachments for the current request
+  private loadAnexos(): void {
+    if (!this.requestId) return;
+    
+    this.solicitacaoAnexoService.getAnexosBySolicitacaoId(this.requestId).subscribe({
+      next: (anexos) => {
+        this.currentFiles = anexos;
+      },
+      error: (error) => {
+        console.error('Error loading attachments:', error);
+        this.snackBar.open('Erro ao carregar anexos', 'Fechar', { duration: 5000 });
+      }
+    });
+  }
+
+  // Method to handle file selection
+  selectFiles(event: any): void {
+    this.selectedFiles = Array.from(event.target.files);
+    this.progressInfos = [];
+    this.message = '';
   }
 
   // Method to format currency input for Brazilian format
@@ -322,6 +369,28 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Helper method to check if a tipoSolicitacao is Audiência
+  private isTipoAudiencia(tipoSolicitacao: TipoSolicitacao): boolean {
+    if (!tipoSolicitacao) return false;
+    
+    const especie = tipoSolicitacao.especie?.toLowerCase() || '';
+    const tipo = tipoSolicitacao.tipo?.toLowerCase() || '';
+    
+    return especie.includes('audiencia') || especie.includes('audiência') || 
+           tipo.includes('audiencia') || tipo.includes('audiência');
+  }
+  
+  // Helper method to check if a tipoSolicitacao is Diligência
+  private isTipoDiligencia(tipoSolicitacao: TipoSolicitacao): boolean {
+    if (!tipoSolicitacao) return false;
+    
+    const especie = tipoSolicitacao.especie?.toLowerCase() || '';
+    const tipo = tipoSolicitacao.tipo?.toLowerCase() || '';
+    
+    return especie.includes('diligencia') || especie.includes('diligência') || 
+           tipo.includes('diligencia') || tipo.includes('diligência');
+  }
+  
   // Method to handle tipoSolicitacao selection change
   onTipoSolicitacaoChange(tipoSolicitacaoId: number): void {
     this.updateConditionalFields(tipoSolicitacaoId);
@@ -343,14 +412,8 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     
     if (selectedTipo) {
       // Check if it's "Audiência" (case insensitive, with or without accents)
-      const especie = selectedTipo.especie?.toLowerCase() || '';
-      const tipo = selectedTipo.tipo?.toLowerCase() || '';
-      
-      const isAudiencia = especie.includes('audiencia') || especie.includes('audiência') || 
-                          tipo.includes('audiencia') || tipo.includes('audiência');
-      
-      const isDiligencia = especie.includes('diligencia') || especie.includes('diligência') || 
-                           tipo.includes('diligencia') || tipo.includes('diligência');
+      const isAudiencia = this.isTipoAudiencia(selectedTipo);
+      const isDiligencia = this.isTipoDiligencia(selectedTipo);
       
       // Show/hide fields based on tipo
       this.showAudienciaFields = isAudiencia;
@@ -359,6 +422,69 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       // Default to hiding conditional fields
       this.showAudienciaFields = false;
       this.showValorField = false;
+    }
+    
+    // Special case: If we're in edit mode and already have audiencia data, ensure fields are visible
+    if (this.isEditMode) {
+      const formValue = this.requestForm.getRawValue();
+      if (formValue.dataAgendamento || formValue.horaAudiencia) {
+        this.showAudienciaFields = true;
+      }
+      
+      // Also check if the current tipoSolicitacao is Audiência
+      if (selectedTipo && this.isTipoAudiencia(selectedTipo)) {
+        this.showAudienciaFields = true;
+      }
+    }
+  }
+
+  // Method to upload all selected files
+  private uploadAnexos(solicitacaoId: number): void {
+    this.message = '';
+    this.progressInfos = [];
+
+    if (this.selectedFiles.length === 0) {
+      return;
+    }
+
+    for (let i = 0; i < this.selectedFiles.length; i++) {
+      this.progressInfos.push({ value: 0, fileName: this.selectedFiles[i].name });
+    }
+
+    for (let i = 0; i < this.selectedFiles.length; i++) {
+      this.uploadAnexo(solicitacaoId, this.selectedFiles[i], i);
+    }
+  }
+
+  // Method to upload a single file
+  private uploadAnexo(solicitacaoId: number, file: File, index: number): void {
+    this.solicitacaoAnexoService.uploadAnexo(file, solicitacaoId).subscribe({
+      next: (event: any) => {
+        if (event.type === HttpEventType.UploadProgress) {
+          // Upload progress
+          const progress = Math.round(100 * event.loaded / event.total);
+          this.progressInfos[index].value = progress;
+        } else if (event.type === HttpEventType.Response) {
+          // Upload complete
+          this.message = 'Arquivo(s) carregado(s) com sucesso!';
+          // Reload the current attachments
+          this.loadAnexos();
+        }
+      },
+      error: (err: any) => {
+        this.progressInfos[index].value = 0;
+        this.message = 'Erro ao carregar arquivo: ' + file.name;
+        console.error('Error uploading file:', err);
+        this.snackBar.open('Erro ao carregar arquivo: ' + file.name, 'Fechar', { duration: 5000 });
+      }
+    });
+  }
+
+  // Method to remove a file from the selected files list
+  removeSelectedFile(index: number): void {
+    this.selectedFiles.splice(index, 1);
+    if (this.progressInfos[index]) {
+      this.progressInfos.splice(index, 1);
     }
   }
 
@@ -381,7 +507,8 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     };
 
     // Add conditional fields if they should be included
-    if (this.showAudienciaFields) {
+    // For Audiência, always include horaAudiencia when it exists in the form (especially in edit mode)
+    if (this.showAudienciaFields || (this.isEditMode && formValue.horaAudiencia !== undefined)) {
       solicitacao.dataagendamento = formValue.dataAgendamento || null;
       solicitacao.horaudiencia = formValue.horaAudiencia || null;
     }
@@ -428,17 +555,24 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       ? this.solicitacaoService.updateSolicitacao(this.requestId, solicitacao)
       : this.solicitacaoService.createSolicitacao(solicitacao);
 
-    operation.subscribe({
-      next: (result) => {
-        this.loading = false;
+    operation.pipe(
+      finalize(() => this.loading = false)
+    ).subscribe({
+      next: (result: any) => {
+        const solicitacaoId = this.isEditMode ? this.requestId : result.id;
         const message = this.isEditMode 
           ? 'Solicitação atualizada com sucesso!' 
           : 'Solicitação criada com sucesso!';
         this.snackBar.open(message, 'Fechar', { duration: 3000 });
+        
+        // Upload attachments if any were selected
+        if (this.selectedFiles.length > 0 && solicitacaoId) {
+          this.uploadAnexos(solicitacaoId);
+        }
+        
         this.router.navigate(['/solicitacoes']);
       },
       error: (error) => {
-        this.loading = false;
         console.error('Error saving solicitacao:', error);
         const message = this.isEditMode
           ? 'Erro ao atualizar solicitação'
@@ -481,5 +615,66 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       }
     }
     return '';
+  }
+  
+  // Method to get the CSS class for an attachment based on its origin
+  getAttachmentClass(anexo: SolicitacaoAnexo): string {
+    if (anexo.origem === 'correspondente') {
+      return 'attachment-correspondente';
+    } else {
+      return 'attachment-solicitante';
+    }
+  }
+  
+  // Method to format dates with time for display (specifically for file upload timestamps)
+  formatDateTime(date: Date | string | undefined): string {
+    if (!date) return '';
+    
+    // Handle different date formats
+    let dateObj: Date;
+    if (typeof date === 'string') {
+      // Try to parse different date formats
+      if (date.includes(',')) {
+        // Handle comma-separated format like "2025,9,11,3,0"
+        const parts = date.split(',').map(Number);
+        dateObj = new Date(parts[0], parts[1] - 1, parts[2], parts[3], parts[4]);
+      } else if (date.includes('/')) {
+        // Handle Brazilian format like "11/09/2025"
+        const parts = date.split('/');
+        dateObj = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+      } else {
+        // Handle ISO format or other standard formats
+        dateObj = new Date(date);
+      }
+    } else {
+      dateObj = date;
+    }
+    
+    // Format as DD/MM/YYYY HH:mm
+    const day = dateObj.getDate().toString().padStart(2, '0');
+    const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+    const year = dateObj.getFullYear();
+    const hours = dateObj.getHours().toString().padStart(2, '0');
+    const minutes = dateObj.getMinutes().toString().padStart(2, '0');
+    
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+  }
+  
+  // Method to download an attachment
+  downloadAnexo(anexoId: number, nomeArquivo: string): void {
+    this.solicitacaoAnexoService.downloadAnexo(anexoId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = nomeArquivo;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (error) => {
+        console.error('Error downloading attachment:', error);
+        this.snackBar.open('Erro ao baixar anexo', 'Fechar', { duration: 5000 });
+      }
+    });
   }
 }

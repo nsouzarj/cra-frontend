@@ -144,6 +144,87 @@
           </mat-form-field>
         </div>
 
+        <!-- File Attachments Section -->
+        <div class="form-section">
+          <h3>Anexos</h3>
+          
+          <div class="file-upload-section">
+            <div class="file-input-container">
+              <input type="file" #fileInput (change)="selectFiles($event)" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
+              <button mat-raised-button type="button" (click)="fileInput.click()" [disabled]="loading">
+                Selecionar Arquivos
+              </button>
+              <span class="file-info" *ngIf="selectedFiles.length > 0">
+                {{ selectedFiles.length }} arquivo(s) selecionado(s)
+              </span>
+            </div>
+
+            <!-- List of selected files -->
+            <div *ngIf="selectedFiles.length > 0" class="selected-files">
+              <h4>Arquivos Selecionados:</h4>
+              <div *ngFor="let file of selectedFiles; let i = index" class="file-item">
+                <mat-icon>description</mat-icon>
+                <span>{{ file.name }}</span>
+                <button mat-icon-button (click)="removeSelectedFile(i)" matTooltip="Remover arquivo">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <!-- Progress bars for uploads -->
+            <div *ngIf="progressInfos.length > 0" class="progress-container">
+              <div *ngFor="let progressInfo of progressInfos; let i = index" class="progress-item">
+                <span>{{ progressInfo.fileName }}</span>
+                <mat-progress-bar mode="determinate" [value]="progressInfo.value"></mat-progress-bar>
+              </div>
+            </div>
+
+            <!-- Message display -->
+            <div *ngIf="message" class="message-container">
+              {{ message }}
+            </div>
+
+            <!-- List of existing attachments (for edit mode) with same styling as detail view -->
+            <div *ngIf="currentFiles.length > 0" class="attachments-list">
+              <h4>Arquivos Anexados:</h4>
+              <div *ngFor="let file of currentFiles" class="attachment-item" [ngClass]="getAttachmentClass(file)">
+                <mat-icon>description</mat-icon>
+                <div class="attachment-info">
+                  <span class="attachment-name">{{ file.nomearquivo }}</span>
+                  <span class="attachment-date" *ngIf="file.dataInclusao">
+                    Adicionado em: {{ formatDateTime(file.dataInclusao) }}
+                  </span>
+                  <span class="attachment-origin" *ngIf="file.origem">
+                    Origem: {{ file.origem === 'correspondente' ? 'Correspondente' : 'Solicitante' }}
+                  </span>
+                </div>
+                <div class="attachment-actions">
+                  <button mat-icon-button 
+                          (click)="downloadAnexo(file.id!, file.nomearquivo)" 
+                          [attr.aria-label]="'Baixar ' + file.nomearquivo"
+                          matTooltip="Baixar arquivo"
+                          class="download-button">
+                    <mat-icon>download</mat-icon>
+                  </button>
+                  <span class="tooltip-wrapper" 
+                        matTooltip="Não é possível excluir arquivos na edição" 
+                        matTooltipPosition="above"
+                        matTooltipShowDelay="0"
+                        matTooltipHideDelay="1000"
+                        class="disabled">
+                    <button mat-icon-button 
+                            [attr.aria-label]="'Excluir ' + file.nomearquivo"
+                            class="delete-button"
+                            [disabled]="true">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="form-actions">
           <button mat-button type="button" (click)="onCancel()" [disabled]="loading">
             Cancelar

@@ -19,6 +19,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Components
 import { CorrespondentRequestsComponent } from './correspondent-requests.component';
@@ -59,7 +61,9 @@ const routes: Routes = [
     MatDatepickerModule,
     MatNativeDateModule,
     MatDialogModule,
-    MatToolbarModule
+    MatToolbarModule,
+    MatProgressBarModule,
+    MatTooltipModule
   ],
   providers: [
     TipoSolicitacaoService

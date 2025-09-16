@@ -33,13 +33,23 @@ export class JwtInterceptor implements HttpInterceptor {
   }
 
   private addTokenHeader(request: HttpRequest<any>, token: string): HttpRequest<any> {
-    return request.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
-    });
+    // For file uploads, don't set Content-Type as browser will set it automatically with correct boundary
+    if (request instanceof HttpRequest && request.body instanceof FormData) {
+      return request.clone({
+        setHeaders: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+    } else {
+      // For regular JSON requests
+      return request.clone({
+        setHeaders: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+    }
   }
 
   private handle401Error(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {

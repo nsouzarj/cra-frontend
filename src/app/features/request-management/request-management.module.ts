@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
@@ -19,6 +19,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Components
 import { RequestListComponent } from './request-list/request-list.component';
@@ -66,13 +68,16 @@ const routes: Routes = [
     MatDatepickerModule,
     MatNativeDateModule,
     MatDialogModule,
-    MatToolbarModule
+    MatToolbarModule,
+    MatProgressBarModule,
+    MatTooltipModule
   ],
   providers: [
     TipoSolicitacaoService,
     ProcessoService,
     ComarcaService,
     OrgaoService
-  ]
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class RequestManagementModule { }

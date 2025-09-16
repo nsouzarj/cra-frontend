@@ -60,6 +60,288 @@ mat-card-subtitle {
   margin-top: 8px;
 }
 
+/* File attachment styles */
+.file-upload-section {
+  padding: 16px;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.file-input-container {
+  margin-bottom: 16px;
+}
+
+.file-input-container input[type="file"] {
+  display: none;
+}
+
+.file-input-container button {
+  margin-right: 16px;
+}
+
+.file-info {
+  font-size: 14px;
+  color: #666;
+}
+
+.progress-container {
+  margin: 16px 0;
+}
+
+.progress-item {
+  margin-bottom: 12px;
+}
+
+.progress-item span {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: #666;
+  text-align: right;
+}
+
+.message-container {
+  margin: 16px 0;
+  padding: 12px;
+  border-radius: 4px;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.attachments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.attachments-list h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: #333;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e0e0e0;
+  font-weight: 600;
+}
+
+.attachment-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.attachment-item:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+
+.attachment-item.attachment-correspondente {
+  border-left: 4px solid #2196f3 !important; // Blue for correspondent
+  background: linear-gradient(90deg, rgba(33,150,243,0.05) 0%, rgba(33,150,243,0.0) 100%);
+}
+
+.attachment-item.attachment-solicitante {
+  border-left: 4px solid #4caf50 !important; // Green for requester
+  background: linear-gradient(90deg, rgba(76,175,80,0.05) 0%, rgba(76,175,80,0.0) 100%);
+}
+
+.attachment-item mat-icon {
+  margin-right: 12px;
+  color: #666;
+  font-size: 20px;
+}
+
+.attachment-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.attachment-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.attachment-date {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.attachment-origin {
+  font-size: 12px;
+  margin-top: 2px;
+  font-style: italic;
+  padding: 2px 8px;
+  border-radius: 10px;
+  display: inline-block;
+  width: fit-content;
+  font-weight: 500;
+}
+
+.attachment-item.attachment-correspondente .attachment-origin {
+  background-color: rgba(33,150,243,0.1);
+  color: #2196f3;
+  border: 1px solid rgba(33,150,243,0.2);
+}
+
+.attachment-item.attachment-solicitante .attachment-origin {
+  background-color: rgba(76,175,80,0.1);
+  color: #4caf50;
+  border: 1px solid rgba(76,175,80,0.2);
+}
+
+.attachment-actions {
+  display: flex;
+  gap: 4px;
+}
+
+// Download button styling
+.download-button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  background-color: #2196f3 !important; /* Vibrant blue background */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add subtle shadow for better visibility */
+}
+
+.download-button:hover {
+  background-color: #1976d2 !important; /* Darker blue on hover */
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+}
+
+// Delete button styling
+.delete-button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  background-color: #f44336 !important; /* Vibrant red background */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add subtle shadow for better visibility */
+}
+
+.delete-button:hover {
+  background-color: #d32f2f !important; /* Darker red on hover */
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+}
+
+// Ensure download and delete icons are visible with white color and perfectly centered
+.download-button mat-icon,
+.delete-button mat-icon {
+  color: white !important;
+  font-size: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: 'Material Icons' !important;
+  font-weight: normal !important;
+  font-style: normal !important;
+  line-height: 1 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  word-wrap: normal !important;
+  white-space: nowrap !important;
+  direction: ltr !important;
+  -webkit-font-smoothing: antialiased !important;
+  text-rendering: optimizeLegibility !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  font-feature-settings: 'liga' !important;
+  margin: auto !important;
+  text-align: center !important;
+}
+
+// Ensure buttons are properly sized and icons are centered
+.download-button,
+.delete-button {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  margin: 0 !important;
+  position: relative !important;
+}
+
+// Additional centering for icon container
+.download-button .mat-icon-wrapper,
+.delete-button .mat-icon-wrapper,
+.download-button .mat-button-wrapper,
+.delete-button .mat-button-wrapper {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+// Ensure the button wrapper is also centered
+.attachment-actions .download-button,
+.attachment-actions .delete-button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+// Tooltip wrapper for disabled buttons
+.tooltip-wrapper {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.tooltip-wrapper.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.tooltip-wrapper .delete-button[disabled] {
+  pointer-events: none;
+  color: #f44336 !important;
+  background-color: rgba(244, 67, 54, 0.15) !important;
+}
+
+// Ensure tooltip wrapper doesn't hide disabled buttons
+.tooltip-wrapper .download-button[disabled],
+.tooltip-wrapper .delete-button[disabled] {
+  opacity: 0.7 !important;
+  cursor: not-allowed !important;
+  pointer-events: auto !important; // Allow tooltip to work
+}
+
 @media (max-width: 768px) {
   .request-form-container {
     padding: 16px;

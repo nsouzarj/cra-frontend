@@ -2,11 +2,9 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
-// For development, use the machine's IP address to allow mobile access
-// Replace '192.168.1.103' with your actual machine's IP address
 export const environment = {
   production: false,
-  apiUrl: 'https://cra-backend-nnb0.onrender.com/cra-api'  // Updated to your machine's correct IP address
+  apiUrl: 'https://cra-backend-nnb0.onrender.com/cra-api'  // Development API URL
 };
 
 /*
