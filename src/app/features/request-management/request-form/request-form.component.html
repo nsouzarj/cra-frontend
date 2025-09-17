@@ -137,6 +137,11 @@
           </div>
         </div>
 
+        <div class="form-section" *ngIf="loadedSolicitacao?.statusSolicitacao?.status === 'Concluído' || loadedSolicitacao?.statusSolicitacao?.status === 'Finalizado'"> 
+          <h3>Observações do Correspondente</h3>
+            <h4 style="color: black;">{{ loadedSolicitacao?.observacao }} </h4> 
+        </div>
+
         <!-- Instructions -->
         <div class="form-section">
           <h3>Instruções da Solicitação</h3>

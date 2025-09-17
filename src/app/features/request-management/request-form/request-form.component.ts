@@ -80,7 +80,8 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   isEditMode = false;
   requestId: number | null = null;
   loading = false;
-  
+  loadedSolicitacao: Solicitacao | null = null;
+
   // Dropdown options
   processos: Processo[] = [];
   correspondentes: Correspondente[] = [];
@@ -265,6 +266,9 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.solicitacaoService.getSolicitacaoById(this.requestId).subscribe({
       next: (solicitacao) => {
+        // Store the complete solicitacao object to preserve fields not in the form
+        this.loadedSolicitacao = solicitacao;
+        
         // Ensure dataSolicitacao is populated with current date if empty
         const dataSolicitacaoValue = solicitacao.datasolicitacao || this.getCurrentDate();
         
@@ -276,13 +280,14 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         
         this.requestForm.patchValue({
           tipoSolicitacao: solicitacao.tipoSolicitacao?.idtiposolicitacao || null,
-          status: solicitacao.statusSolicitacao?.idstatus || (this.statuses && this.statuses.length > 0 ? this.statuses[0].status : 'PENDENTE'),
+          status: solicitacao.statusSolicitacao?.idstatus || (this.statuses && this.statuses.length > 0 ? this.statuses[0].idstatus : 1),
           processo: solicitacao.processo?.id || null,
           correspondente: solicitacao.correspondente?.id || null,
           usuario: solicitacao.usuario?.id || null,
           dataSolicitacao: dataSolicitacaoValue,
           dataPrazo: solicitacao.dataprazo || '',
           instrucoes: solicitacao.instrucoes || '',
+          observacao: solicitacao.observacao || '',
           // Conditional fields
           dataAgendamento: solicitacao.dataagendamento || '',
           horaAudiencia: solicitacao.horaudiencia || '',
@@ -523,12 +528,14 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     // Prepare the solicitacao object
     const formValue = this.requestForm.getRawValue(); // Use getRawValue to include disabled fields
     
-    const solicitacao: any = {
-      datasolicitacao: formValue.dataSolicitacao || this.getCurrentDate(), // Ensure we always have a value
-      dataprazo: formValue.dataPrazo || null,
-      instrucoes: formValue.instrucoes || null,
-      ativo: true
-    };
+    // Start with the loaded solicitacao to preserve fields not in the form
+    const solicitacao: any = this.loadedSolicitacao ? { ...this.loadedSolicitacao } : {};
+    
+    // Update fields that are in the form
+    solicitacao.datasolicitacao = formValue.dataSolicitacao || this.getCurrentDate(); // Ensure we always have a value
+    solicitacao.dataprazo = formValue.dataPrazo || null;
+    solicitacao.instrucoes = formValue.instrucoes || null;
+    solicitacao.ativo = true;
 
     // Add conditional fields if they should be included
     // For Audiência, always include horaAudiencia when it exists in the form (especially in edit mode)

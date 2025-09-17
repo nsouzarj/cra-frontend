@@ -256,6 +256,11 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
       }
     };
     
+    // Preserve the existing observation field
+    if (solicitacao.observacao) {
+      updatedSolicitacao.observacao = solicitacao.observacao;
+    }
+    
     // Handle dataconclusao based on status changes
     if (newStatus === 'Finalizada') {
       // When correspondent concludes the solicitation, set dataconclusao to current date

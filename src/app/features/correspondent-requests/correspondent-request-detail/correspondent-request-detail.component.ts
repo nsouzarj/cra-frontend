@@ -358,9 +358,13 @@ export class CorrespondentRequestDetailComponent implements OnInit {
       }
     };
 
-    // If we have an observation, add it to the solicitacao
+    // If we have a new observation, use it; otherwise, preserve the existing one
     if (observation !== null) {
       updatedSolicitacao.observacao = observation;
+    }
+    // If observation is null but we already have an observation, preserve it
+    else if (this.solicitacao.observacao) {
+      updatedSolicitacao.observacao = this.solicitacao.observacao;
     }
 
     // Handle dataconclusao based on status changes

@@ -266,11 +266,11 @@
       <mat-card-content>
         <div class="info-list">
           <div class="info-item" *ngIf="solicitacao?.observacao && solicitacao?.statusSolicitacao?.status !== 'Finalizada'">
-            <span class="info-label">Observação:</span>
+            <span class="info-label">Observação do Correspondente:</span>
             <span class="info-value">{{ solicitacao?.observacao }}</span>
           </div>
           <div class="info-item" *ngIf="solicitacao?.instrucoes">
-            <span class="info-label">Instruções:</span>
+            <span class="info-label">Instruções do Solicitante:</span>
             <span class="info-value">{{ solicitacao?.instrucoes }}</span>
           </div>
         </div>
