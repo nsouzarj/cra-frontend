@@ -136,6 +136,42 @@ src/
 - Acompanhamento de status (Pendente, Em Andamento, Finalizada, Cancelada)
 - Gerenciamento de prazos
 
+## 🆕 Novas Funcionalidades Implementadas
+
+### 1. Gerenciamento Avançado de Status de Solicitações
+- Implementação de serviço dedicado para gerenciamento de status de solicitações
+- Suporte completo para operações CRUD de status
+- Integração com todas as telas de solicitações
+
+### 2. Sistema de Anexos com Controle de Origem
+- Upload e download de arquivos anexados às solicitações
+- Controle automático de origem dos arquivos (solicitante vs correspondente)
+- Interface visual diferenciada para arquivos com base em sua origem:
+  - Bordas azuis para arquivos enviados por correspondentes
+  - Bordas verdes para arquivos enviados por solicitantes/administradores
+- Permissões de exclusão baseadas na origem do arquivo e perfil do usuário
+
+### 3. Sistema de Observações do Correspondente
+- Diálogo especializado para captura de observações do correspondente
+- Validação de observações com mínimo de 20 caracteres
+- Exibição condicional de observações baseada no status da solicitação
+- Integração com fluxo de alteração de status
+
+### 4. Formatação de Valores Monetários
+- Campo de entrada especializado para valores monetários
+- Formatação automática para padrão brasileiro (R$ 0,00)
+- Validação e tratamento de entrada de dados
+
+### 5. Aprimoramentos na Gestão de Status
+- Atualização automática da data de conclusão com base no status
+- Lógica especializada para status "Aguardando Confirmação", "Em Andamento", "Finalizada" e "Concluído"
+- Exibição condicional de campos e seções baseada no status atual
+
+### 6. Aprimoramentos na Interface do Usuário
+- Melhorias na formatação de datas e horas
+- Componentes de diálogo padronizados (confirmação e observação)
+- Feedback visual aprimorado para diferentes estados da aplicação
+
 ## 🔧 Configuração
 
 ### Configuração do Endpoint da API

@@ -26,8 +26,20 @@ Services are configured with proper networking:
 - Backend: Maps host port 8081 to container port 8080
 - Database: Maps host port 5432 to container port 5432
 
+The configuration includes:
+- Restart policies for all services to handle temporary failures
+- Proper network configuration with a custom bridge network
+- Volume mapping for database persistence
+- Dependency management between services
+
 ### 3. environment.ts
 Development environment API URL:
+```typescript
+apiUrl: 'https://cra-backend-nnb0.onrender.com/cra-api'
+```
+
+### 4. environment.prod.ts
+Production environment API URL:
 ```typescript
 apiUrl: 'http://192.168.1.105:8081/cra-api'
 ```
@@ -49,6 +61,11 @@ docker-compose up --build
 docker-compose down
 ```
 
+To stop services and remove volumes (including database data):
+```bash
+docker-compose down -v
+```
+
 ## Troubleshooting
 
 ### Common Issues
@@ -56,6 +73,7 @@ docker-compose down
 1. **"host not found in upstream" error**
    - This should be resolved with the dynamic DNS resolver in nginx.conf
    - Ensure all services are on the same network (cra-network)
+   - Check that the backend service is healthy
 
 2. **Port conflicts**
    - Make sure ports 4200, 8081, and 5432 are not being used by other applications
@@ -64,6 +82,10 @@ docker-compose down
 3. **Backend service not starting**
    - Check if the backend image exists: `docker images | grep cra-backend`
    - If not, you may need to build it separately or pull from a registry
+
+4. **Database connection errors**
+   - Check database credentials in docker-compose.yml
+   - Ensure the database service is healthy
 
 ### Checking Service Status
 ```bash
@@ -74,6 +96,9 @@ docker-compose ps
 docker-compose logs frontend
 docker-compose logs backend
 docker-compose logs database
+
+# Check service health
+docker-compose logs | grep health
 ```
 
 ## Network Access
@@ -88,3 +113,17 @@ frontend ──depends on──► backend ──depends on──► database
 ```
 
 This ensures proper startup order.
+
+## Health Checks
+The configuration includes health checks for both frontend and backend services:
+- Frontend checks backend availability before starting
+- Backend checks its own health endpoint
+- Configurable intervals, timeouts, and retry counts
+
+## Recent Enhancements
+1. Added restart policies to all services for better reliability
+2. Implemented health checks with proper configuration
+3. Enhanced Nginx configuration with gzip compression and better caching
+4. Improved error handling with custom error pages
+5. Added proper network isolation with custom bridge network
+6. Implemented volume management for database persistence
