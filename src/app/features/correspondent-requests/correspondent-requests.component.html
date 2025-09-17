@@ -76,7 +76,7 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo</th>
             <td mat-cell *matCellDef="let solicitacao">
               <div *ngIf="solicitacao.tipoSolicitacao">
-                <div>{{ solicitacao.tipoSolicitacao.tipo }}</div>
+                <div>{{ solicitacao.tipoSolicitacao.especie }} - {{solicitacao.tipoSolicitacao.tipo }}</div>
                 <div class="tipo-descricao">{{ solicitacao.tipoSolicitacao.descricao }}</div>
               </div>
               <div *ngIf="!solicitacao.tipoSolicitacao">Não informado</div>
