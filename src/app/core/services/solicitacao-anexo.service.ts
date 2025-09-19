@@ -23,7 +23,10 @@ uploadAnexo(file: File, solicitacaoId: number): Observable<HttpEvent<any>> {
   console.log('uploadAnexo called with:', { file, solicitacaoId });
   const formData: FormData = new FormData();
   formData.append('file', file, file.name);
+  const userId = this.authService.currentUserValue?.id ?? '';
+  formData.append('userId', userId.toString?.() || '');
   formData.append('solicitacaoId', solicitacaoId.toString());
+  formData.append("storageLocation", "google_drive")
   // Determine the origin based on user role using AuthService
   let origem = 'usuario'; // default value
   console.log('User roles:', this.authService.currentUserValue?.authorities);
