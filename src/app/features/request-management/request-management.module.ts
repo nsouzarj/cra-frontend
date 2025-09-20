@@ -21,6 +21,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatRadioModule } from '@angular/material/radio';
 
 // Components
 import { RequestListComponent } from './request-list/request-list.component';
@@ -35,6 +36,9 @@ import { OrgaoService } from '../../core/services/orgao.service';
 
 // Guards
 import { AuthGuard } from '../../core/guards/auth.guard';
+
+// External Storage Module
+import { ExternalStorageModule } from '../auth/external-storage/external-storage.module';
 
 const routes: Routes = [
   { path: '', component: RequestListComponent, canActivate: [AuthGuard] },
@@ -70,7 +74,10 @@ const routes: Routes = [
     MatDialogModule,
     MatToolbarModule,
     MatProgressBarModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatRadioModule,
+    // External Storage Module
+    ExternalStorageModule
   ],
   providers: [
     TipoSolicitacaoService,

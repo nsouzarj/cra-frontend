@@ -21,6 +21,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatRadioModule } from '@angular/material/radio';
 
 // Components
 import { CorrespondentRequestsComponent } from './correspondent-requests.component';
@@ -31,6 +32,9 @@ import { TipoSolicitacaoService } from '../../core/services/tiposolicitacao.serv
 
 // Guards
 import { CorrespondenteGuard } from '../../core/guards/correspondente.guard';
+
+// External Storage Module
+import { ExternalStorageModule } from '../auth/external-storage/external-storage.module';
 
 const routes: Routes = [
   { path: '', component: CorrespondentRequestsComponent, canActivate: [CorrespondenteGuard] },
@@ -63,7 +67,10 @@ const routes: Routes = [
     MatDialogModule,
     MatToolbarModule,
     MatProgressBarModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatRadioModule,
+    // External Storage Module
+    ExternalStorageModule
   ],
   providers: [
     TipoSolicitacaoService

@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root'
 })
 export class GoogleDriveService {
-  private apiUrl = `${environment.apiUrl}/api/soli-arquivos`;
+  private apiUrl = `${environment.apiUrl}/api/google-drive`;
 
   constructor(private http: HttpClient) { }
 
@@ -16,7 +16,7 @@ export class GoogleDriveService {
    * Obtém a URL de autenticação do Google do backend
    */
   getAuthUrl(): Observable<string> {
-    return this.http.get<{ authUrl: string }>(`${this.apiUrl}/auth-url`).pipe(
+    return this.http.get<{ authUrl: string }>(`${this.apiUrl}/authorize`).pipe(
       map(response => response.authUrl),
       catchError((error) => {
         console.error('Error getting Google auth URL:', error);
@@ -29,7 +29,7 @@ export class GoogleDriveService {
    * Verifica o status da conexão com o Google Drive
    */
   getConnectionStatus(): Observable<{ connected: boolean; message: string; userId: number }> {
-    return this.http.get<{ connected: boolean; message: string; userId: number }>(`${this.apiUrl}/connection-status`).pipe(
+    return this.http.get<{ connected: boolean; message: string; userId: number }>(`${this.apiUrl}/status`).pipe(
       catchError((error) => {
         console.error('Error getting Google Drive connection status:', error);
         return throwError(() => new Error('Failed to get Google Drive connection status'));

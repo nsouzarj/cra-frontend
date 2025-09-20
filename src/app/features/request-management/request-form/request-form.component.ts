@@ -1,109 +1,76 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSelectChange } from '@angular/material/select';
-import { Subscription, finalize } from 'rxjs';
+import { HttpEventType } from '@angular/common/http';
+import { Subscription } from 'rxjs';
+import { finalize } from 'rxjs/operators';
+
+// Models
+import { Solicitacao } from '../../../shared/models/solicitacao.model';
+import { Processo } from '../../../shared/models/processo.model';
+import { User } from '../../../shared/models/user.model';
+import { TipoSolicitacao } from '../../../shared/models/tiposolicitacao.model';
+import { SolicitacaoStatus } from '../../../shared/models/solicitacao.model';
+import { SolicitacaoAnexo } from '../../../shared/models/solicitacao-anexo.model';
+import { Correspondente } from '../../../shared/models/correspondente.model';
+
+// Services
 import { SolicitacaoService } from '../../../core/services/solicitacao.service';
 import { SolicitacaoStatusService } from '../../../core/services/solicitacao-status.service';
 import { ProcessoService } from '../../../core/services/processo.service';
 import { CorrespondenteService } from '../../../core/services/correspondente.service';
 import { UserService } from '../../../core/services/user.service';
 import { TipoSolicitacaoService } from '../../../core/services/tiposolicitacao.service';
-import { Solicitacao, SolicitacaoStatus } from '../../../shared/models/solicitacao.model';
-import { Processo } from '../../../shared/models/processo.model';
-import { Correspondente } from '../../../shared/models/correspondente.model';
-import { User } from '../../../shared/models/user.model';
-import { TipoSolicitacao } from '../../../shared/models/tiposolicitacao.model';
-// Add the import for the new attachment service
 import { SolicitacaoAnexoService } from '../../../core/services/solicitacao-anexo.service';
-// Import AuthService to determine user role
 import { AuthService } from '../../../core/services/auth.service';
-// Import the updated model
-import { SolicitacaoAnexo } from '../../../shared/models/solicitacao-anexo.model';
+import { ExternalStorageAuthGuardService } from '../../../core/services/external-storage-auth-guard.service';
 
-// Import DateAdapter and related modules for date formatting
-import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { NativeDateAdapter } from '@angular/material/core';
-// Import HttpEventType for file upload progress handling
-import { HttpEventType } from '@angular/common/http';
-
-// Custom date adapter for Brazilian format
-export class BrazilianDateAdapter extends NativeDateAdapter {
-  override format(date: Date, displayFormat: any): string {
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  }
-
-  override parse(value: any): Date | null {
-    if (typeof value === 'string') {
-      const parts = value.split('/');
-      if (parts.length === 3) {
-        const day = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10) - 1;
-        const year = parseInt(parts[2], 10);
-        return new Date(year, month, day);
-      }
-    }
-    return null;
-  }
+interface ProgressInfo {
+  value: number;
+  fileName: string;
 }
-
-// Custom date format for Brazilian standard
-export const BRAZIL_DATE_FORMAT = {
-  parse: {
-    dateInput: 'DD/MM/YYYY',
-  },
-  display: {
-    dateInput: 'DD/MM/YYYY',
-    monthYearLabel: 'MMM YYYY',
-    dateA11yLabel: 'LL',
-    monthYearA11yLabel: 'MMMM YYYY',
-  },
-};
 
 @Component({
   selector: 'app-request-form',
   templateUrl: './request-form.component.html',
-  styleUrls: ['./request-form.component.scss'],
-  providers: [
-    { provide: DateAdapter, useClass: BrazilianDateAdapter },
-    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-    { provide: MAT_DATE_FORMATS, useValue: BRAZIL_DATE_FORMAT }
-  ]
+  styleUrls: ['./request-form.component.scss']
 })
 export class RequestFormComponent implements OnInit, OnDestroy {
+  @ViewChild('fileInput') fileInput!: ElementRef;
+  
   requestForm: FormGroup;
-  isEditMode = false;
   requestId: number | null = null;
+  isEditMode = false;
   loading = false;
-  loadedSolicitacao: Solicitacao | null = null;
-
-  // Dropdown options
+  message = '';
+  
+  // Dropdown data
   processos: Processo[] = [];
+  filteredProcessos: Processo[] = [];
   correspondentes: Correspondente[] = [];
+  filteredCorrespondentes: Correspondente[] = [];
   usuarios: User[] = [];
   tiposSolicitacao: TipoSolicitacao[] = [];
   statuses: SolicitacaoStatus[] = [];
   
-  // Filtered dropdown options (only active processes and correspondentes)
-  filteredProcessos: Processo[] = [];
-  filteredCorrespondentes: Correspondente[] = [];
-
-  // Conditional fields visibility
+  // File upload related
+  selectedFiles: File[] = [];
+  progressInfos: ProgressInfo[] = [];
+  currentFiles: SolicitacaoAnexo[] = [];
+  
+  // Conditional field visibility
   showAudienciaFields = false;
   showValorField = false;
-
-  // File attachment properties
-  selectedFiles: File[] = [];
-  currentFiles: SolicitacaoAnexo[] = [];
-  progressInfos: any[] = [];
-  message = '';
-
-  private themeSubscription: Subscription | null = null;
+  
+  // Theme subscription
+  themeSubscription: Subscription | null = null;
+  
+  // Loaded solicitacao for edit mode
+  loadedSolicitacao: Solicitacao | null = null;
+  
+  // Storage location selection
+  storageLocation: 'local' | 'google_drive' = 'google_drive';
 
   constructor(
     private formBuilder: FormBuilder,
@@ -119,7 +86,9 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     // Add the new attachment service to the constructor
     private solicitacaoAnexoService: SolicitacaoAnexoService,
     // Inject AuthService to determine user role
-    private authService: AuthService
+    private authService: AuthService,
+    // Add external storage auth guard service
+    private externalStorageAuthGuard: ExternalStorageAuthGuardService
   ) {
     this.requestForm = this.createForm();
   }
@@ -469,6 +438,34 @@ export class RequestFormComponent implements OnInit, OnDestroy {
 
   // Method to upload all selected files
   private uploadAnexos(solicitacaoId: number): void {
+    // Check storage location and proceed accordingly
+    if (this.storageLocation === 'local') {
+      // For local storage, proceed directly without authentication
+      this.performUpload(solicitacaoId);
+    } else {
+      // For Google Drive, check external storage authentication before uploading
+      this.externalStorageAuthGuard.checkAuthentication().subscribe({
+        next: (isAuthenticated) => {
+          if (isAuthenticated) {
+            // Proceed with upload if authenticated
+            this.performUpload(solicitacaoId);
+          } else {
+            // Show message if not authenticated
+            this.message = 'Upload cancelado. Por favor, autentique-se com o armazenamento externo primeiro.';
+            this.snackBar.open('Upload cancelado. Por favor, autentique-se com o armazenamento externo primeiro.', 'Fechar', { duration: 5000 });
+          }
+        },
+        error: (error) => {
+          console.error('Error checking authentication:', error);
+          this.message = 'Erro ao verificar autenticação. Por favor, tente novamente.';
+          this.snackBar.open('Erro ao verificar autenticação. Por favor, tente novamente.', 'Fechar', { duration: 5000 });
+        }
+      });
+    }
+  }
+
+  // Method to perform the actual upload
+  private performUpload(solicitacaoId: number): void {
     this.message = '';
     this.progressInfos = [];
 
@@ -487,7 +484,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
 
   // Method to upload a single file
   private uploadAnexo(solicitacaoId: number, file: File, index: number): void {
-    this.solicitacaoAnexoService.uploadAnexo(file, solicitacaoId).subscribe({
+    this.solicitacaoAnexoService.uploadAnexo(file, solicitacaoId, this.storageLocation).subscribe({
       next: (event: any) => {
         if (event.type === HttpEventType.UploadProgress) {
           // Upload progress
@@ -541,7 +538,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     // For Audiência, always include horaAudiencia when it exists in the form (especially in edit mode)
     if (this.showAudienciaFields || (this.isEditMode && formValue.horaAudiencia !== undefined)) {
       solicitacao.dataagendamento = formValue.dataAgendamento || null;
-      solicitacao.horaudiencia = formValue.horaAudiencia || null;
+      solicitacao.horaaudiencia = formValue.horaAudiencia || null;
     }
     
     if (this.showValorField) {

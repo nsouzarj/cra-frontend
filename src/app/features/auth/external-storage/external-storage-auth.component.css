@@ -1,0 +1,136 @@
+.container {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+}
+
+.container h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.auth-section {
+  text-align: center;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.auth-section p {
+  margin-bottom: 20px;
+  color: #666;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.button-group button {
+  min-width: 200px;
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.connected-section {
+  text-align: center;
+  padding: 30px 20px;
+  background-color: #e8f5e9;
+  border-radius: 8px;
+  color: #2e7d32;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.connected-section h3 {
+  margin: 16px 0 8px 0;
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+.success-message {
+  font-size: 16px;
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+.loading-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 30px 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.loading-section p {
+  color: #666;
+  font-size: 16px;
+  text-align: center;
+}
+
+.alert {
+  padding: 16px;
+  border-radius: 4px;
+  margin: 16px 0;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.alert-danger {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+.info-message {
+  margin-top: 20px;
+  padding: 16px;
+  background-color: #e8f5e9;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.info-message p {
+  margin: 0;
+  color: #2e7d32;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.debug-section {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+}
+
+.debug-section h4 {
+  margin-top: 0;
+  color: #333;
+}
+
+.debug-section pre {
+  background-color: #fff;
+  padding: 12px;
+  border-radius: 4px;
+  overflow: auto;
+  font-size: 12px;
+  max-height: 200px;
+}

@@ -18,6 +18,8 @@ import { ConfirmationDialogComponent } from '../../../shared/components/confirma
 import { HttpEventType } from '@angular/common/http';
 // Add AuthService import for role-based functionality
 import { AuthService } from '../../../core/services/auth.service';
+// Add import for external storage authentication
+import { ExternalStorageAuthGuardService } from '../../../core/services/external-storage-auth-guard.service';
 
 @Component({
   selector: 'app-request-detail',
@@ -34,6 +36,9 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
   selectedFiles: File[] = [];
   progressInfos: any[] = [];
   message = '';
+  
+  // Storage location selection
+  storageLocation: 'local' | 'google_drive' = 'google_drive';
 
   private themeSubscription: Subscription | null = null;
 
@@ -49,7 +54,9 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
     // Add MatDialog to the constructor
     private dialog: MatDialog,
     // Add AuthService to the constructor
-    private authService: AuthService
+    private authService: AuthService,
+    // Add external storage auth guard service
+    private externalStorageAuthGuard: ExternalStorageAuthGuardService
   ) {}
 
   ngOnInit(): void {
@@ -148,7 +155,7 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
 
   // Method to upload a single file
   private uploadAnexo(solicitacaoId: number, file: File, index: number): void {
-    this.solicitacaoAnexoService.uploadAnexo(file, solicitacaoId).subscribe({
+    this.solicitacaoAnexoService.uploadAnexo(file, solicitacaoId, this.storageLocation).subscribe({
       next: (event: any) => {
         if (event.type === HttpEventType.UploadProgress) {
           // Upload progress
@@ -184,7 +191,34 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
   // Method triggered when user clicks the upload button
   onUploadFiles(): void {
     if (this.solicitacao?.id && this.selectedFiles.length > 0) {
-      this.uploadAnexos(this.solicitacao.id);
+      // Check storage location and proceed accordingly
+      if (this.storageLocation === 'local') {
+        // For local storage, proceed directly without authentication
+        if (this.solicitacao?.id) {
+          this.uploadAnexos(this.solicitacao.id);
+        }
+      } else {
+        // For Google Drive, check external storage authentication before uploading
+        this.externalStorageAuthGuard.checkAuthentication().subscribe({
+          next: (isAuthenticated) => {
+            if (isAuthenticated) {
+              // Proceed with upload if authenticated
+              if (this.solicitacao?.id) {
+                this.uploadAnexos(this.solicitacao.id);
+              }
+            } else {
+              // Show message if not authenticated
+              this.message = 'Upload cancelado. Por favor, autentique-se com o armazenamento externo primeiro.';
+              this.snackBar.open('Upload cancelado. Por favor, autentique-se com o armazenamento externo primeiro.', 'Fechar', { duration: 5000 });
+            }
+          },
+          error: (error) => {
+            console.error('Error checking authentication:', error);
+            this.message = 'Erro ao verificar autenticação. Por favor, tente novamente.';
+            this.snackBar.open('Erro ao verificar autenticação. Por favor, tente novamente.', 'Fechar', { duration: 5000 });
+          }
+        });
+      }
     }
   }
 

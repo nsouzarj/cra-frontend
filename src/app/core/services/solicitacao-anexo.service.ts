@@ -19,14 +19,14 @@ export class SolicitacaoAnexoService {
   }
 
   
-uploadAnexo(file: File, solicitacaoId: number): Observable<HttpEvent<any>> {
-  console.log('uploadAnexo called with:', { file, solicitacaoId });
+uploadAnexo(file: File, solicitacaoId: number, storageLocation: 'local' | 'google_drive' = 'google_drive'): Observable<HttpEvent<any>> {
+  console.log('uploadAnexo called with:', { file, solicitacaoId, storageLocation });
   const formData: FormData = new FormData();
   formData.append('file', file, file.name);
   const userId = this.authService.currentUserValue?.id ?? '';
   formData.append('userId', userId.toString?.() || '');
   formData.append('solicitacaoId', solicitacaoId.toString());
-  formData.append("storageLocation", "google_drive")
+  formData.append("storageLocation", storageLocation);
   // Determine the origin based on user role using AuthService
   let origem = 'usuario'; // default value
   console.log('User roles:', this.authService.currentUserValue?.authorities);
@@ -73,13 +73,15 @@ uploadAnexo(file: File, solicitacaoId: number): Observable<HttpEvent<any>> {
  * @param file The file to upload
  * @param solicitacaoId The ID of the service request
  * @param origem The origin of the file (e.g., "solicitante", "correspondente")
+ * @param storageLocation The storage location ("local" or "google_drive")
  * @returns Observable containing the upload progress and response
  */
-uploadAnexoWithOrigin(file: File, solicitacaoId: number, origem: string): Observable<HttpEvent<any>> {
+uploadAnexoWithOrigin(file: File, solicitacaoId: number, origem: string, storageLocation: 'local' | 'google_drive' = 'google_drive'): Observable<HttpEvent<any>> {
   const formData: FormData = new FormData();
   formData.append('file', file, file.name);
   formData.append('solicitacaoId', solicitacaoId.toString());
   formData.append('origem', origem);
+  formData.append("storageLocation", storageLocation);
 
   const req = new HttpRequest('POST', `${this.apiUrl}/upload`, formData, {
     reportProgress: true,

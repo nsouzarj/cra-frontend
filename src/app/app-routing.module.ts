@@ -18,6 +18,7 @@ import { ThemeTestComponent } from './theme-test.component'; // Added ThemeTestC
 import { ThemeDebugComponent } from './theme-debug.component'; // Added ThemeDebugComponent
 import { ThemeTroubleshootComponent } from './theme-troubleshoot.component'; // Added ThemeTroubleshootComponent
 import { ThemeQuickTestComponent } from './theme-quick-test.component'; // Added ThemeQuickTestComponent
+import { ExternalStorageDebugComponent } from './features/auth/external-storage/external-storage-debug.component'; // Added ExternalStorageDebugComponent
 
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -79,6 +80,7 @@ const routes: Routes = [
   { path: 'theme-debug', component: ThemeDebugComponent }, // Added theme debug route
   { path: 'theme-troubleshoot', component: ThemeTroubleshootComponent }, // Added theme troubleshoot route
   { path: 'theme-quick-test', component: ThemeQuickTestComponent }, // Added theme quick test route
+  { path: 'external-storage-debug', component: ExternalStorageDebugComponent }, // Added external storage debug route
   { path: 'unauthorized', component: UnauthorizedComponent },
   { path: '**', component: NotFoundComponent }
 ];

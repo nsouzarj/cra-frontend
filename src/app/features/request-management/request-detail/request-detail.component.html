@@ -163,6 +163,20 @@
       <mat-card-content>
         <!-- File upload section -->
         <div class="file-upload-section">
+          <!-- Storage location selection -->
+          <div class="storage-selection">
+            <mat-radio-group [(ngModel)]="storageLocation" [ngModelOptions]="{standalone: true}" class="storage-radio-group">
+              <mat-radio-button value="local" class="storage-option" matTooltip="Armazenar arquivos localmente no sistema">
+                <mat-icon>computer</mat-icon>
+                <span>Armazenamento Local</span>
+              </mat-radio-button>
+              <mat-radio-button value="google_drive" class="storage-option" matTooltip="Armazenar arquivos no Google Drive">
+                <mat-icon>cloud_upload</mat-icon>
+                <span>Google Drive</span>
+              </mat-radio-button>
+            </mat-radio-group>
+          </div>
+          
           <div class="file-input-container">
             <input type="file" #fileInput (change)="selectFiles($event)" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
             <button mat-raised-button type="button" (click)="fileInput.click()" [disabled]="loading || !canUploadFiles()" 

@@ -1,0 +1,20 @@
+<div style="padding: 20px;">
+  <h2>External Storage Debug</h2>
+  
+  <div style="margin-bottom: 20px;">
+    <button (click)="checkStatus()" style="margin-right: 10px;">Check Status</button>
+    <button (click)="getAuthUrl()" style="margin-right: 10px;">Get Auth URL</button>
+    <button (click)="testConnection()" style="margin-right: 10px;">Test Connection</button>
+    <button (click)="isAuthenticated()">Is Authenticated?</button>
+  </div>
+  
+  <div *ngIf="debugInfo" style="background-color: #f0f0f0; padding: 10px; margin-top: 20px;">
+    <h3>Debug Info:</h3>
+    <pre>{{ debugInfo | json }}</pre>
+  </div>
+  
+  <div *ngIf="error" style="background-color: #ffe0e0; padding: 10px; margin-top: 20px; color: red;">
+    <h3>Error:</h3>
+    <pre>{{ error }}</pre>
+  </div>
+</div>

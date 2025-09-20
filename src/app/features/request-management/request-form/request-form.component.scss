@@ -71,6 +71,47 @@ mat-card-subtitle {
   color: #1976d2;
 }
 
+/* Storage location selection styles */
+.storage-selection {
+  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #fafafa;
+}
+
+.storage-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.storage-option {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.storage-option:hover {
+  border-color: #2196f3;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.storage-option mat-icon {
+  margin-right: 8px;
+  font-size: 20px;
+}
+
+.storage-option .mat-radio-checked {
+  border-color: #2196f3;
+  background-color: rgba(33, 150, 243, 0.05);
+}
+
 /* File attachment styles */
 .file-upload-section {
   padding: 16px;
@@ -120,8 +161,8 @@ mat-card-subtitle {
   margin: 16px 0;
   padding: 12px;
   border-radius: 4px;
-  background-color: #e8f5e9;
-  color: #2e7d32;
+  background-color: #ffebee;
+  color: #c62828;
 }
 
 .attachments-list {
