@@ -52,7 +52,8 @@ export class ExternalStorageAuthGuardService {
   // Show authentication dialog
   private showAuthDialog(): Observable<boolean> {
     const dialogRef = this.dialog.open(ExternalStorageAuthDialogComponent, {
-      width: '500px',  // Reset to original width
+      width: '360px',
+      maxWidth: '360px',
       disableClose: true,
       data: {
         returnUrl: this.router.url

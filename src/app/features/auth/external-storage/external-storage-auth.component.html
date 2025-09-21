@@ -4,7 +4,7 @@
   <!-- Show this section when redirected from Google Drive auth -->
   <div *ngIf="isRedirectedFromAuth" class="auth-success-section">
     <div class="connected-section">
-      <mat-icon style="color: green; font-size: 48px;">check_circle</mat-icon>
+      <mat-icon style="color: green;">check_circle</mat-icon>
       <h3>Autenticação bem-sucedida!</h3>
       <p>Sua conta do Google Drive foi conectada com sucesso.</p>
       <p class="success-message">Você será redirecionado automaticamente em alguns segundos.</p>
@@ -58,7 +58,7 @@
     </div>
     
     <div *ngIf="isConnected" class="connected-section">
-      <mat-icon style="color: green; font-size: 48px;">check_circle</mat-icon>
+      <mat-icon style="color: green;">check_circle</mat-icon>
       <h3>Conexão bem-sucedida</h3>
       <p>Seu Google Drive está pronto para uso.</p>
       <p class="success-message">Autenticação concluída com sucesso!</p>

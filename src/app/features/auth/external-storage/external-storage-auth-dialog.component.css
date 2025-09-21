@@ -1,23 +1,59 @@
 .dialog-container {
-  min-width: 300px;
-  width: 90vw;
-  max-width: 400px;
+  width: 360px;
+  max-width: 360px;
+  min-width: 360px;
   padding: 0;
   background: white;
   border-radius: 8px;
   box-shadow: 0 11px 15px -7px rgba(0, 0, 0, 0.2), 0 24px 38px 3px rgba(0, 0, 0, 0.14), 0 9px 46px 8px rgba(0, 0, 0, 0.12);
+  box-sizing: border-box;
 }
 
-/* Mobile responsive styles */
-@media (max-width: 600px) {
+/* All content sections should fit within 360px */
+.auth-section,
+.connected-section,
+.loading-section,
+.alert,
+.info-message,
+.redirect-auth-content,
+.info-box,
+.dialog-actions,
+.button-group {
+  width: 100%;
+  max-width: 360px;
+  box-sizing: border-box;
+}
+
+/* Mobile responsive styles for 360px fixed width */
+@media (max-width: 360px) {
   .dialog-container {
-    width: 95vw;
-    min-width: auto;
+    width: 360px;
+    min-width: 360px;
+    max-width: 360px;
     margin: 10px;
+  }
+  
+  /* Ensure all content fits within 360px */
+  .auth-section,
+  .connected-section,
+  .loading-section,
+  .alert,
+  .info-message,
+  .redirect-auth-content,
+  .info-box,
+  .dialog-actions,
+  .button-group {
+    width: 100%;
+    max-width: 340px;
+    padding-left: 10px;
+    padding-right: 10px;
+    box-sizing: border-box;
   }
   
   .dialog-header {
     padding: 15px 16px 0;
+    position: absolute;
+    align-items: center;
   }
   
   .dialog-content {
@@ -27,13 +63,16 @@
   .button-group {
     flex-direction: column;
     align-items: center;
+    gap: 10px;
+    width: 100%;
   }
   
   .button-group button,
   .button-group .responsive-button {
     min-width: auto;
     width: 100%;
-    max-width: 250px;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   
   .dialog-actions {
@@ -47,7 +86,8 @@
   .dialog-actions .responsive-button {
     min-width: auto;
     width: 100%;
-    max-width: 250px;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   
   .redirect-auth-content {
@@ -60,33 +100,102 @@
   
   .info-box {
     padding: 12px;
+    width: 100%;
+    box-sizing: border-box;
   }
   
   .info-box p {
     font-size: 13px;
   }
+  
+  .redirect-auth-header h3 {
+    font-size: 16px;
+    text-align: center;
+  }
+}
+
+/* Specific styles for 360px fixed width */
+@media (max-width: 400px) {
+  .dialog-container {
+    width: 360px;
+    max-width: 360px;
+    min-width: 360px;
+    margin: 10px auto;
+    padding: 0;
+  }
+  
+  .dialog-header {
+    padding: 15px 20px 0;
+  }
+  
+  .dialog-content {
+    padding: 15px 20px;
+  }
+  
+  .button-group button,
+  .button-group .responsive-button {
+    min-width: auto;
+    padding: 10px 15px;
+    font-size: 14px;
+    min-height: 40px;
+  }
+  
+  .dialog-actions {
+    padding: 20px;
+    gap: 12px;
+  }
+  
+  .dialog-actions button,
+  .dialog-actions .responsive-button {
+    padding: 10px 15px;
+    font-size: 14px;
+    min-height: 40px;
+    min-width: auto;
+  }
+  
+  .redirect-auth-content {
+    padding: 15px;
+  }
+  
+  .redirect-auth-content p {
+    font-size: 14px;
+    margin: 10px 0;
+  }
+  
+  .info-box {
+    padding: 15px;
+    margin-top: 20px;
+  }
+  
+  .info-box h4 {
+    font-size: 15px;
+    margin-top: 0;
+  }
+  
+  .info-box p {
+    font-size: 13px;
+    margin: 10px 0;
+  }
 }
 
 .dialog-header {
   padding: 20px 24px 0;
+  position: relative;
 }
 
 .dialog-header h2 {
+  text-align: center;
   margin: 0;
   color: #333;
   font-size: 20px;
   font-weight: 500;
-  text-align: center;
-}
-
-.dialog-content {
-  padding: 20px 24px;
-  margin: 0;
 }
 
 .auth-section {
   text-align: center;
   padding: 20px 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .auth-section p {
@@ -96,21 +205,47 @@
   line-height: 1.5;
 }
 
+/* Mobile responsive styles */
+@media (max-width: 360px) {
+  .auth-section {
+    padding: 15px;
+  }
+  
+  .auth-section p {
+    font-size: 14px;
+    margin-bottom: 15px;
+  }
+}
+
 .button-group {
   display: flex;
   justify-content: center;
   gap: 12px;
   margin: 20px 0;
+  flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .button-group button {
-  min-width: 200px;
+  min-width: 120px;
   padding: 12px 24px;
   font-size: 16px;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 360px) {
+  .button-group button,
+  .button-group .responsive-button {
+    min-width: auto;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 }
 
 .connected-section {
@@ -120,6 +255,8 @@
   border-radius: 8px;
   color: #2e7d32;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .connected-section h3 {
@@ -134,6 +271,23 @@
   font-weight: 500;
 }
 
+/* Mobile responsive styles */
+@media (max-width: 360px) {
+  .connected-section {
+    padding: 20px 15px;
+  }
+  
+  .connected-section h3 {
+    font-size: 16px;
+    margin: 12px 0 6px 0;
+  }
+  
+  .success-message {
+    font-size: 14px;
+    margin-top: 8px;
+  }
+}
+
 .loading-section {
   display: flex;
   flex-direction: column;
@@ -142,6 +296,8 @@
   padding: 30px 20px;
   background-color: #f5f5f5;
   border-radius: 8px;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .loading-section p {
@@ -183,6 +339,18 @@
   text-align: center;
   font-size: 15px;
   line-height: 1.5;
+  box-sizing: border-box;
+  width: 100%;
+  word-wrap: break-word;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 360px) {
+  .alert {
+    padding: 12px;
+    margin: 12px 0;
+    font-size: 13px;
+  }
 }
 
 .alert-danger {
@@ -200,6 +368,8 @@
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .info-message p {
@@ -207,6 +377,19 @@
   color: #2e7d32;
   font-weight: 500;
   font-size: 16px;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 360px) {
+  .info-message {
+    margin-top: 12px;
+    padding: 10px;
+    gap: 8px;
+  }
+  
+  .info-message p {
+    font-size: 12px;
+  }
 }
 
 .dialog-actions {
@@ -217,23 +400,53 @@
   background: #f5f5f5;
   border-top: 1px solid #e0e0e0;
   border-radius: 0 0 8px 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .dialog-actions button {
-  min-width: 120px;
+  min-width: 100px;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 360px) {
+  .dialog-actions {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 16px;
+  }
+  
+  .dialog-actions button,
+  .dialog-actions .responsive-button {
+    min-width: auto;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 }
 
 /* Styles for redirect auth section */
 .redirect-auth-section {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .redirect-auth-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
   margin-bottom: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.redirect-auth-header button {
+  position: absolute;
+  left: 0;
 }
 
 .redirect-auth-header h3 {
@@ -241,6 +454,7 @@
   color: #333;
   font-size: 18px;
   font-weight: 500;
+  text-align: center;
 }
 
 .redirect-auth-content {
@@ -248,6 +462,8 @@
   padding: 20px;
   background-color: #f5f5f5;
   border-radius: 8px;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .redirect-auth-content p {
@@ -257,6 +473,17 @@
   line-height: 1.5;
 }
 
+/* Mobile responsive styles */
+@media (max-width: 360px) {
+  .redirect-auth-content {
+    padding: 15px;
+  }
+  
+  .redirect-auth-content p {
+    font-size: 14px;
+  }
+}
+
 /* Info box styles */
 .info-box {
   margin-top: 20px;
@@ -264,6 +491,8 @@
   background-color: #e3f2fd;
   border-radius: 8px;
   text-align: left;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .info-box h4 {
@@ -277,4 +506,17 @@
   color: #333;
   font-size: 14px;
   line-height: 1.5;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 360px) {
+  .info-box {
+    padding: 12px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .info-box p {
+    font-size: 13px;
+  }
 }

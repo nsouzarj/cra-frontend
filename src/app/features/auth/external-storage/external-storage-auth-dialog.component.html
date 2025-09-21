@@ -1,17 +1,18 @@
 <div class="dialog-container">
-  <div class="dialog-header">
-    <h2>Conexão com Google Drive</h2>
+  <div class="dialog-header" style="align-items: center;">
+    <h2 >Cloud Google Drive</h2>
   </div>
 
   <div class="dialog-content">
     <!-- Show instructions for tab-based auth -->
     <div *ngIf="showAuthInstructions" class="redirect-auth-section">
       <div class="redirect-auth-header">
-        <h3>Autenticação do Google Drive</h3>
         <button mat-icon-button (click)="goBack()" aria-label="Voltar">
           <mat-icon>arrow_back</mat-icon>
         </button>
+        <h3>Autenticação do Google Drive</h3>
       </div>
+      
       <div class="redirect-auth-content">
         <p>Uma nova aba foi aberta para você fazer login no Google Drive.</p>
         <p>Siga as instruções na aba para conceder as permissões necessárias.</p>
@@ -24,6 +25,7 @@
         </div>
         <div class="info-box">
           <h4>O que acontece se eu fechar esta janela?</h4>
+          <p>Você não perderá acesso à aplicação. A aba de autenticação permanecerá aberta.</p>
           <p>Você não perderá acesso à aplicação. A aba de autenticação permanecerá aberta.</p>
           <p>Após concluir a autenticação, você pode voltar a esta aplicação e verificar o status.</p>
         </div>
@@ -48,10 +50,13 @@
       </div>
       
       <div *ngIf="isConnected" class="connected-section">
-        <mat-icon style="color: green; font-size: 48px;">check_circle</mat-icon>
+        <mat-icon style="color: green;">check_circle</mat-icon>
         <h3>Conexão bem-sucedida</h3>
         <p>Seu Google Drive está conectado e pronto para uso.</p>
         <p class="success-message">Autenticação concluída com sucesso!</p>
+      </div>
+      
+      <div *ngIf="isLoading || isCheckingStatus" class="loading-section">
       </div>
       
       <div *ngIf="isLoading || isCheckingStatus" class="loading-section">

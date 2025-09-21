@@ -188,12 +188,12 @@ mat-card-subtitle {
 }
 
 .attachment-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   font-weight: 500;
   color: #333;
   font-size: 14px;
+  word-break: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 .attachment-date {
