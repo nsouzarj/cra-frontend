@@ -212,7 +212,7 @@ export class ExternalStorageAuthDialogComponent implements OnInit, OnDestroy {
     if (error.includes('Network Error') || error.includes('network')) {
       return 'Erro de conexão. Verifique sua conexão com a internet e tente novamente.';
     }
-    
+
     // Default friendly message
     return 'Ocorreu um erro durante a autenticação. Por favor, tente novamente.';
   }
