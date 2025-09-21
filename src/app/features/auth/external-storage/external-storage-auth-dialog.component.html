@@ -4,41 +4,80 @@
   </div>
 
   <div class="dialog-content">
-    <div *ngIf="!isConnected && !isLoading" class="auth-section">
-      <p>Conecte-se ao seu Google Drive para armazenar arquivos na nuvem.</p>
-      <div class="button-group">
-        <button 
-          mat-raised-button
-          color="primary"
-          (click)="openExternalStorageAuthPopup()"
-          [disabled]="isLoading || isCheckingStatus">
-          <mat-spinner *ngIf="isLoading || isCheckingStatus" diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
-          Conectar ao Google Drive
+    <!-- Show instructions for tab-based auth -->
+    <div *ngIf="showAuthInstructions" class="redirect-auth-section">
+      <div class="redirect-auth-header">
+        <h3>Autenticação do Google Drive</h3>
+        <button mat-icon-button (click)="goBack()" aria-label="Voltar">
+          <mat-icon>arrow_back</mat-icon>
         </button>
+      </div>
+      <div class="redirect-auth-content">
+        <p>Uma nova aba foi aberta para você fazer login no Google Drive.</p>
+        <p>Siga as instruções na aba para conceder as permissões necessárias.</p>
+        <p>Após concluir a autenticação, volte para esta aba e clique no botão abaixo.</p>
+        <div class="button-group">
+          <button mat-raised-button color="primary" (click)="manualCheckAuthStatus()" [disabled]="isCheckingStatus" class="responsive-button">
+            <mat-spinner *ngIf="isCheckingStatus" diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+            Verificar Status da Autenticação
+          </button>
+        </div>
+        <div class="info-box">
+          <h4>O que acontece se eu fechar esta janela?</h4>
+          <p>Você não perderá acesso à aplicação. A aba de autenticação permanecerá aberta.</p>
+          <p>Após concluir a autenticação, você pode voltar a esta aplicação e verificar o status.</p>
+        </div>
       </div>
     </div>
     
-    <div *ngIf="isConnected" class="connected-section">
-      <mat-icon style="color: green; font-size: 48px;">check_circle</mat-icon>
-      <h3>Conexão bem-sucedida</h3>
-      <p>Seu Google Drive está conectado e pronto para uso.</p>
-      <p class="success-message">Autenticação concluída com sucesso!</p>
-    </div>
-    
-    <div *ngIf="isLoading || isCheckingStatus" class="loading-section">
-      <mat-spinner diameter="50"></mat-spinner>
-      <p *ngIf="isLoading">Gerando URL de autorização...</p>
-      <p *ngIf="isCheckingStatus">Verificando status da conexão...</p>
-    </div>
-    
-    <div *ngIf="error" class="alert alert-danger">
-      {{ error }}
+    <!-- Show initial view when not showing redirect auth -->
+    <div *ngIf="!showAuthInstructions">
+      <div *ngIf="!isConnected && !isLoading" class="auth-section">
+        <p>Conecte-se ao seu Google Drive para armazenar arquivos na nuvem.</p>
+        <div class="button-group">
+          <button 
+            mat-raised-button
+            color="primary"
+            (click)="startGoogleDriveAuth()"
+            [disabled]="isLoading || isCheckingStatus"
+            class="responsive-button">
+            <mat-spinner *ngIf="isLoading || isCheckingStatus" diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+            Conectar ao Google Drive
+          </button>
+        </div>
+      </div>
+      
+      <div *ngIf="isConnected" class="connected-section">
+        <mat-icon style="color: green; font-size: 48px;">check_circle</mat-icon>
+        <h3>Conexão bem-sucedida</h3>
+        <p>Seu Google Drive está conectado e pronto para uso.</p>
+        <p class="success-message">Autenticação concluída com sucesso!</p>
+      </div>
+      
+      <div *ngIf="isLoading || isCheckingStatus" class="loading-section">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p *ngIf="isLoading">Gerando URL de autorização...</p>
+        <p *ngIf="isCheckingStatus">Verificando status da conexão...</p>
+      </div>
+      
+      <div *ngIf="error" class="alert alert-danger">
+        {{ error }}
+        <!-- Special message for service unavailable -->
+        <div *ngIf="error.includes('não está disponível')" class="button-group" style="margin-top: 16px; justify-content: center;">
+          <button mat-raised-button color="primary" (click)="checkAuthorizationStatus()" class="responsive-button">
+            Tentar Novamente
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="dialog-actions">
-    <button mat-button (click)="closeDialog(false)">Cancelar</button>
-    <button mat-raised-button color="primary" (click)="closeDialog(true)" [disabled]="!isConnected">
+    <button mat-button (click)="closeDialog(false)" *ngIf="!showAuthInstructions" class="responsive-button">Cancelar</button>
+    <button mat-raised-button color="primary" *ngIf="isConnected && !showAuthInstructions" (click)="navigateToReturnUrl()" class="responsive-button">
+      Voltar para Detalhes
+    </button>
+    <button mat-raised-button color="primary" *ngIf="!isConnected && !showAuthInstructions" (click)="closeDialog(true)" [disabled]="!isConnected" class="responsive-button">
       Continuar
     </button>
   </div>

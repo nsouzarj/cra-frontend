@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ExternalStorageService } from '../../../core/services/external-storage.service';
 import { Router } from '@angular/router';
@@ -8,12 +8,15 @@ import { Router } from '@angular/router';
   templateUrl: './external-storage-auth-dialog.component.html',
   styleUrls: ['./external-storage-auth-dialog.component.css']
 })
-export class ExternalStorageAuthDialogComponent implements OnInit {
+export class ExternalStorageAuthDialogComponent implements OnInit, OnDestroy {
   isLoading = false;
   error: string | null = null;
   isConnected = false;
   debugInfo: any = null;
   isCheckingStatus = false;
+  returnUrl: string | null = null;
+  showAuthInstructions = false;
+  private statusCheckInterval: any = null;
 
   constructor(
     public dialogRef: MatDialogRef<ExternalStorageAuthDialogComponent>,
@@ -24,24 +27,18 @@ export class ExternalStorageAuthDialogComponent implements OnInit {
 
   ngOnInit() {
     console.log('Initializing ExternalStorageAuthDialogComponent');
+    // Check if we have a return URL in the data
+    if (this.data && this.data.returnUrl) {
+      this.returnUrl = this.data.returnUrl;
+    }
     // Check connection status when dialog opens
     this.checkAuthorizationStatus();
-    
-    // Listen for authentication success message from popup
-    window.addEventListener('message', this.handleAuthMessage.bind(this));
   }
 
   ngOnDestroy() {
-    // Clean up event listener
-    window.removeEventListener('message', this.handleAuthMessage.bind(this));
-  }
-
-  // Handle authentication success message from popup
-  private handleAuthMessage(event: MessageEvent) {
-    if (event.data && event.data.type === 'GOOGLE_DRIVE_AUTH_SUCCESS') {
-      console.log('Received auth success message from popup');
-      // Check status and close dialog automatically
-      this.checkAuthorizationStatus();
+    // Clear interval when component is destroyed
+    if (this.statusCheckInterval) {
+      clearInterval(this.statusCheckInterval);
     }
   }
 
@@ -63,6 +60,11 @@ export class ExternalStorageAuthDialogComponent implements OnInit {
           // Authorization successful
           console.log('User is connected to Google Drive');
           this.isConnected = true;
+          // Clear interval since we're connected
+          if (this.statusCheckInterval) {
+            clearInterval(this.statusCheckInterval);
+            this.statusCheckInterval = null;
+          }
           // Auto-close dialog after successful authentication
           setTimeout(() => {
             this.closeDialog(true);
@@ -70,75 +72,123 @@ export class ExternalStorageAuthDialogComponent implements OnInit {
         } else {
           console.log('User is not connected to Google Drive');
           this.isConnected = false;
+          // If status is UNAVAILABLE, show a specific error message
+          if (response.status === 'UNAVAILABLE') {
+            this.error = 'O serviço do Google Drive não está disponível no momento. Por favor, tente novamente mais tarde.';
+          }
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error checking authorization status:', error);
         this.isCheckingStatus = false;
         this.isConnected = false;
         this.debugInfo = { error: error.message };
-        this.error = this.getFriendlyErrorMessage(error.message);
+        
+        // Handle specific error cases
+        if (error.status === 503 || (error.error && error.error.status === 'UNAVAILABLE')) {
+          this.error = 'O serviço do Google Drive não está disponível no momento. Por favor, tente novamente mais tarde.';
+        } else {
+          this.error = this.getFriendlyErrorMessage(error.message || error.error?.message);
+        }
+        
         console.error('Error checking authorization status:', error);
       }
     });
   }
 
-  // Open popup window for authorization
-  openExternalStorageAuthPopup() {
-    console.log('Opening external storage auth popup');
+  // Start Google Drive authentication flow
+  startGoogleDriveAuth() {
+    console.log('Starting Google Drive authentication flow');
     this.isLoading = true;
     this.error = null;
     
-    this.externalStorageService.getAuthorizationUrl().subscribe({
+    // Pass the return URL to the service
+    this.externalStorageService.getAuthorizationUrl(this.returnUrl || undefined).subscribe({
       next: (response) => {
         const authUrl = response.authorizationUrl;
         console.log('Received authorization URL:', authUrl);
         this.isLoading = false;
         
-        // Calculate center position for popup
-        const popupWidth = 600;
-        const popupHeight = 700;
-        const left = (screen.width - popupWidth) / 2;
-        const top = (screen.height - popupHeight) / 2;
-        
-        // Open popup window with the actual auth URL, centered on screen
-        const popup = window.open(
-          authUrl,
-          'External Storage Authorization',
-          `width=${popupWidth},height=${popupHeight},left=${left},top=${top},scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=no,directories=no,status=no`
-        );
-        
-        // Check if popup was blocked
-        if (!popup) {
-          console.error('Popup was blocked by browser');
-          this.error = 'Popup bloqueado pelo navegador. Por favor, permita popups para este site e tente novamente.';
-          return;
+        if (authUrl) {
+          // Instead of redirecting, open in a new tab/window
+          window.open(authUrl, '_blank');
+          
+          // Show instructions for the user
+          this.showAuthInstructions = true;
+          
+          // Start periodic status checks
+          this.startStatusCheckInterval();
+        } else {
+          // If we don't get a valid URL, show an error
+          this.error = 'Não foi possível obter a URL de autenticação do Google Drive. Por favor, tente novamente.';
         }
-        
-        console.log('Popup opened successfully');
-        
-        // Periodically check if popup is closed
-        const checkPopup = setInterval(() => {
-          if (popup.closed) {
-            console.log('Popup closed, checking connection status');
-            clearInterval(checkPopup);
-            this.checkAuthorizationStatus();
-          }
-        }, 1000);
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error getting authorization URL:', error);
-        this.error = this.getFriendlyErrorMessage(error.message);
         this.isLoading = false;
-        console.error('Error getting authorization URL:', error);
+        
+        // Handle specific error cases
+        if (error.status === 503 || (error.error && error.error.status === 'UNAVAILABLE')) {
+          this.error = 'O serviço do Google Drive não está disponível no momento. Por favor, tente novamente mais tarde.';
+        } else if (error.status === 400 && error.error && typeof error.error === 'object' && error.error.status === 'UNAVAILABLE') {
+          // Handle the case where the backend returns the UNAVAILABLE JSON response
+          this.error = 'O serviço do Google Drive não está disponível no momento. Por favor, tente novamente mais tarde.';
+        } else {
+          this.error = this.getFriendlyErrorMessage(error.message || error.error?.message);
+        }
       }
     });
+  }
+
+  // Start periodic status checks
+  private startStatusCheckInterval() {
+    // Clear any existing interval
+    if (this.statusCheckInterval) {
+      clearInterval(this.statusCheckInterval);
+    }
+    
+    // Check status every 3 seconds while showing auth instructions
+    this.statusCheckInterval = setInterval(() => {
+      if (this.showAuthInstructions && !this.isCheckingStatus) {
+        this.checkAuthorizationStatus();
+      }
+    }, 3000);
+  }
+
+  // Manual check for authentication status (in case user completed auth in another tab)
+  manualCheckAuthStatus() {
+    this.checkAuthorizationStatus();
   }
 
   // Close dialog and return result
   closeDialog(result: boolean = false) {
     console.log('Closing dialog with result:', result);
+    // Clear interval when closing dialog
+    if (this.statusCheckInterval) {
+      clearInterval(this.statusCheckInterval);
+      this.statusCheckInterval = null;
+    }
     this.dialogRef.close(result);
+  }
+
+  // Navigate back to the return URL
+  navigateToReturnUrl() {
+    if (this.returnUrl) {
+      this.router.navigateByUrl(this.returnUrl);
+    }
+    this.closeDialog(true);
+  }
+
+  // Go back to the initial view (hide auth instructions)
+  goBack() {
+    this.showAuthInstructions = false;
+    // Clear interval when going back
+    if (this.statusCheckInterval) {
+      clearInterval(this.statusCheckInterval);
+      this.statusCheckInterval = null;
+    }
+    // Check status again to see if auth was successful
+    this.checkAuthorizationStatus();
   }
 
   // Map technical error messages to user-friendly ones
@@ -161,9 +211,6 @@ export class ExternalStorageAuthDialogComponent implements OnInit {
     }
     if (error.includes('Network Error') || error.includes('network')) {
       return 'Erro de conexão. Verifique sua conexão com a internet e tente novamente.';
-    }
-    if (error.includes('Popup blocked')) {
-      return 'Popup bloqueado pelo navegador. Por favor, permita popups para este site e tente novamente.';
     }
     
     // Default friendly message

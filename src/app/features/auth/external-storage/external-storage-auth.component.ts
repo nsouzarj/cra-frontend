@@ -18,6 +18,8 @@ export class ExternalStorageAuthComponent implements OnInit {
   isConnected: boolean = false;
   showAuthSuccessMessage: boolean = false;
   showDebugInfo: boolean = false;
+  isRedirectedFromAuth: boolean = false;
+  returnUrl: string | null = null;
 
   constructor(
     private externalStorageService: ExternalStorageService,
@@ -27,12 +29,22 @@ export class ExternalStorageAuthComponent implements OnInit {
 
   ngOnInit(): void {
     console.log('Initializing ExternalStorageComponent');
+    
     // Check if we're returning from Google Drive auth (URL contains code parameter)
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     
-    if (code) {
-      // We're returning from Google Drive auth, show success message and close
+    // Get the return URL if it exists
+    this.returnUrl = urlParams.get('state');
+    
+    // Check if the page contains the JSON response pattern
+    const pageContent = document.body.textContent || '';
+    const isJsonResponse = pageContent.includes('"access_token_received": true') && 
+                          pageContent.includes('"refresh_token_received": true');
+    
+    if (code || isJsonResponse) {
+      // We're returning from Google Drive auth, show success message
+      this.isRedirectedFromAuth = true;
       this.handleAuthSuccess();
     } else {
       // Normal initialization
@@ -55,16 +67,32 @@ export class ExternalStorageAuthComponent implements OnInit {
         this.isConnected = response.status === 'OK';
         
         if (this.isConnected) {
-          // Show success message and auto-close
+          // Show success message
           this.showAuthSuccessMessage = true;
-          // Send message to parent window if this is a popup
-          if (window.opener) {
-            window.opener.postMessage({ type: 'GOOGLE_DRIVE_AUTH_SUCCESS' }, '*');
+          
+          // If we have a return URL, navigate back to it after a delay
+          if (this.returnUrl) {
+            // Decode the return URL and navigate to it
+            try {
+              const decodedReturnUrl = decodeURIComponent(this.returnUrl);
+              console.log('Will navigate back to return URL:', decodedReturnUrl);
+              // Navigate after a short delay to show the success message
+              setTimeout(() => {
+                this.router.navigateByUrl(decodedReturnUrl);
+              }, 3000);
+            } catch (e) {
+              console.error('Error decoding return URL:', e);
+              // Fallback to dashboard
+              setTimeout(() => {
+                this.router.navigate(['/dashboard']);
+              }, 3000);
+            }
+          } else {
+            // If no return URL, go to dashboard
+            setTimeout(() => {
+              this.router.navigate(['/dashboard']);
+            }, 3000);
           }
-          // Close the popup after a delay
-          setTimeout(() => {
-            window.close();
-          }, 2000);
         }
       },
       error: (error) => {
@@ -81,7 +109,9 @@ export class ExternalStorageAuthComponent implements OnInit {
     this.error = null;
     this.showAuthSuccessMessage = false;
     
-    this.externalStorageService.getAuthorizationUrl().subscribe({
+    // Pass the current URL as the return URL
+    const currentUrl = this.router.url;
+    this.externalStorageService.getAuthorizationUrl(currentUrl).subscribe({
       next: (response) => {
         console.log('Received auth response:', response);
         this.debugInfo = JSON.stringify(response, null, 2);
@@ -90,11 +120,27 @@ export class ExternalStorageAuthComponent implements OnInit {
         if (response.authorizationUrl) {
           console.log('Opening popup with URL:', response.authorizationUrl);
           
-          // Calculate center position for popup
-          const popupWidth = 600;
-          const popupHeight = 700;
-          const left = (screen.width - popupWidth) / 2;
-          const top = (screen.height - popupHeight) / 2;
+          // Calculate responsive popup dimensions
+          const maxWidth = 600;
+          const maxHeight = 700;
+          const minWidth = 320;
+          const minHeight = 500;
+          
+          // Get available screen dimensions using modern APIs for better accuracy
+          const screenWidth = window.screen.availWidth || window.innerWidth;
+          const screenHeight = window.screen.availHeight || window.innerHeight;
+          
+          // Calculate popup dimensions based on screen size
+          let popupWidth = Math.min(maxWidth, screenWidth * 0.9);
+          let popupHeight = Math.min(maxHeight, screenHeight * 0.8);
+          
+          // Ensure minimum dimensions
+          popupWidth = Math.max(popupWidth, minWidth);
+          popupHeight = Math.max(popupHeight, minHeight);
+          
+          // Calculate center position for popup using modern APIs for better accuracy
+          const left = Math.max(0, (screenWidth - popupWidth) / 2);
+          const top = Math.max(0, (screenHeight - popupHeight) / 2);
           
           // Open popup window with the actual auth URL, centered on screen
           const popup = window.open(
@@ -165,6 +211,24 @@ export class ExternalStorageAuthComponent implements OnInit {
         this.error = error.message || 'Failed to test connection';
       }
     });
+  }
+
+  // Navigate back to the return URL or dashboard
+  closeAndReturn(): void {
+    if (this.returnUrl) {
+      // If we have a return URL, navigate to it
+      try {
+        const decodedReturnUrl = decodeURIComponent(this.returnUrl);
+        this.router.navigateByUrl(decodedReturnUrl);
+      } catch (e) {
+        console.error('Error decoding return URL:', e);
+        // Fallback to dashboard
+        this.router.navigate(['/dashboard']);
+      }
+    } else {
+      // Go to dashboard
+      this.router.navigate(['/dashboard']);
+    }
   }
 
   getFriendlyErrorMessage(error: string): string {

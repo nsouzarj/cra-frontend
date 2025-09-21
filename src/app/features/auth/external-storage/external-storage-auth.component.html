@@ -1,39 +1,78 @@
 <div class="container">
   <h2>Autenticação do Google Drive</h2>
   
-  <div *ngIf="!isConnected && !isLoading" class="auth-section">
-    <p>Conecte-se ao seu Google Drive para armazenar arquivos na nuvem.</p>
-    <div class="button-group">
-      <button 
-        mat-raised-button
-        color="primary"
-        (click)="openExternalStorageAuthPopup()"
-        [disabled]="isLoading || isCheckingStatus">
-        <mat-spinner *ngIf="isLoading || isCheckingStatus" diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
-        Conectar ao Google Drive
-      </button>
+  <!-- Show this section when redirected from Google Drive auth -->
+  <div *ngIf="isRedirectedFromAuth" class="auth-success-section">
+    <div class="connected-section">
+      <mat-icon style="color: green; font-size: 48px;">check_circle</mat-icon>
+      <h3>Autenticação bem-sucedida!</h3>
+      <p>Sua conta do Google Drive foi conectada com sucesso.</p>
+      <p class="success-message">Você será redirecionado automaticamente em alguns segundos.</p>
+      
+      <div class="loading-section" *ngIf="isLoading">
+        <mat-spinner diameter="30"></mat-spinner>
+        <p>Redirecionando...</p>
+      </div>
+      
+      <div class="info-box" style="margin-top: 20px;">
+        <h4>Se você não for redirecionado automaticamente:</h4>
+        <p>Clique no botão abaixo para retornar à aplicação:</p>
+        <div class="button-group">
+          <button 
+            mat-raised-button
+            color="primary"
+            (click)="closeAndReturn()"
+            class="responsive-button">
+            Voltar para a Aplicação
+          </button>
+        </div>
+      </div>
     </div>
-    <div class="info-message" *ngIf="showAuthSuccessMessage">
-      <mat-icon style="color: green;">check_circle</mat-icon>
-      <p>Autenticação bem-sucedida! Esta janela será fechada automaticamente.</p>
+  </div>
+  
+  <!-- Show normal auth flow when not redirected -->
+  <div *ngIf="!isRedirectedFromAuth">
+    <div *ngIf="!isConnected && !isLoading" class="auth-section">
+      <p>Conecte-se ao seu Google Drive para armazenar arquivos na nuvem.</p>
+      <div class="button-group">
+        <button 
+          mat-raised-button
+          color="primary"
+          (click)="openExternalStorageAuthPopup()"
+          [disabled]="isLoading || isCheckingStatus"
+          class="responsive-button">
+          <mat-spinner *ngIf="isLoading || isCheckingStatus" diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+          Conectar ao Google Drive (Popup)
+        </button>
+      </div>
+      <div class="info-message" *ngIf="showAuthSuccessMessage">
+        <mat-icon style="color: green;">check_circle</mat-icon>
+        <p>Autenticação bem-sucedida! Esta janela será fechada automaticamente.</p>
+      </div>
+      
+      <div class="info-box">
+        <h4>Problemas com popups?</h4>
+        <p>Se o popup não abrir, verifique se seu navegador está bloqueando popups e tente novamente.</p>
+        <p>Você também pode fechar esta janela e tentar a autenticação novamente mais tarde.</p>
+      </div>
     </div>
-  </div>
-  
-  <div *ngIf="isConnected" class="connected-section">
-    <mat-icon style="color: green; font-size: 48px;">check_circle</mat-icon>
-    <h3>Conexão bem-sucedida</h3>
-    <p>Seu Google Drive está pronto para uso.</p>
-    <p class="success-message">Autenticação concluída com sucesso!</p>
-  </div>
-  
-  <div *ngIf="isLoading || isCheckingStatus" class="loading-section">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p *ngIf="isLoading">Gerando URL de autorização...</p>
-    <p *ngIf="isCheckingStatus">Verificando status da conexão...</p>
-  </div>
-  
-  <div *ngIf="error" class="alert alert-danger">
-    {{ getFriendlyErrorMessage(error) }}
+    
+    <div *ngIf="isConnected" class="connected-section">
+      <mat-icon style="color: green; font-size: 48px;">check_circle</mat-icon>
+      <h3>Conexão bem-sucedida</h3>
+      <p>Seu Google Drive está pronto para uso.</p>
+      <p class="success-message">Autenticação concluída com sucesso!</p>
+    </div>
+    
+    <div *ngIf="isLoading || isCheckingStatus" class="loading-section">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p *ngIf="isLoading">Gerando URL de autorização...</p>
+      <p *ngIf="isCheckingStatus">Verificando status da conexão...</p>
+    </div>
+    
+    <div *ngIf="error" class="alert alert-danger">
+      {{ getFriendlyErrorMessage(error) }}
+    </div>
   </div>
   
   <!-- Debug information -->

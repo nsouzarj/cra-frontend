@@ -45,6 +45,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
 import { ErrorHandlingInterceptor } from './core/interceptors/error-handling.interceptor';
+import { GoogleDriveInterceptor } from './core/interceptors/google-drive-interceptor.service';
 
 // Services
 import { PaginatorI18nService } from './shared/services/paginator-i18n.service';
@@ -125,6 +126,11 @@ registerLocaleData(localePt);
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ErrorHandlingInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: GoogleDriveInterceptor,
       multi: true
     },
     {

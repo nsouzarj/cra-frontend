@@ -130,63 +130,6 @@
   background-color: #fafafa;
 }
 
-.storage-radio-group {
-  display: flex;
-  flex-direction: row;
-  gap: 16px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.storage-option {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px;
-  border: 2px solid #e0e0e0;
-  border-radius: 12px;
-  background-color: #ffffff;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 120px;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.storage-option:hover {
-  border-color: #2196f3;
-  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.2);
-  transform: translateY(-2px);
-}
-
-.storage-option.mat-radio-button-checked {
-  border-color: #2196f3;
-  background-color: rgba(33, 150, 243, 0.05);
-  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.2);
-}
-
-.storage-option mat-icon {
-  font-size: 32px;
-  width: 32px;
-  height: 32px;
-  margin-bottom: 8px;
-  color: #666;
-}
-
-.storage-option.mat-radio-button-checked mat-icon {
-  color: #2196f3;
-}
-
-.storage-option span {
-  font-weight: 500;
-  color: #333;
-  font-size: 14px;
-}
-
-.storage-option.mat-radio-button-checked span {
-  color: #2196f3;
-}
-
 .file-input-container {
   display: flex;
   align-items: center;
@@ -341,6 +284,45 @@
   
   .attachment-actions {
     align-self: flex-end;
+  }
+  
+  /* Adjust storage options for mobile */
+  .storage-option {
+    min-width: 100px;
+    padding: 12px;
+  }
+  
+  .storage-option mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+  
+  .storage-option span {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  /* Further adjustments for very small screens */
+  .storage-radio-group {
+    gap: 8px;
+  }
+  
+  .storage-option {
+    min-width: 70px;
+    padding: 8px;
+  }
+  
+  .storage-option mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    margin-bottom: 4px;
+  }
+  
+  .storage-option span {
+    font-size: 10px;
   }
 }
 

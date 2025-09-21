@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -14,17 +14,31 @@ export class ExternalStorageService {
 
   /**
    * Get the authorization URL
+   * @param returnUrl Optional return URL to be passed as state parameter
    */
-  getAuthorizationUrl(): Observable<{ authorizationUrl: string }> {
+  getAuthorizationUrl(returnUrl?: string): Observable<{ authorizationUrl: string }> {
     console.log('Calling getAuthorizationUrl endpoint');
-    return this.http.get<{ authorizationUrl: string }>(`${this.apiUrl}/authorize`).pipe(
+    let url = `${this.apiUrl}/authorize`;
+    
+    // If we have a return URL, pass it as a query parameter
+    if (returnUrl) {
+      // Encode the return URL to make it safe for query parameters
+      const encodedReturnUrl = encodeURIComponent(returnUrl);
+      url += `?returnUrl=${encodedReturnUrl}`;
+    }
+    
+    return this.http.get<{ authorizationUrl: string }>(url).pipe(
       tap(response => {
         console.log('Authorization URL response:', response);
         console.log('Authorization URL:', response.authorizationUrl);
       }),
-      catchError((error) => {
+      catchError((error: HttpErrorResponse) => {
         console.error('Error getting authorization URL:', error);
-        return throwError(() => new Error('Failed to get authorization URL: ' + error.message));
+        // Log detailed error information
+        console.error('Error status:', error.status);
+        console.error('Error body:', error.error);
+        console.error('Error message:', error.message);
+        return throwError(() => new Error('Failed to get authorization URL: ' + (error.error?.message || error.message)));
       })
     );
   }
@@ -39,9 +53,13 @@ export class ExternalStorageService {
         console.log('Connection status response:', response);
         console.log('Is connected:', response.status === 'OK');
       }),
-      catchError((error) => {
+      catchError((error: HttpErrorResponse) => {
         console.error('Error getting connection status:', error);
-        return throwError(() => new Error('Failed to get connection status: ' + error.message));
+        // Log detailed error information
+        console.error('Error status:', error.status);
+        console.error('Error body:', error.error);
+        console.error('Error message:', error.message);
+        return throwError(() => new Error('Failed to get connection status: ' + (error.error?.message || error.message)));
       }
     ));
   }
@@ -73,11 +91,14 @@ export class ExternalStorageService {
    */
   testConnection(): Observable<any> {
     console.log('Testing Google Drive connection');
-    return this.http.get(`${this.apiUrl}/files`).pipe(
-      tap(response => console.log('Test connection response:', response)),
-      catchError((error) => {
-        console.error('Error testing connection:', error);
-        return throwError(() => new Error('Failed to test connection: ' + error.message));
+    return this.http.get<any>(`${this.apiUrl}/test`).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error testing Google Drive connection:', error);
+        // Log detailed error information
+        console.error('Error status:', error.status);
+        console.error('Error body:', error.error);
+        console.error('Error message:', error.message);
+        return throwError(() => new Error('Failed to test Google Drive connection: ' + (error.error?.message || error.message)));
       })
     );
   }

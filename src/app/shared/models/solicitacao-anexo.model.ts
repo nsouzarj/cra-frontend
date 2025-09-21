@@ -10,4 +10,5 @@ export interface SolicitacaoAnexo {
   origem?: string;
   ativo: boolean;
   caminhorelativo?: string;
+  storageLocation?: string;
 }

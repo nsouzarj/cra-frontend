@@ -237,7 +237,7 @@
                 </span>
               </div>
               <div class="attachment-actions">
-                <button mat-icon-button (click)="downloadAnexo(anexo.id!, anexo.nomearquivo)" 
+                <button mat-icon-button (click)="downloadAnexo(anexo.id!, anexo.nomearquivo, anexo.storageLocation)" 
                         [attr.aria-label]="'Baixar ' + anexo.nomearquivo"
                         matTooltip="Baixar arquivo"
                         class="download-button">

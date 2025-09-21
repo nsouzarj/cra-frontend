@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Observable, of } from 'rxjs';
 import { ExternalStorageService } from './external-storage.service';
 import { ExternalStorageAuthDialogComponent } from '../../features/auth/external-storage/external-storage-auth-dialog.component';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,8 @@ export class ExternalStorageAuthGuardService {
   
   constructor(
     private externalStorageService: ExternalStorageService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private router: Router
   ) { }
 
   // Check authentication and show dialog if needed
@@ -50,9 +52,11 @@ export class ExternalStorageAuthGuardService {
   // Show authentication dialog
   private showAuthDialog(): Observable<boolean> {
     const dialogRef = this.dialog.open(ExternalStorageAuthDialogComponent, {
-      width: '500px',
+      width: '500px',  // Reset to original width
       disableClose: true,
-      data: {}
+      data: {
+        returnUrl: this.router.url
+      }
     });
 
     return dialogRef.afterClosed();

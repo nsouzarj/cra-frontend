@@ -216,7 +216,33 @@ export class CorrespondentRequestDetailComponent implements OnInit {
   }
 
   // Method to download an attachment
-  downloadAnexo(anexoId: number, nomeArquivo: string): void {
+  downloadAnexo(anexoId: number, nomeArquivo: string, storageLocation?: string): void {
+    // Check storage location and proceed accordingly
+    if (storageLocation === 'google_drive') {
+      // For Google Drive, check external storage authentication before downloading
+      this.externalStorageAuthGuard.checkAuthentication().subscribe({
+        next: (isAuthenticated) => {
+          if (isAuthenticated) {
+            // Proceed with download if authenticated
+            this.performDownload(anexoId, nomeArquivo);
+          } else {
+            // Show message if not authenticated
+            this.snackBar.open('Download cancelado. Por favor, autentique-se com o armazenamento externo primeiro.', 'Fechar', { duration: 5000 });
+          }
+        },
+        error: (error) => {
+          console.error('Error checking authentication:', error);
+          this.snackBar.open('Erro ao verificar autenticação. Por favor, tente novamente.', 'Fechar', { duration: 5000 });
+        }
+      });
+    } else {
+      // For local storage, proceed directly
+      this.performDownload(anexoId, nomeArquivo);
+    }
+  }
+  
+  // Method to perform the actual download
+  private performDownload(anexoId: number, nomeArquivo: string): void {
     this.solicitacaoAnexoService.downloadAnexo(anexoId).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);

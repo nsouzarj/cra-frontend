@@ -19,6 +19,7 @@ import { ThemeDebugComponent } from './theme-debug.component'; // Added ThemeDeb
 import { ThemeTroubleshootComponent } from './theme-troubleshoot.component'; // Added ThemeTroubleshootComponent
 import { ThemeQuickTestComponent } from './theme-quick-test.component'; // Added ThemeQuickTestComponent
 import { ExternalStorageDebugComponent } from './features/auth/external-storage/external-storage-debug.component'; // Added ExternalStorageDebugComponent
+import { ExternalStorageAuthComponent } from './features/auth/external-storage/external-storage-auth.component'; // Added ExternalStorageAuthComponent
 
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -81,6 +82,8 @@ const routes: Routes = [
   { path: 'theme-troubleshoot', component: ThemeTroubleshootComponent }, // Added theme troubleshoot route
   { path: 'theme-quick-test', component: ThemeQuickTestComponent }, // Added theme quick test route
   { path: 'external-storage-debug', component: ExternalStorageDebugComponent }, // Added external storage debug route
+  { path: 'external-storage-auth', component: ExternalStorageAuthComponent }, // Added external storage auth route
+  { path: 'google-drive/callback', component: ExternalStorageAuthComponent }, // Added Google Drive callback route
   { path: 'unauthorized', component: UnauthorizedComponent },
   { path: '**', component: NotFoundComponent }
 ];

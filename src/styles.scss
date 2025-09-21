@@ -339,6 +339,22 @@ html, body {
   .action-buttons .mat-button {
     width: 100%;
   }
+  
+  /* Responsive styles for storage selection */
+  .storage-option {
+    min-width: 100px;
+    padding: 12px;
+  }
+  
+  .storage-option mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+  
+  .storage-option span {
+    font-size: 12px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -356,6 +372,18 @@ html, body {
   
   .button-container {
     margin-top: 16px;
+  }
+  
+  /* Responsive styles for storage selection */
+  .storage-radio-group {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .storage-option {
+    width: 100%;
+    max-width: 200px;
   }
 }
 
@@ -516,6 +544,67 @@ html, body {
     background-color: #3f51b5 !important;
     color: #ffffff !important;
   }
+}
+
+/* Global styles for storage selection alignment */
+.storage-radio-group {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.storage-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.storage-option:hover {
+  border-color: #2196f3;
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.2);
+  transform: translateY(-2px);
+}
+
+.storage-option.mat-radio-button-checked {
+  border-color: #2196f3;
+  background-color: rgba(33, 150, 243, 0.05);
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.2);
+}
+
+.storage-option mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 8px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.storage-option.mat-radio-button-checked mat-icon {
+  color: #2196f3;
+}
+
+.storage-option span {
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.storage-option.mat-radio-button-checked span {
+  color: #2196f3;
 }
 
 /* Dark Theme Styles */
@@ -2861,13 +2950,146 @@ html, body {
     margin-bottom: 12px;
   }
   
-  .data-table {
-    font-size: 12px;
+  .button-container {
+    margin-top: 16px;
   }
   
-  .table-header {
-    font-size: 12px;
+  /* Responsive styles for storage selection */
+  .storage-radio-group {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
   }
+  
+  .storage-option {
+    width: 100%;
+    max-width: 200px;
+  }
+}
+
+/* Additional responsive improvements for very small screens */
+@media (max-width: 320px) {
+  .content-container {
+    padding: 8px;
+  }
+  
+  .form-container {
+    padding: 8px;
+  }
+  
+  .mat-cell {
+    font-size: 10px;
+    padding: 4px 1px !important;
+  }
+  
+  .mat-header-cell {
+    font-size: 10px;
+    padding: 4px 1px !important;
+  }
+  
+  .mat-card {
+    padding: 8px !important;
+  }
+  
+  .mat-toolbar-row {
+    padding: 0 4px !important;
+  }
+  
+  h1 {
+    font-size: 20px !important;
+  }
+  
+  h2 {
+    font-size: 18px !important;
+  }
+  
+  h3 {
+    font-size: 16px !important;
+  }
+  
+  p {
+    font-size: 12px !important;
+  }
+  
+  /* Responsive styles for storage selection on very small screens */
+  .storage-option {
+    min-width: 70px;
+    padding: 8px;
+  }
+  
+  .storage-option mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    margin-bottom: 4px;
+  }
+  
+  .storage-option span {
+    font-size: 10px;
+  }
+}
+
+/* Global styles for storage selection alignment */
+.storage-radio-group {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.storage-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.storage-option:hover {
+  border-color: #2196f3;
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.2);
+  transform: translateY(-2px);
+}
+
+.storage-option.mat-radio-button-checked {
+  border-color: #2196f3;
+  background-color: rgba(33, 150, 243, 0.05);
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.2);
+}
+
+.storage-option mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 8px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.storage-option.mat-radio-button-checked mat-icon {
+  color: #2196f3;
+}
+
+.storage-option span {
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.storage-option.mat-radio-button-checked span {
+  color: #2196f3;
+}
+
   
   .mat-cell {
     font-size: 11px;
@@ -2923,49 +3145,3 @@ html, body {
   p {
     font-size: 14px !important;
   }
-}
-
-/* Additional responsive improvements for very small screens */
-@media (max-width: 320px) {
-  .content-container {
-    padding: 8px;
-  }
-  
-  .form-container {
-    padding: 8px;
-  }
-  
-  .mat-cell {
-    font-size: 10px;
-    padding: 4px 1px !important;
-  }
-  
-  .mat-header-cell {
-    font-size: 10px;
-    padding: 4px 1px !important;
-  }
-  
-  .mat-card {
-    padding: 8px !important;
-  }
-  
-  .mat-toolbar-row {
-    padding: 0 4px !important;
-  }
-  
-  h1 {
-    font-size: 20px !important;
-  }
-  
-  h2 {
-    font-size: 18px !important;
-  }
-  
-  h3 {
-    font-size: 16px !important;
-  }
-  
-  p {
-    font-size: 12px !important;
-  }
-}
