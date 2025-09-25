@@ -66,7 +66,7 @@
             </div>
             <div class="info-item">
               <label>Data de Entrada</label>
-              <span>{{ user.dataEntrada ? (user.dataEntrada | date:'dd/MM/yyyy HH:mm') : 'Não informado' }}</span>
+              <span>{{ user.dataentrada ? (user.dataentrada | date:'dd/MM/yyyy HH:mm') : 'Não informado' }}</span>
             </div>
           </div>
         </mat-card-content>
@@ -139,8 +139,8 @@
             <div class="empty-state">
               <mat-icon>info</mat-icon>
               <p>Este usuário é um correspondente, mas os dados não foram carregados.</p>
-              <p *ngIf="user && user.correspondentId">ID do Correspondente: {{ user.correspondentId }}</p>
-              <div *ngIf="user && !user.correspondentId" class="error-message">
+              <p *ngIf="user && user.correspondente?.id">ID do Correspondente: {{ user.correspondente?.id }}</p>
+              <div *ngIf="user && !user.correspondente?.id" class="error-message">
                 <p>Erro: ID do correspondente não encontrado nos dados do usuário.</p>
               </div>
             </div>

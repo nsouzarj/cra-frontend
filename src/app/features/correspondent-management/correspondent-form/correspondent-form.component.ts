@@ -392,7 +392,8 @@ export class CorrespondentFormComponent implements OnInit, OnDestroy {
           duration: 3000,
           panelClass: ['success-snackbar']
         });
-        this.router.navigate(['/correspondentes']);
+        // Navigate to correspondent detail page instead of list
+        this.router.navigate(['/correspondentes', correspondent.id]);
       },
       error: (error) => {
         this.loading = false;

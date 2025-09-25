@@ -27,7 +27,7 @@
         <mat-form-field appearance="outline">
           <mat-label>Comarca</mat-label>
           <mat-select [formControl]="comarcaFilterControl">
-            <mat-option value="">Todas</mat-option>
+            <mat-option value="">Todas ({{comarcas.length}})</mat-option>
             <mat-option *ngFor="let comarca of comarcas" [value]="comarca.id">
               {{ comarca.nome }}{{ comarca.uf ? '/' + comarca.uf.sigla : '' }}
             </mat-option>
@@ -69,7 +69,7 @@
   <mat-card class="table-card">
     <mat-card-content>
       <div class="table-header">
-        <span class="total-count">Total: {{ dataSource.data.length }} processo(s)</span>
+        <span class="total-count">Total: {{ totalElements }} processo(s)</span>
       </div>
 
       <div class="table-container" *ngIf="!loading">
@@ -146,7 +146,13 @@
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
 
-        <mat-paginator [pageSizeOptions]="[5, 10, 20, 50]" 
+        <!-- Pagination -->
+        <mat-paginator #paginator 
+                       [pageSizeOptions]="pageSizeOptions"
+                       [pageSize]="pageSize"
+                       [length]="totalElements"
+                       [pageIndex]="currentPage"
+                       (page)="paginatorPageChanged($event)"
                        showFirstLastButtons
                        aria-label="Selecionar página de processos">
         </mat-paginator>

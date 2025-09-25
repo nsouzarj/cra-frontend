@@ -60,7 +60,7 @@
             <div *ngIf="userFind?.correspondente; else noCorrespondentData">
               <div class="info-grid">
                 <div class="info-item">
-                  <label>Nome</label>
+                  <label>Nome {{userFind?.correspondente?.id}}</label>
                   <span>{{ userFind?.correspondente?.nome }}</span>
                 </div>
                 <div class="info-item">
@@ -89,7 +89,7 @@
               <div class="empty-state">
                 <mat-icon>info</mat-icon>
                 <p>Você é um correspondente, mas os dados não foram carregados.</p>
-                <p *ngIf="currentUser?.correspondentId">Correspondent ID: {{ userFind?.correspondente?.id }}</p>
+                <p *ngIf="currentUser?.correspondente?.id">Correspondent ID: {{ userFind?.correspondente?.id }}</p>
               </div>
             </ng-template>
           </mat-card-content>

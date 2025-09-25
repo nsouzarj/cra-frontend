@@ -43,32 +43,6 @@
           </div>
 
           <div class="form-row">
-            <mat-form-field class="form-field" appearance="outline" *ngIf="!isEditMode">
-              <mat-label>Senha *</mat-label>
-              <input matInput type="password" formControlName="senha">
-              <mat-error *ngIf="userForm.get('senha')?.hasError('required')">
-                Senha é obrigatória
-              </mat-error>
-              <mat-error *ngIf="userForm.get('senha')?.hasError('minlength')">
-                Senha deve ter pelo menos 6 caracteres
-              </mat-error>
-              <mat-error *ngIf="userForm.get('senha')?.hasError('maxlength')">
-                Senha deve ter no máximo 100 caracteres
-              </mat-error>
-            </mat-form-field>
-
-            <mat-form-field class="form-field" appearance="outline" *ngIf="isEditMode">
-              <mat-label>Senha</mat-label>
-              <input matInput type="password" formControlName="senha" placeholder="Deixe em branco para manter a senha atual">
-              <mat-hint>Deixe em branco para manter a senha atual</mat-hint>
-              <mat-error *ngIf="userForm.get('senha')?.hasError('minlength')">
-                Senha deve ter pelo menos 6 caracteres
-              </mat-error>
-              <mat-error *ngIf="userForm.get('senha')?.hasError('maxlength')">
-                Senha deve ter no máximo 100 caracteres
-              </mat-error>
-            </mat-form-field>
-
             <mat-form-field class="form-field" appearance="outline">
               <mat-label>Tipo de Usuário *</mat-label>
               <mat-select formControlName="tipo">
@@ -80,11 +54,9 @@
                 Tipo de usuário é obrigatório
               </mat-error>
             </mat-form-field>
-          </div>
-          
-          <!-- Correspondent Selection (only for Correspondente type users) -->
-          <div class="form-row" *ngIf="showCorrespondentField">
-            <mat-form-field class="form-field full-width" appearance="outline">
+            
+            <!-- Correspondent Selection (only for Correspondente type users) -->
+            <mat-form-field class="form-field" appearance="outline" *ngIf="showCorrespondentField">
               <mat-label>Correspondente *</mat-label>
               <mat-select formControlName="correspondente" placeholder="Selecione um correspondente">
                 <mat-option *ngFor="let correspondente of correspondentes" [value]="correspondente.id">
@@ -151,6 +123,11 @@
             <span *ngIf="!loading">{{ isEditMode ? 'Atualizar' : 'Criar' }}</span>
             <span *ngIf="loading">{{ isEditMode ? 'Atualizando...' : 'Criando...' }}</span>
           </button>
+          <!-- Back to User List Button -->
+          <button mat-raised-button type="button" (click)="onBackToList()" class="back-button">
+            <mat-icon>arrow_back</mat-icon>
+            Voltar para Lista
+          </button>
         </div>
       </form>
     </mat-card-content>
@@ -160,7 +137,6 @@
   <mat-card class="form-card" *ngIf="isEditMode">
     <mat-card-header>
       <mat-card-title>Alterar Senha</mat-card-title>
-      <mat-card-subtitle>Deixe em branco para manter a senha atual</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>

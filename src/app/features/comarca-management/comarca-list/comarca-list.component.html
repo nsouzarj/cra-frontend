@@ -124,6 +124,13 @@
       <p>Nenhuma comarca encontrada</p>
     </div>
 
-    <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+    <mat-paginator 
+      [pageSizeOptions]="pageSizeOptions"
+      [pageSize]="pageSize"
+      [length]="totalElements"
+      [pageIndex]="currentPage"
+      (page)="paginatorPageChanged($event)"
+      showFirstLastButtons>
+    </mat-paginator>
   </div>
 </div>

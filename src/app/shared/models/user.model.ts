@@ -10,16 +10,11 @@ export interface User {
   emailresponsavel?: string;
   tipo: UserType;
   ativo: boolean;
-  dataEntrada?: string;
+  dataentrada?: string;
   authorities?: string[];
   
   // Reference to correspondent (for CORRESPONDENTE type users)
-  correspondentId?: number;
   correspondente?: Correspondente;
-  
-  // Handle potential alternative field names from backend
-  emailPrincipal?: string;
-  nomeCompleto?: string;
 }
 
 export enum UserType {
@@ -58,8 +53,4 @@ export interface JwtResponse {
   // Correspondent data for correspondent users
   correspondentId?: number;
   correspondente?: Correspondente;
-  
-  // Handle potential alternative field names from backend
-  emailPrincipal?: string;
-  nomeCompleto?: string;
 }

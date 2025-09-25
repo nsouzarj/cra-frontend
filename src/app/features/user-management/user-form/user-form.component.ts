@@ -62,12 +62,18 @@ export class UserFormComponent implements OnInit, OnDestroy {
     // Subscribe to tipo changes to show/hide correspondent field
     this.userForm.get('tipo')?.valueChanges.subscribe(tipo => {
       this.showCorrespondentField = tipo === UserType.CORRESPONDENTE;
-      if (this.showCorrespondentField) {
-        this.userForm.get('correspondente')?.setValidators([Validators.required]);
-      } else {
-        this.userForm.get('correspondente')?.clearValidators();
-      }
+      console.log('Tipo changed to:', tipo, 'Show correspondent field:', this.showCorrespondentField);
+      // Remove the required validator - users can have no correspondent associated
+      this.userForm.get('correspondente')?.clearValidators();
       this.userForm.get('correspondente')?.updateValueAndValidity();
+    });
+    
+    // Subscribe to correspondent changes for debugging
+    this.userForm.get('correspondente')?.valueChanges.subscribe(value => {
+      console.log('=== CORRESPONDENT FIELD CHANGED ===');
+      console.log('Correspondent field value changed to:', value);
+      console.log('Current form state:', this.userForm.value);
+      console.log('=== END CORRESPONDENT FIELD CHANGED ===');
     });
     
     this.setupThemeListener();
@@ -99,7 +105,6 @@ export class UserFormComponent implements OnInit, OnDestroy {
     const form = this.formBuilder.group({
       login: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
       nomecompleto: ['', [Validators.required, Validators.maxLength(255)]],
-      senha: ['', this.isEditMode ? [] : [Validators.required, Validators.minLength(6), Validators.maxLength(100)]],
       tipo: ['', [Validators.required]],
       correspondente: [null],
       emailprincipal: ['', [Validators.email]],
@@ -113,8 +118,8 @@ export class UserFormComponent implements OnInit, OnDestroy {
 
   private createPasswordForm(): FormGroup {
     const form = this.formBuilder.group({
-      novaSenha: ['', [Validators.minLength(6)]],
-      confirmarSenha: ['']
+      novaSenha: ['', [Validators.required, Validators.minLength(6)]],
+      confirmarSenha: ['', [Validators.required]]
     });
 
     // Add custom validator to check if passwords match
@@ -137,12 +142,15 @@ export class UserFormComponent implements OnInit, OnDestroy {
   }
 
   loadCorrespondentes(): void {
+    console.log('Loading correspondentes in user form...');
     this.correspondenteService.getCorrespondentes().subscribe({
       next: (correspondentes) => {
+        console.log('Correspondentes loaded in user form:', correspondentes);
         this.correspondentes = correspondentes;
+        console.log('Correspondentes array updated in user form, length:', this.correspondentes.length);
       },
       error: (error) => {
-        console.error('Error loading correspondentes:', error);
+        console.error('Error loading correspondentes in user form:', error);
         this.snackBar.open('Erro ao carregar correspondentes', 'Fechar', {
           duration: 5000,
           panelClass: ['error-snackbar']
@@ -157,11 +165,15 @@ export class UserFormComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.userService.getUserById(this.userId).subscribe({
       next: (user) => {
+        console.log('=== LOADING USER DATA ===');
+        console.log('User data received from backend:', user);
+        console.log('User correspondente:', user.correspondente);
+        
         this.userForm.patchValue({
           login: user.login,
           nomecompleto: user.nomecompleto,
           tipo: user.tipo,
-          correspondente: user.correspondentId,
+          correspondente: user.correspondente?.id || null,
           emailprincipal: user.emailprincipal,
           emailsecundario: user.emailsecundario,
           emailresponsavel: user.emailresponsavel,
@@ -170,6 +182,9 @@ export class UserFormComponent implements OnInit, OnDestroy {
 
         // Set the showCorrespondentField flag based on user type
         this.showCorrespondentField = user.tipo === UserType.CORRESPONDENTE;
+        
+        console.log('Form correspondente field value after loading:', this.userForm.get('correspondente')?.value);
+        console.log('=== END LOADING USER DATA ===');
         
         this.loading = false;
       },
@@ -186,65 +201,263 @@ export class UserFormComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
+    // Check if correspondent field is required and valid
+    // Only require correspondent if user type is CORRESPONDENTE and user is trying to set one
+    if (this.showCorrespondentField && this.userForm.get('correspondente')?.invalid) {
+      this.markFormGroupTouched();
+      return;
+    }
+
     if (this.userForm.invalid) return;
 
+    // Show confirmation dialog
+    const action = this.isEditMode ? 'atualizar' : 'criar';
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Confirmar operação',
+        message: `Tem certeza que deseja ${action} este usuário?`,
+        confirmText: 'SIM',
+        cancelText: 'NÃO'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.proceedWithSave();
+      }
+    });
+  }
+
+  private proceedWithSave(): void {
     this.loading = true;
     
     const formData = this.userForm.value;
-    const userData: any = {
-      login: formData.login,
-      nomecompleto: formData.nomecompleto,
-      tipo: formData.tipo,
-      emailprincipal: formData.emailprincipal,
-      emailsecundario: formData.emailsecundario,
-      emailresponsavel: formData.emailresponsavel,
-      ativo: formData.ativo
-    };
+    
+    // Debug: Log form data
+    console.log('=== FORM SUBMISSION DEBUG ===');
+    console.log('Form Data:', formData);
+    console.log('Show Correspondent Field:', this.showCorrespondentField);
+    console.log('Correspondent Value:', formData.correspondente);
+    console.log('User Type:', formData.tipo);
+    console.log('Is Correspondent Type:', formData.tipo === UserType.CORRESPONDENTE);
+    
+    // First, get the current user data to preserve authorities
+    let userData: any = {};
+    
+    if (this.isEditMode && this.userId) {
+      // For edit mode, we need to get the current user data first to preserve authorities
+      this.userService.getUserById(this.userId).subscribe({
+        next: (currentUser) => {
+          // Preserve the authorities from the current user
+          userData = {
+            id: currentUser.id,
+            login: formData.login,
+            nomecompleto: formData.nomecompleto,
+            tipo: formData.tipo,
+            emailprincipal: formData.emailprincipal,
+            emailsecundario: formData.emailsecundario,
+            emailresponsavel: formData.emailresponsavel,
+            ativo: formData.ativo,
+            authorities: currentUser.authorities || [] // Preserve authorities
+          };
 
-    // Add password only for new users or if it's provided in edit mode
-    if (!this.isEditMode || formData.senha) {
-      userData.senha = formData.senha;
-    }
+          // Add password only for new users or if it's provided in edit mode
+          if (!this.isEditMode && formData.senha) {
+            userData.senha = formData.senha;
+          }
 
-    // Add correspondentId for correspondent users
-    if (formData.tipo === UserType.CORRESPONDENTE && formData.correspondente) {
-      userData.correspondentId = formData.correspondente;
-    }
+          // Add correspondent for correspondent users (following the same pattern as comarca/UF)
+          if (formData.tipo === UserType.CORRESPONDENTE) {
+            // If a correspondent is selected, send it as { id: correspondentId }
+            if (formData.correspondente) {
+              userData.correspondente = { id: formData.correspondente };
+              console.log('Setting correspondente as ID object:', { id: formData.correspondente });
+            } else {
+              // For correspondent users, if no correspondent is selected, send null to clear any existing association
+              userData.correspondente = null;
+              console.log('Setting correspondente to null for correspondent user type');
+            }
+          } else {
+            console.log('Not setting correspondente. Tipo:', formData.tipo);
+          }
 
-    const operation = this.isEditMode && this.userId
-      ? this.userService.updateUser(this.userId, userData)
-      : this.userService.createUser(userData);
+          console.log('Final user data being sent:', userData);
+          console.log('Final user data as JSON:', JSON.stringify(userData, null, 2));
+          
+          // Additional debugging - check if the correspondente property exists in the object
+          if ('correspondente' in userData) {
+            console.log('Correspondente property exists in userData');
+            console.log('Correspondente value:', userData.correspondente);
+            if (userData.correspondente) {
+              console.log('Correspondente is truthy');
+              console.log('Correspondente type:', typeof userData.correspondente);
+              console.log('Correspondente keys:', Object.keys(userData.correspondente));
+            } else {
+              console.log('Correspondente is falsy');
+            }
+          } else {
+            console.log('Correspondente property does NOT exist in userData');
+          }
+          
+          console.log('=== END DEBUG ===');
 
-    operation.subscribe({
-      next: (user) => {
-        this.loading = false;
-        const message = this.isEditMode ? 'Usuário atualizado com sucesso!' : 'Usuário criado com sucesso!';
-        this.snackBar.open(message, 'Fechar', {
-          duration: 3000,
-          panelClass: ['success-snackbar']
-        });
-        this.router.navigate(['/usuarios']);
-      },
-      error: (error) => {
-        this.loading = false;
-        console.error('Error saving user:', error);
-        
-        let message = 'Erro ao salvar usuário.';
-        if (error.status === 400) {
-          message = 'Dados inválidos ou login já existe.';
+          const operation = this.isEditMode && this.userId
+            ? this.userService.updateUser(this.userId, userData)
+            : this.userService.createUser(userData);
+
+          operation.subscribe({
+            next: (user) => {
+              this.loading = false;
+              const message = this.isEditMode ? 'Usuário atualizado com sucesso!' : 'Usuário criado com sucesso!';
+              this.snackBar.open(message, 'Fechar', {
+                duration: 3000,
+                panelClass: ['success-snackbar']
+              });
+              // Navigate to user detail page instead of list
+              this.router.navigate(['/usuarios', user.id]);
+            },
+            error: (error) => {
+              this.loading = false;
+              console.error('Error saving user:', error);
+              
+              let message = 'Erro ao salvar usuário.';
+              if (error.status === 400) {
+                message = 'Dados inválidos ou login já existe.';
+              }
+              
+              this.snackBar.open(message, 'Fechar', {
+                duration: 5000,
+                panelClass: ['error-snackbar']
+              });
+            }
+          });
+        },
+        error: (error) => {
+          this.loading = false;
+          console.error('Error getting current user data:', error);
+          this.snackBar.open('Erro ao obter dados do usuário atual', 'Fechar', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
         }
-        
-        this.snackBar.open(message, 'Fechar', {
-          duration: 5000,
-          panelClass: ['error-snackbar']
-        });
+      });
+    } else {
+      // For new users, create userData without preserving authorities
+      userData = {
+        login: formData.login,
+        nomecompleto: formData.nomecompleto,
+        tipo: formData.tipo,
+        emailprincipal: formData.emailprincipal,
+        emailsecundario: formData.emailsecundario,
+        emailresponsavel: formData.emailresponsavel,
+        ativo: formData.ativo
+      };
+
+      // Add password only for new users or if it's provided in edit mode
+      if (!this.isEditMode && formData.senha) {
+        userData.senha = formData.senha;
       }
+
+      // Add correspondent for correspondent users (following the same pattern as comarca/UF)
+      if (formData.tipo === UserType.CORRESPONDENTE) {
+        // If a correspondent is selected, send it as { id: correspondentId }
+        if (formData.correspondente) {
+          userData.correspondente = { id: formData.correspondente };
+          console.log('Setting correspondente as ID object:', { id: formData.correspondente });
+        } else {
+          // For correspondent users, if no correspondent is selected, send null to clear any existing association
+          userData.correspondente = null;
+          console.log('Setting correspondente to null for correspondent user type');
+        }
+      } else {
+        console.log('Not setting correspondente. Tipo:', formData.tipo);
+      }
+
+      console.log('Final user data being sent:', userData);
+      console.log('Final user data as JSON:', JSON.stringify(userData, null, 2));
+      
+      // Additional debugging - check if the correspondente property exists in the object
+      if ('correspondente' in userData) {
+        console.log('Correspondente property exists in userData');
+        console.log('Correspondente value:', userData.correspondente);
+        if (userData.correspondente) {
+          console.log('Correspondente is truthy');
+          console.log('Correspondente type:', typeof userData.correspondente);
+          console.log('Correspondente keys:', Object.keys(userData.correspondente));
+        } else {
+          console.log('Correspondente is falsy');
+        }
+      } else {
+        console.log('Correspondente property does NOT exist in userData');
+      }
+      
+      console.log('=== END DEBUG ===');
+
+      const operation = this.isEditMode && this.userId
+        ? this.userService.updateUser(this.userId, userData)
+        : this.userService.createUser(userData);
+
+      operation.subscribe({
+        next: (user) => {
+          this.loading = false;
+          const message = this.isEditMode ? 'Usuário atualizado com sucesso!' : 'Usuário criado com sucesso!';
+          this.snackBar.open(message, 'Fechar', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+          // Navigate to user detail page instead of list
+          this.router.navigate(['/usuarios', user.id]);
+        },
+        error: (error) => {
+          this.loading = false;
+          console.error('Error saving user:', error);
+          
+          let message = 'Erro ao salvar usuário.';
+          if (error.status === 400) {
+            message = 'Dados inválidos ou login já existe.';
+          }
+          
+          this.snackBar.open(message, 'Fechar', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
+        }
+      });
+    }
+  }
+
+  private markFormGroupTouched() {
+    Object.keys(this.userForm.controls).forEach(key => {
+      const control = this.userForm.get(key);
+      control?.markAsTouched();
     });
   }
 
   onChangePassword(): void {
     if (this.passwordForm.invalid || !this.userId) return;
 
+    // Show confirmation dialog
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Confirmar alteração de senha',
+        message: 'Tem certeza que deseja alterar a senha deste usuário?',
+        confirmText: 'SIM',
+        cancelText: 'NÃO'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.proceedWithPasswordChange();
+      }
+    });
+  }
+
+  private proceedWithPasswordChange(): void {
+    if (!this.userId) return;
+    
     this.changingPassword = true;
     
     const newPassword = this.passwordForm.get('novaSenha')?.value;
@@ -276,5 +489,10 @@ export class UserFormComponent implements OnInit, OnDestroy {
   // Helper method to check if correspondent field should be shown
   shouldShowCorrespondentField(): boolean {
     return this.showCorrespondentField;
+  }
+
+  // New method to navigate back to user list
+  onBackToList(): void {
+    this.router.navigate(['/usuarios']);
   }
 }

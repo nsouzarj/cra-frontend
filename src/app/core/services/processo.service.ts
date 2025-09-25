@@ -6,6 +6,7 @@ import { Processo, Orgao } from '../../shared/models/processo.model';
 import { Comarca } from '../../shared/models/comarca.model';
 import { ComarcaService } from './comarca.service';
 import { environment } from '../../../environments/environment';
+import { PaginatedResponse } from '../../shared/models/api-response.model';
 
 /**
  * Service for managing legal processes in the CRA system
@@ -196,7 +197,20 @@ export class ProcessoService {
    * @returns Observable containing array of court districts
    */
   getComarcas(): Observable<Comarca[]> {
-    return this.comarcaService.getComarcas();
+    // For backward compatibility, we fetch all comarcas (first page with large size)
+    return new Observable<Comarca[]>(observer => {
+      this.comarcaService.getComarcas(0, 1000, 'nome', 'ASC').subscribe({
+        next: (response) => {
+          console.log('ProcessoService - Comarcas response:', response); // Debug log
+          observer.next(response.content);
+          observer.complete();
+        },
+        error: (error) => {
+          console.error('ProcessoService - Error loading comarcas:', error); // Debug log
+          observer.error(error);
+        }
+      });
+    });
   }
 
   /**
@@ -206,6 +220,99 @@ export class ProcessoService {
    */
   getOrgaos(): Observable<Orgao[]> {
     return this.http.get<Orgao[]>(`${environment.apiUrl}/api/orgaos`)
+      .pipe(catchError(this.handleError));
+  }
+
+  /**
+   * Retrieves processes with pagination support
+   * 
+   * @param page Page number (0-based)
+   * @param size Number of items per page
+   * @param sortBy Field to sort by
+   * @param direction Sort direction (ASC or DESC)
+   * @returns Observable containing paginated response
+   */
+  getProcessosPaginated(page: number, size: number, sortBy: string, direction: string): Observable<PaginatedResponse<Processo>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sortBy', sortBy)
+      .set('direction', direction);
+      
+    return this.http.get<PaginatedResponse<Processo>>(this.apiUrl, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  /**
+   * Searches for processes by search term with pagination
+   * 
+   * @param searchTerm The term to search for
+   * @param page Page number (0-based)
+   * @param size Number of items per page
+   * @param sortBy Field to sort by
+   * @param direction Sort direction (ASC or DESC)
+   * @returns Observable containing paginated response
+   */
+  searchProcessosPaginated(searchTerm: string, page: number, size: number, sortBy: string, direction: string): Observable<PaginatedResponse<Processo>> {
+    let params = new HttpParams()
+      .set('termo', searchTerm)
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sortBy', sortBy)
+      .set('direction', direction);
+      
+    return this.http.get<PaginatedResponse<Processo>>(`${this.apiUrl}/buscar/pesquisar`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  /**
+   * Searches for processes by comarca with pagination
+   * 
+   * @param comarcaId The comarca ID to filter by
+   * @param page Page number (0-based)
+   * @param size Number of items per page
+   * @returns Observable containing paginated response
+   */
+  searchByComarcaPaginated(comarcaId: number, page: number, size: number): Observable<PaginatedResponse<Processo>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+      
+    return this.http.get<PaginatedResponse<Processo>>(`${this.apiUrl}/buscar/comarca/${comarcaId}`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  /**
+   * Searches for processes by orgao with pagination
+   * 
+   * @param orgaoId The orgao ID to filter by
+   * @param page Page number (0-based)
+   * @param size Number of items per page
+   * @returns Observable containing paginated response
+   */
+  searchByOrgaoPaginated(orgaoId: number, page: number, size: number): Observable<PaginatedResponse<Processo>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+      
+    return this.http.get<PaginatedResponse<Processo>>(`${this.apiUrl}/buscar/orgao/${orgaoId}`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  /**
+   * Searches for processes by status with pagination
+   * 
+   * @param status The status to filter by
+   * @param page Page number (0-based)
+   * @param size Number of items per page
+   * @returns Observable containing paginated response
+   */
+  searchByStatusPaginated(status: string, page: number, size: number): Observable<PaginatedResponse<Processo>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+      
+    return this.http.get<PaginatedResponse<Processo>>(`${this.apiUrl}/buscar/status/${status}`, { params })
       .pipe(catchError(this.handleError));
   }
 

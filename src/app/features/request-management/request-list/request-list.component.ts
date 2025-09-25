@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SolicitacaoService } from '../../../core/services/solicitacao.service';
@@ -16,6 +17,7 @@ import { AuthService } from '@/app/core/services/auth.service';
 import { PermissionService } from '@/app/core/services/permission.service';
 import { ConfirmationDialogComponent } from '@/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { Subscription } from 'rxjs';
+import { PaginatedResponse } from '../../../shared/models/api-response.model';
 
 @Component({
   selector: 'app-request-list',
@@ -24,9 +26,10 @@ import { Subscription } from 'rxjs';
 })
 export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
   dataSource = new MatTableDataSource<Solicitacao>();
-  displayedColumns: string[] = ['id', 'tipoSolicitacao', 'processo', 'correspondente', 'status', 'actions'];
+  displayedColumns: string[] = ['id', 'datasolicitacao', 'dataprazo', 'tipoSolicitacao', 'processo', 'correspondente', 'status', 'actions'];
   loading = true;
   statuses: SolicitacaoStatus[] = [];
   
@@ -36,11 +39,23 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
   filterProcesso: string = '';
   filterComarca: number | null = null;
   filterOrgao: number | null = null;
+  filterDataSolicitacaoFrom: Date | null = null;
+  filterDataSolicitacaoTo: Date | null = null;
+  filterDataPrazoFrom: Date | null = null;
+  filterDataPrazoTo: Date | null = null;
   
   // Filter options
   processos: Processo[] = [];
   comarcas: Comarca[] = [];
   orgaos: Orgao[] = [];
+  
+  // Pagination properties
+  pageSize = 20;
+  pageSizeOptions: number[] = [5, 10, 20, 50, 100];
+  totalElements = 0;
+  currentPage = 0;
+  sortBy = 'id';
+  sortDirection = 'ASC';
 
   private themeSubscription: Subscription | null = null;
 
@@ -58,26 +73,24 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    console.log('Inicializando componente de listagem de solicitações'); // Adicionando log para debug
-    this.loadRequests();
     this.loadStatuses();
     this.loadFilterOptions();
     this.setupThemeListener();
-    
-    // Verificando se o paginator está disponível
-    console.log('Paginator disponível no ngOnInit:', this.paginator); // Adicionando log para debug
   }
 
   ngAfterViewInit(): void {
-    // Ensure paginator is connected to data source
-    console.log('Configurando paginator'); // Adicionando log para debug
-    this.dataSource.paginator = this.paginator;
-    console.log('Paginator configurado:', this.paginator); // Adicionando log para debug
-    console.log('DataSource paginator:', this.dataSource.paginator); // Adicionando log para debug
+    // Set up sort
+    if (this.sort) {
+      this.sort.sortChange.subscribe(() => {
+        this.sortBy = this.sort.active;
+        this.sortDirection = this.sort.direction.toUpperCase() || 'ASC';
+        this.currentPage = 0;
+        this.loadRequests();
+      });
+    }
     
-    // Forçando a detecção de mudanças
-    this.cdr.detectChanges();
-    console.log('Detecção de mudanças forçada após configuração do paginator'); // Adicionando log para debug
+    // Load initial data
+    this.loadRequests();
   }
 
   ngOnDestroy(): void {
@@ -104,127 +117,102 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadRequests(): void {
-    this.solicitacaoService.getSolicitacoes().subscribe({
-      next: (solicitacoes) => {
-        console.log('Solicitações carregadas:', solicitacoes); // Adicionando log para debug
-        console.log('Quantidade de solicitações:', solicitacoes.length); // Adicionando log para debug
-        
-        // Verificando se os dados estão corretos
-        if (Array.isArray(solicitacoes)) {
-          console.log('Os dados são um array'); // Adicionando log para debug
-          this.dataSource.data = solicitacoes;
-          
-          // Verificando se os dados foram atribuídos corretamente
-          console.log('Dados atribuídos ao dataSource:', this.dataSource.data); // Adicionando log para debug
-          console.log('Tamanho do dataSource:', this.dataSource.data.length); // Adicionando log para debug
-          
-          // Verificando se o paginator está conectado
-          console.log('Paginator está conectado:', this.paginator); // Adicionando log para debug
-          console.log('DataSource paginator:', this.dataSource.paginator); // Adicionando log para debug
-          
-          // Forçando a detecção de mudanças
-          this.cdr.detectChanges();
-          console.log('Detecção de mudanças forçada'); // Adicionando log para debug
-          
-          // Tentando conectar o paginator novamente após a detecção de mudanças
-          setTimeout(() => {
-            if (this.paginator) {
-              console.log('Conectando paginator após detecção de mudanças'); // Adicionando log para debug
-              this.dataSource.paginator = this.paginator;
-              console.log('Paginator conectado após detecção de mudanças:', this.paginator); // Adicionando log para debug
-              console.log('DataSource paginator após conexão:', this.dataSource.paginator); // Adicionando log para debug
-              
-              // Forçando a detecção de mudanças novamente
-              this.cdr.detectChanges();
-              console.log('Detecção de mudanças forçada após conexão do paginator'); // Adicionando log para debug
-            }
-          }, 100);
-        } else {
-          console.error('Os dados não são um array:', solicitacoes); // Adicionando log para debug
-          this.dataSource.data = [];
-        }
-        
-        this.loading = false;
-        
-        // Tentando conectar o paginator novamente após o carregamento dos dados
-        setTimeout(() => {
-          if (this.paginator) {
-            console.log('Conectando paginator após carregamento dos dados'); // Adicionando log para debug
-            this.dataSource.paginator = this.paginator;
-            console.log('Paginator conectado após carregamento dos dados:', this.paginator); // Adicionando log para debug
-            console.log('DataSource paginator após conexão:', this.dataSource.paginator); // Adicionando log para debug
-            
-            // Forçando a detecção de mudanças novamente
-            this.cdr.detectChanges();
-            console.log('Detecção de mudanças forçada após conexão do paginator'); // Adicionando log para debug
-            
-            // Atualizando a tabela
-            this.refreshTable();
-          }
-        }, 200);
-        
-        // Forçando a atualização da tabela imediatamente
-        this.refreshTable();
-        
-        // Forçando a atualização da tabela após um pequeno delay
-        setTimeout(() => {
-          this.refreshTable();
-        }, 300);
-        
-        // Forçando a atualização da tabela após um delay maior
-        setTimeout(() => {
-          this.refreshTable();
-        }, 500);
-        
-        // Forçando a atualização da tabela após um delay extremamente maior
-        setTimeout(() => {
-          this.refreshTable();
-        }, 1000);
-        
-        // Forçando a atualização da tabela após um delay extremamente maior ainda
-        setTimeout(() => {
-          this.refreshTable();
-        }, 2000);
-        
-        // Forçando a atualização da tabela após um delay extremamente maior ainda
-        setTimeout(() => {
-          this.refreshTable();
-        }, 5000);
-        
-        // Forçando a atualização da tabela após um delay extremamente maior ainda
-        setTimeout(() => {
-          this.refreshTable();
-        }, 10000);
-      },
-      error: (error) => {
-        console.error('Error loading requests:', error);
-        this.dataSource.data = [];
-        this.loading = false;
-      }
-    });
-  }
-  
-  // Método para forçar a atualização da tabela
-  refreshTable(): void {
-    console.log('Atualizando tabela'); // Adicionando log para debug
-    this.cdr.detectChanges();
-    console.log('Detecção de mudanças forçada na atualização da tabela'); // Adicionando log para debug
+    this.loading = true;
     
-    // Forçando a atualização da tabela novamente
-    setTimeout(() => {
-      this.cdr.detectChanges();
-      console.log('Detecção de mudanças forçada na atualização da tabela (segunda vez)'); // Adicionando log para debug
-    }, 100);
+    // Check if we have a search term
+    const searchTerm = this.filterSearch;
+    const statusFilter = this.filterStatus;
+    const comarcaFilter = this.filterComarca;
+    
+    if (searchTerm) {
+      // Use search endpoint with pagination
+      this.solicitacaoService.searchSolicitacoesPaginated(
+        searchTerm,
+        this.currentPage,
+        this.pageSize,
+        this.sortBy,
+        this.sortDirection
+      ).subscribe({
+        next: (response: PaginatedResponse<Solicitacao>) => {
+          this.handlePaginatedResponse(response);
+        },
+        error: (error) => {
+          this.handleLoadError(error);
+        }
+      });
+    } else if (statusFilter) {
+      // Use status filter endpoint with pagination
+      this.solicitacaoService.searchByStatusPaginated(
+        statusFilter,
+        this.currentPage,
+        this.pageSize
+      ).subscribe({
+        next: (response: PaginatedResponse<Solicitacao>) => {
+          this.handlePaginatedResponse(response);
+        },
+        error: (error) => {
+          this.handleLoadError(error);
+        }
+      });
+    } else if (comarcaFilter) {
+      // Use comarca filter endpoint with pagination
+      this.solicitacaoService.searchByComarcaPaginated(
+        comarcaFilter,
+        this.currentPage,
+        this.pageSize
+      ).subscribe({
+        next: (response: PaginatedResponse<Solicitacao>) => {
+          this.handlePaginatedResponse(response);
+        },
+        error: (error) => {
+          this.handleLoadError(error);
+        }
+      });
+    } else {
+      // Use default endpoint with pagination
+      this.solicitacaoService.getSolicitacoesPaginated(
+        this.currentPage,
+        this.pageSize,
+        this.sortBy,
+        this.sortDirection
+      ).subscribe({
+        next: (response: PaginatedResponse<Solicitacao>) => {
+          this.handlePaginatedResponse(response);
+        },
+        error: (error) => {
+          this.handleLoadError(error);
+        }
+      });
+    }
   }
-  
-  private connectPaginator(): void {
-    // This method is no longer needed with the simplified approach
+
+  private handlePaginatedResponse(response: PaginatedResponse<Solicitacao>): void {
+    this.dataSource.data = response.content;
+    // USE totalTableElements for correct pagination - this is the total count across all pages
+    this.totalElements = response.totalTableElements ?? response.totalElements;
+    
+    // Update paginator
+    if (this.paginator) {
+      this.paginator.length = this.totalElements;
+      this.paginator.pageIndex = this.currentPage;
+      this.paginator.pageSize = this.pageSize;
+    }
+    
+    this.loading = false;
+  }
+
+  private handleLoadError(error: any): void {
+    console.error('Error loading requests:', error);
+    this.loading = false;
+    this.snackBar.open('Erro ao carregar solicitações', 'Fechar', {
+      duration: 5000,
+      panelClass: ['error-snackbar']
+    });
   }
 
   loadStatuses(): void {
     this.solicitacaoStatusService.getSolicitacaoStatuses().subscribe({
       next: (statuses) => {
-        console.log('Status das solicitações carregados:', statuses); // Adicionando log para debug
         this.statuses = statuses;
       },
       error: (error) => {
@@ -237,7 +225,6 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
     // Load processos
     this.processoService.getProcessos().subscribe({
       next: (processos) => {
-        console.log('Processos carregados:', processos); // Adicionando log para debug
         this.processos = processos;
       },
       error: (error) => {
@@ -245,10 +232,9 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-    // Load comarcas
-    this.comarcaService.getComarcas().subscribe({
+    // Load comarcas (using getAllComarcas for filter options)
+    this.comarcaService.getAllComarcas().subscribe({
       next: (comarcas) => {
-        console.log('Comarcas carregadas:', comarcas); // Adicionando log para debug
         this.comarcas = comarcas;
       },
       error: (error) => {
@@ -259,7 +245,6 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
     // Load orgaos
     this.orgaoService.getOrgaos().subscribe({
       next: (orgaos) => {
-        console.log('Órgãos carregados:', orgaos); // Adicionando log para debug
         this.orgaos = orgaos;
       },
       error: (error) => {
@@ -288,80 +273,51 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   applyFilter(): void {
-    console.log('Aplicando filtros:'); // Adicionando log para debug
-    console.log('Status:', this.filterStatus); // Adicionando log para debug
-    console.log('Pesquisa:', this.filterSearch); // Adicionando log para debug
-    console.log('Processo:', this.filterProcesso); // Adicionando log para debug
-    console.log('Comarca:', this.filterComarca); // Adicionando log para debug
-    console.log('Órgão:', this.filterOrgao); // Adicionando log para debug
-    
-    this.dataSource.filterPredicate = (solicitacao: Solicitacao, filter: string): boolean => {
-      // Filter by status
-      const statusMatch = this.filterStatus ? 
-        solicitacao.statusSolicitacao?.status === this.filterStatus : true;
-      
-      // Filter by search term (in complemento field) - removed as we're no longer using this field for filtering
-      // const searchMatch = this.filterSearch ? 
-      //   solicitacao.complemento?.toLowerCase().includes(this.filterSearch.toLowerCase()) : true;
-      
-      // Filter by processo
-      const processoMatch = this.filterProcesso ? 
-        solicitacao.processo?.numeroprocesso?.toLowerCase().includes(this.filterProcesso.toLowerCase()) : true;
-      
-      // Filter by comarca
-      const comarcaMatch = this.filterComarca ? 
-        solicitacao.processo?.comarca?.id === this.filterComarca : true;
-      
-      // Filter by orgao
-      const orgaoMatch = this.filterOrgao ? 
-        solicitacao.processo?.orgao?.id === this.filterOrgao : true;
-      
-      console.log('Resultado do filtro para solicitação', solicitacao.id, ':', 
-                  statusMatch && processoMatch && comarcaMatch && orgaoMatch); // Adicionando log para debug
-      
-      return Boolean(statusMatch && processoMatch && comarcaMatch && orgaoMatch);
-    };
-
-    // Trigger the filter
-    this.dataSource.filter = 'trigger';
-    
-    // Reset paginator to first page when filtering
+    this.currentPage = 0;
     if (this.paginator) {
-      this.paginator.firstPage();
+      this.paginator.pageIndex = 0;
     }
+    this.loadRequests();
   }
 
   clearFilters(): void {
-    console.log('Limpando filtros'); // Adicionando log para debug
     this.filterStatus = '';
     this.filterSearch = '';
     this.filterProcesso = '';
     this.filterComarca = null;
     this.filterOrgao = null;
-    
-    // Clear the filter
-    this.dataSource.filter = '';
-    
-    // Reset paginator to first page when clearing filters
+    this.filterDataSolicitacaoFrom = null;
+    this.filterDataSolicitacaoTo = null;
+    this.filterDataPrazoFrom = null;
+    this.filterDataPrazoTo = null;
+    this.currentPage = 0;
     if (this.paginator) {
-      this.paginator.firstPage();
+      this.paginator.pageIndex = 0;
     }
+    this.loadRequests();
   }
-  
-  // Updated delete request method with confirmation dialog
+
+  // Handle paginator page change events
+  paginatorPageChanged(event: PageEvent): void {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.loadRequests();
+  }
+
+  viewRequest(solicitacao: Solicitacao): void {
+    // Implementation for viewing a request
+  }
+
+  editRequest(solicitacao: Solicitacao): void {
+    // Implementation for editing a request
+  }
+
   deleteRequest(id: number): void {
-    // Find the request to get its description for the confirmation dialog
-    const solicitacao = this.dataSource.data.find(s => s.id === id);
-    const descricao = solicitacao?.complemento || `ID: ${id}`;
-    
-    // Open confirmation dialog
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: '400px',
       data: {
         title: 'Confirmar Exclusão',
-        message: `Tem certeza que deseja excluir a solicitação "${descricao}"?`,
-        confirmText: 'SIM',
-        cancelText: 'NÃO'
+        message: 'Tem certeza que deseja excluir esta solicitação? Esta ação não pode ser desfeita.'
       }
     });
 
@@ -369,25 +325,15 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
       if (result) {
         this.solicitacaoService.deleteSolicitacao(id).subscribe({
           next: () => {
-            // Remove the deleted request from the data source
-            const updatedData = this.dataSource.data.filter(s => s.id !== id);
-            this.dataSource.data = updatedData;
-            
-            // If we're using pagination, we might need to refresh the paginator
-            if (this.paginator) {
-              this.paginator._changePageSize(this.paginator.pageSize);
-            }
-            
-            // Show success message
-            this.snackBar.open('Solicitação excluída com sucesso!', 'Fechar', {
+            this.snackBar.open('Solicitação excluída com sucesso', 'Fechar', {
               duration: 3000,
               panelClass: ['success-snackbar']
             });
+            // Reload the requests after deletion
+            this.loadRequests();
           },
           error: (error) => {
-            console.error('Erro ao excluir solicitação:', error);
-            
-            // Show error message
+            console.error('Error deleting request:', error);
             this.snackBar.open('Erro ao excluir solicitação', 'Fechar', {
               duration: 5000,
               panelClass: ['error-snackbar']

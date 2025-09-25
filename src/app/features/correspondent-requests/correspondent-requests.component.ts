@@ -1,13 +1,16 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { SolicitacaoService } from '../../core/services/solicitacao.service';
 import { AuthService } from '../../core/services/auth.service';
 import { TipoSolicitacaoService } from '../../core/services/tiposolicitacao.service';
+import { ComarcaService } from '../../core/services/comarca.service';
 import { Solicitacao, SolicitacaoStatus } from '../../shared/models/solicitacao.model';
 import { TipoSolicitacao } from '../../shared/models/tiposolicitacao.model';
+import { Comarca } from '../../shared/models/comarca.model';
 import { User } from '../../shared/models/user.model';
 import { ConfirmationDialogComponent } from '../../shared/components/confirmation-dialog/confirmation-dialog.component';
 
@@ -18,9 +21,10 @@ import { ConfirmationDialogComponent } from '../../shared/components/confirmatio
 })
 export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
   dataSource = new MatTableDataSource<Solicitacao>();
-  displayedColumns: string[] = ['id', 'tipoSolicitacao', 'processo', 'correspondente', 'status', 'actions'];
+  displayedColumns: string[] = ['id', 'datasolicitacao', 'dataprazo', 'tipoSolicitacao', 'processo', 'correspondente', 'status', 'actions'];
   loading = true;
   
   // Filter properties
@@ -29,9 +33,15 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
   filterProcesso: string = '';
   filterCorrespondente: string = '';
   filterTipo: string = ''; // This will now hold the tipo ID instead of text
+  filterComarca: number | null = null; // Add comarca filter
+  filterDataSolicitacaoFrom: Date | null = null;
+  filterDataSolicitacaoTo: Date | null = null;
+  filterDataPrazoFrom: Date | null = null;
+  filterDataPrazoTo: Date | null = null;
   
   // Available tipos de solicitação for the dropdown
   tiposSolicitacao: TipoSolicitacao[] = [];
+  comarcas: Comarca[] = []; // Add comarcas array for filter options
   
   currentUser: User | null = null;
 
@@ -39,6 +49,7 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
     private solicitacaoService: SolicitacaoService,
     private authService: AuthService,
     private tipoSolicitacaoService: TipoSolicitacaoService,
+    private comarcaService: ComarcaService, // Add comarca service
     private snackBar: MatSnackBar,
     private dialog: MatDialog
   ) {}
@@ -46,10 +57,12 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.loadCurrentUserAndRequests();
     this.loadTiposSolicitacao();
+    this.loadComarcas(); // Add this to load comarcas for filter
   }
 
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
   }
 
   loadCurrentUserAndRequests(): void {
@@ -57,7 +70,7 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
     
     // If we don't have user data or correspondent data, fetch from server
     if (!this.currentUser || 
-        (this.authService.isCorrespondente() && !this.currentUser.correspondente && !this.currentUser.correspondentId)) {
+        (this.authService.isCorrespondente() && !this.currentUser.correspondente)) {
       this.authService.getCurrentUser().subscribe({
         next: (user) => {
           this.currentUser = user;
@@ -78,7 +91,6 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
     this.tipoSolicitacaoService.getTiposSolicitacao().subscribe({
       next: (tipos) => {
         this.tiposSolicitacao = tipos;
-        console.log('Loaded tipos de solicitação:', tipos);
       },
       error: (error) => {
         console.error('Error loading tipos de solicitação:', error);
@@ -87,40 +99,91 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
     });
   }
 
+  loadComarcas(): void {
+    // Load comarcas for filter options
+    this.comarcaService.getAllComarcas().subscribe({
+      next: (comarcas) => {
+        this.comarcas = comarcas;
+        console.log('Loaded', this.comarcas.length, 'comarcas for filter');
+      },
+      error: (error) => {
+        console.error('Error loading comarcas:', error);
+        this.snackBar.open('Erro ao carregar comarcas', 'Fechar', { duration: 5000 });
+      }
+    });
+  }
+
   loadRequests(): void {
-    console.log('Current user:', this.currentUser);
+    console.log('loadRequests called with currentUser:', this.currentUser);
+    console.log('filterComarca:', this.filterComarca);
+    console.log('currentUser.correspondente:', this.currentUser?.correspondente);
     
     if (this.currentUser && this.currentUser.id) {
-      console.log('User ID found:', this.currentUser.id);
-      // Load requests specifically for the current user's correspondent
-      this.solicitacaoService.searchByUserCorrespondente(this.currentUser.id).subscribe({
-        next: (solicitacoes) => {
-          console.log('Requests loaded for user correspondent:', solicitacoes);
-          this.dataSource.data = solicitacoes;
-          this.loading = false;
-          
-          // Connect paginator after data is loaded
-          setTimeout(() => {
-            if (this.paginator) {
-              this.dataSource.paginator = this.paginator;
-            }
-          }, 0);
-        },
-        error: (error) => {
-          console.error('Error loading requests:', error);
-          this.dataSource.data = [];
-          this.loading = false;
-          this.snackBar.open('Erro ao carregar solicitações', 'Fechar', { duration: 5000 });
-        }
-      });
+      // Check if we have a comarca filter
+      if (this.filterComarca && this.currentUser.correspondente?.id) {
+        console.log('Loading requests filtered by comarca:', this.filterComarca, 'and correspondent:', this.currentUser.correspondente.id);
+        // Load requests for the current user's correspondent filtered by comarca
+        this.solicitacaoService.searchByComarcaAndCorrespondentePaginated(
+          this.filterComarca, 
+          this.currentUser.correspondente.id
+        ).subscribe({
+          next: (response) => {
+            console.log('Received paginated response filtered by comarca:', response);
+            this.dataSource.data = response.content || [];
+            this.loading = false;
+            console.log('Loaded', this.dataSource.data.length, 'requests filtered by comarca');
+            
+            // Connect paginator and sort after data is loaded
+            setTimeout(() => {
+              if (this.paginator) {
+                this.dataSource.paginator = this.paginator;
+              }
+              if (this.sort) {
+                this.dataSource.sort = this.sort;
+              }
+            }, 0);
+          },
+          error: (error) => {
+            console.error('Error loading requests:', error);
+            this.dataSource.data = [];
+            this.loading = false;
+            this.snackBar.open('Erro ao carregar solicitações', 'Fechar', { duration: 5000 });
+          }
+        });
+      } else {
+        console.log('Loading all requests for correspondent:', this.currentUser.id);
+        // Load requests specifically for the current user's correspondent
+        this.solicitacaoService.searchByUserCorrespondente(this.currentUser.id).subscribe({
+          next: (solicitacoes) => {
+            console.log('Received all solicitacoes for correspondent:', solicitacoes);
+            this.dataSource.data = solicitacoes;
+            this.loading = false;
+            console.log('Loaded', this.dataSource.data.length, 'requests for correspondent');
+            
+            // Connect paginator and sort after data is loaded
+            setTimeout(() => {
+              if (this.paginator) {
+                this.dataSource.paginator = this.paginator;
+              }
+              if (this.sort) {
+                this.dataSource.sort = this.sort;
+              }
+            }, 0);
+          },
+          error: (error) => {
+            console.error('Error loading requests:', error);
+            this.dataSource.data = [];
+            this.loading = false;
+            this.snackBar.open('Erro ao carregar solicitações', 'Fechar', { duration: 5000 });
+          }
+        });
+      }
     } else if (this.currentUser && this.authService.isCorrespondente()) {
       // If we don't have user ID, show an error
-      console.log('User is correspondent but no user ID found');
       this.loading = false;
       this.snackBar.open('Erro ao carregar dados do usuário', 'Fechar', { duration: 5000 });
     } else {
       // User is not a correspondent
-      console.log('User is not a correspondent');
       this.loading = false;
       this.snackBar.open('Acesso restrito a correspondentes', 'Fechar', { duration: 5000 });
     }
@@ -146,36 +209,18 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
   }
 
   applyFilter(): void {
-    this.dataSource.filterPredicate = (solicitacao: Solicitacao, filter: string): boolean => {
-      // Filter by status
-      const statusMatch = this.filterStatus ? 
-        solicitacao.statusSolicitacao?.status === this.filterStatus : true;
-      
-      // Filter by search term (in processo field instead of complemento)
-      const searchMatch = this.filterSearch ? 
-        solicitacao.processo?.numeroprocesso?.toLowerCase().includes(this.filterSearch.toLowerCase()) : true;
-      
-      // Filter by processo
-      const processoMatch = this.filterProcesso ? 
-        solicitacao.processo?.numeroprocesso?.toLowerCase().includes(this.filterProcesso.toLowerCase()) : true;
-      
-      // Filter by correspondente
-      const correspondenteMatch = this.filterCorrespondente ? 
-        solicitacao.correspondente?.nome?.toLowerCase().includes(this.filterCorrespondente.toLowerCase()) : true;
-      
-      // Filter by tipo (now comparing ID instead of text)
-      const tipoMatch = this.filterTipo ? 
-        solicitacao.tipoSolicitacao?.idtiposolicitacao === Number(this.filterTipo) : true;
-      
-      return Boolean(statusMatch && searchMatch && processoMatch && correspondenteMatch && tipoMatch);
-    };
-
-    // Trigger the filter
-    this.dataSource.filter = 'trigger';
+    console.log('applyFilter called with filterComarca:', this.filterComarca);
+    // Always reload requests, the loadRequests method will handle the filtering logic
+    this.loadRequests();
     
     // Reset paginator to first page when filtering
     if (this.paginator) {
       this.paginator.firstPage();
+    }
+    
+    // Re-apply sorting after filtering
+    if (this.sort) {
+      this.dataSource.sort = this.sort;
     }
   }
 
@@ -185,6 +230,11 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
     this.filterProcesso = '';
     this.filterCorrespondente = '';
     this.filterTipo = '';
+    this.filterComarca = null; // Add this line
+    this.filterDataSolicitacaoFrom = null;
+    this.filterDataSolicitacaoTo = null;
+    this.filterDataPrazoFrom = null;
+    this.filterDataPrazoTo = null;
     
     // Clear the filter
     this.dataSource.filter = '';
@@ -193,6 +243,9 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
     if (this.paginator) {
       this.paginator.firstPage();
     }
+    
+    // Reload requests to show all
+    this.loadRequests();
   }
   
   refreshData(): void {
@@ -298,7 +351,6 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
             }
             
             this.snackBar.open('Status atualizado com sucesso!', 'Fechar', { duration: 3000 });
-            console.log('Status updated successfully for solicitacao:', updated);
           },
           error: (error) => {
             console.error('Error updating status:', error);

@@ -6,13 +6,16 @@ import { ProcessoService } from '../../core/services/processo.service';
 import { SolicitacaoService } from '../../core/services/solicitacao.service';
 import { SolicitacaoStatusService } from '../../core/services/solicitacao-status.service';
 import { TipoSolicitacaoService } from '../../core/services/tiposolicitacao.service';
+import { ComarcaService } from '../../core/services/comarca.service';
+import { DashboardService, DashboardData, MappedDashboardData, ChartData } from '../../core/services/dashboard.service';
 import { User } from '../../shared/models/user.model';
 import { Correspondente } from '../../shared/models/correspondente.model';
 import { Processo } from '../../shared/models/processo.model';
 import { Solicitacao, SolicitacaoStatus } from '../../shared/models/solicitacao.model';
 import { TipoSolicitacao } from '../../shared/models/tiposolicitacao.model';
-import { forkJoin } from 'rxjs';
-import { catchError, of } from 'rxjs';
+import { Comarca } from '../../shared/models/comarca.model';
+import { forkJoin, Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
 interface DashboardStats {
@@ -24,17 +27,22 @@ interface DashboardStats {
   processosEmAndamento: number;
   totalSolicitacoes: number;
   solicitacoesPendentes: number;
+  totalComarcas?: number;
+  comarcasAtivas?: number;
+  comarcasInativas?: number;
 }
 
-interface ChartData {
-  labels: string[];
-  values: number[];
-  colors: string[];
+// Add interface for top comarcas
+interface TopComarca {
+  comarcaId: number;
+  comarcaNome: string;
+  uf: string;
+  count: number;
 }
 
 interface TipoSolicitacaoCount {
   audiencia: number;
-  diligencia: number;
+  diligencia: number
 }
 
 @Component({
@@ -61,11 +69,14 @@ export class AdminDashboardComponent implements OnInit {
     diligencia: 0
   };
 
-  // Chart data
+  // Add top comarcas array
+  topComarcas: TopComarca[] = [];
+
+  // Chart data - now using the imported ChartData interface
   entityTypeChart: ChartData = {
-    labels: ['Usuários', 'Correspondentes', 'Processos', 'Solicitações'],
-    values: [0, 0, 0, 0],
-    colors: ['#667eea', '#f093fb', '#4facfe', '#43e97b']
+    labels: ['Usuários', 'Correspondentes', 'Processos', 'Solicitações', 'Comarcas'],
+    values: [0, 0, 0, 0, 0],
+    colors: ['#667eea', '#f093fb', '#4facfe', '#43e97b', '#ff6b6b']
   };
 
   entityStatusChart: ChartData = {
@@ -134,15 +145,27 @@ export class AdminDashboardComponent implements OnInit {
     private solicitacaoService: SolicitacaoService,
     private solicitacaoStatusService: SolicitacaoStatusService,
     private tipoSolicitacaoService: TipoSolicitacaoService,
+    private comarcaService: ComarcaService,
+    private dashboardService: DashboardService,
     private router: Router
   ) {}
+
+  // Method to manually refresh dashboard data
+  refreshDashboard(): void {
+    this.loading = true;
+    this.loadDashboardData();
+  }
 
   ngOnInit(): void {
     this.currentUser = this.authService.currentUserValue;
     
-    // Redirect non-admin users to their specific dashboard
-    if (this.authService.isCorrespondente()) {
-      this.router.navigate(['/correspondent-dashboard']);
+    // Allow both admin and advogado users to access this dashboard
+    if (!this.authService.isAdmin() && !this.authService.isAdvogado()) {
+      if (this.authService.isCorrespondente()) {
+        this.router.navigate(['/correspondent-dashboard']);
+      } else {
+        this.router.navigate(['/unauthorized']);
+      }
       return;
     }
     
@@ -154,13 +177,76 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   private loadDashboardData(): void {
-    const requests = [];
+    // Try to use the dedicated dashboard API first
+    this.dashboardService.getDashboardData().pipe(
+      catchError((error) => {
+        // Call the fallback method directly instead of returning an Observable
+        this.loadDashboardDataFallback();
+        // Return an observable that never emits to prevent the subscribe block from executing
+        return new Observable<never>(() => {});
+      })
+    ).subscribe({
+      next: (dashboardData) => {
+        // Map the dashboard data to our stats using the service method
+        const mappedData = this.dashboardService.mapDashboardData(dashboardData);
+        
+        this.stats = {
+          totalUsers: mappedData.totalUsers,
+          activeUsers: mappedData.activeUsers,
+          totalCorrespondentes: mappedData.totalCorrespondentes,
+          activeCorrespondentes: mappedData.activeCorrespondentes,
+          totalProcessos: mappedData.totalProcessos,
+          processosEmAndamento: mappedData.processosEmAndamento,
+          totalSolicitacoes: mappedData.totalSolicitacoes,
+          solicitacoesPendentes: mappedData.solicitacoesPendentes,
+          totalComarcas: mappedData.totalComarcas,
+          comarcasAtivas: mappedData.comarcasAtivas,
+          comarcasInativas: mappedData.comarcasInativas
+        };
+        
+        // Set top comarcas data
+        if (dashboardData.topComarcas && Array.isArray(dashboardData.topComarcas)) {
+          this.topComarcas = dashboardData.topComarcas.map(comarca => ({
+            comarcaId: comarca.comarcaId,
+            comarcaNome: comarca.comarcaNome,
+            uf: comarca.uf,
+            count: comarca.count
+          }));
+        }
+        
+        // Map the audiencia and diligencia counts
+        this.tipoSolicitacaoCounts = {
+          audiencia: mappedData.audienciaCount,
+          diligencia: mappedData.diligenciaCount
+        };
+        
+        // Update chart data
+        this.updateChartData();
+        
+        // Map and set the solicitacoes por status chart data
+        this.solicitacoesPorStatusChart = this.dashboardService.mapSolicitacoesPorStatusData(dashboardData);
+        
+        this.loading = false;
+      },
+      error: (error) => {
+        // This will only be called if there's an error in the subscribe block itself
+      }
+    });
+  }
+  
+  // Fallback method to load dashboard data using individual services
+  private loadDashboardDataFallback(): void {
+    const requests: Observable<any>[] = [];
 
     // Add user-related requests for admin/advogado
     if (this.canViewUsers()) {
       requests.push(
-        this.userService.getUsers().pipe(catchError(() => of([]))),
-        this.userService.getActiveUsers().pipe(catchError(() => of([])))
+        this.userService.getUsers().pipe(catchError((error) => {
+          return of([]);
+        })),
+        this.userService.getActiveUsers().pipe(catchError((error) => {
+          return of([]);
+        }))
       );
     } else {
       requests.push(of([]), of([])); // Placeholder values
@@ -168,26 +254,37 @@ export class AdminDashboardComponent implements OnInit {
 
     // Add correspondent requests
     requests.push(
-      this.correspondenteService.getCorrespondentes().pipe(catchError(() => of([]))),
-      this.correspondenteService.getActiveCorrespondentes().pipe(catchError(() => of([])))
+      this.correspondenteService.getCorrespondentes().pipe(catchError((error) => {
+        return of([]);
+      })),
+      this.correspondenteService.getActiveCorrespondentes().pipe(catchError((error) => {
+        return of([]);
+      }))
     );
 
     // Add process requests
     requests.push(
-      this.processoService.getProcessos().pipe(catchError(() => of([]))),
-      this.processoService.searchByStatus('EM_ANDAMENTO').pipe(catchError(() => of([])))
+      this.processoService.getProcessos().pipe(catchError((error) => {
+        return of([]);
+      })),
+      this.processoService.searchByStatus('EM_ANDAMENTO').pipe(catchError((error) => {
+        return of([]);
+      }))
     );
 
     // Add solicitacao requests
     requests.push(
-      this.solicitacaoService.getSolicitacoes().pipe(catchError(() => of([]))),
-      this.solicitacaoService.searchByStatus('Pendente').pipe(catchError(() => of([])))
+      this.solicitacaoService.getSolicitacoes().pipe(catchError((error) => {
+        return of([]);
+      })),
+      this.solicitacaoService.searchByStatus('Pendente').pipe(catchError((error) => {
+        return of([]);
+      }))
     );
 
     // Add solicitacao status requests
     requests.push(
       this.solicitacaoStatusService.getSolicitacaoStatuses().pipe(catchError((error) => {
-        console.error('Error fetching solicitacao statuses:', error);
         return of([]);
       }))
     );
@@ -195,34 +292,60 @@ export class AdminDashboardComponent implements OnInit {
     // Add tipo solicitacao requests
     requests.push(
       this.tipoSolicitacaoService.getTiposSolicitacao().pipe(catchError((error) => {
-        console.error('Error fetching tipo solicitacoes:', error);
         return of([]);
+      }))
+    );
+
+    // Add comarca requests
+    requests.push(
+      this.comarcaService.getComarcasCount().pipe(catchError((error) => {
+        return of(0);
       }))
     );
 
     forkJoin(requests).subscribe({
       next: (results) => {
-        const [
+        let [
           allUsers, activeUsers,
           allCorrespondentes, activeCorrespondentes,
           allProcessos, processosEmAndamento,
           allSolicitacoes, solicitacoesPendentes,
           solicitacaoStatuses,
-          tipoSolicitacoes
-        ] = results as [User[], User[], Correspondente[], Correspondente[], Processo[], Processo[], Solicitacao[], Solicitacao[], SolicitacaoStatus[], TipoSolicitacao[]];
+          tipoSolicitacoes,
+          totalComarcas // Add this
+        ] = results as [User[], User[], Correspondente[], Correspondente[], Processo[], Processo[], Solicitacao[], Solicitacao[], SolicitacaoStatus[], TipoSolicitacao[], number];
 
-        console.log('Dashboard data loaded:', {
-          allUsers: allUsers.length,
-          activeUsers: activeUsers.length,
-          allCorrespondentes: allCorrespondentes.length,
-          activeCorrespondentes: activeCorrespondentes.length,
-          allProcessos: allProcessos.length,
-          processosEmAndamento: processosEmAndamento.length,
-          allSolicitacoes: allSolicitacoes.length,
-          solicitacoesPendentes: solicitacoesPendentes.length,
-          solicitacaoStatuses: solicitacaoStatuses.length,
-          tipoSolicitacoes: tipoSolicitacoes.length
-        });
+        // Validate that all arrays are actually arrays
+        if (!Array.isArray(allUsers)) {
+          allUsers = [];
+        }
+        if (!Array.isArray(activeUsers)) {
+          activeUsers = [];
+        }
+        if (!Array.isArray(allCorrespondentes)) {
+          allCorrespondentes = [];
+        }
+        if (!Array.isArray(activeCorrespondentes)) {
+          activeCorrespondentes = [];
+        }
+        if (!Array.isArray(allProcessos)) {
+          allProcessos = [];
+        }
+        if (!Array.isArray(processosEmAndamento)) {
+          processosEmAndamento = [];
+        }
+        if (!Array.isArray(allSolicitacoes)) {
+          allSolicitacoes = [];
+        }
+        if (!Array.isArray(solicitacoesPendentes)) {
+          solicitacoesPendentes = [];
+        }
+        if (!Array.isArray(solicitacaoStatuses)) {
+          solicitacaoStatuses = [];
+        }
+        if (!Array.isArray(tipoSolicitacoes)) {
+          tipoSolicitacoes = [];
+        }
 
         this.stats = {
           totalUsers: allUsers.length,
@@ -232,57 +355,67 @@ export class AdminDashboardComponent implements OnInit {
           totalProcessos: allProcessos.length,
           processosEmAndamento: processosEmAndamento.length,
           totalSolicitacoes: allSolicitacoes.length,
-          solicitacoesPendentes: solicitacoesPendentes.length
+          solicitacoesPendentes: solicitacoesPendentes.length,
+          totalComarcas: totalComarcas // Add this
         };
 
         // Count audiencia and diligencia types
-        this.countTipoSolicitacoes(allSolicitacoes);
+        const tipoSolicitacaoCounts = { audiencia: 0, diligencia: 0 };
+        
+        // Ensure solicitacoes is an array before processing
+        if (Array.isArray(allSolicitacoes)) {
+          allSolicitacoes.forEach((solicitacao) => {
+            if (solicitacao.tipoSolicitacao?.especie) {
+              const especie = solicitacao.tipoSolicitacao.especie.toLowerCase();
+              
+              // More flexible matching for audiencia terms
+              if (especie.includes('audiencia') || especie.includes('audiência') || 
+                  especie.includes('audiência') || especie.includes('hearing')) {
+                tipoSolicitacaoCounts.audiencia++;
+              } 
+              // More flexible matching for diligencia terms
+              else if (especie.includes('diligencia') || especie.includes('diligência') || 
+                       especie.includes('diligence') || especie.includes('dilig') ||
+                       especie.includes('diligência') || especie.includes('diligencia') ||
+                       especie.includes('dilligence') || especie.includes('dilligência')) {
+                tipoSolicitacaoCounts.diligencia++;
+              }
+            }
+          });
+        }
 
+        // Update the component's tipoSolicitacaoCounts
+        this.tipoSolicitacaoCounts = tipoSolicitacaoCounts;
+        
         // Update chart data
         this.updateChartData();
         
         // Load solicitacoes by status data
         this.loadSolicitacoesPorStatusData(solicitacaoStatuses);
 
-        // Log chart data for debugging
-        this.logBarChartData();
-
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error loading dashboard data:', error);
+        // Set default values to prevent empty dashboard
+        this.stats = {
+          totalUsers: 0,
+          activeUsers: 0,
+          totalCorrespondentes: 0,
+          activeCorrespondentes: 0,
+          totalProcessos: 0,
+          processosEmAndamento: 0,
+          totalSolicitacoes: 0,
+          solicitacoesPendentes: 0
+        };
+        
+        // Set loading to false even on error to prevent infinite loading state
         this.loading = false;
       }
     });
   }
 
-  private countTipoSolicitacoes(solicitacoes: Solicitacao[]): void {
-    // Reset counts
-    this.tipoSolicitacaoCounts = {
-      audiencia: 0,
-      diligencia: 0
-    };
-
-    // Count audiencia and diligencia types
-    solicitacoes.forEach(solicitacao => {
-      if (solicitacao.tipoSolicitacao?.especie) {
-        const especie = solicitacao.tipoSolicitacao.especie.toLowerCase();
-        if (especie.includes('audiencia') || especie.includes('audiência')) {
-          this.tipoSolicitacaoCounts.audiencia++;
-        } else if (especie.includes('diligencia') || especie.includes('diligência')) {
-          this.tipoSolicitacaoCounts.diligencia++;
-        }
-      }
-    });
-
-    console.log('Tipo solicitacao counts:', this.tipoSolicitacaoCounts);
-  }
-
   private loadSolicitacoesPorStatusData(statuses: SolicitacaoStatus[]): void {
-    console.log('Loading solicitacoes por status data:', statuses);
-    
-    if (!statuses || statuses.length === 0) {
-      console.log('No statuses found, initializing empty chart');
+    if (!statuses || !Array.isArray(statuses) || statuses.length === 0) {
       // Initialize with empty data
       this.solicitacoesPorStatusChart = {
         labels: ['Nenhum status encontrado'],
@@ -292,19 +425,18 @@ export class AdminDashboardComponent implements OnInit {
       return;
     }
 
-    // Log all available statuses first
-    console.log('Available statuses:', statuses.map(s => ({ status: s.status, id: s.idstatus })));
-
     // Instead of searching for each status individually, let's get all solicitations
     // and group them by status to avoid mismatches
     this.solicitacaoService.getSolicitacoes().pipe(
       catchError((error) => {
-        console.error('Error fetching all solicitacoes:', error);
         return of([]);
       })
     ).subscribe({
       next: (solicitacoes: Solicitacao[]) => {
-        console.log(`Fetched ${solicitacoes.length} total solicitacoes`);
+        // Ensure solicitacoes is an array
+        if (!Array.isArray(solicitacoes)) {
+          solicitacoes = [];
+        }
         
         // Group solicitations by status
         const solicitacoesPorStatus: { [key: string]: number } = {};
@@ -322,8 +454,6 @@ export class AdminDashboardComponent implements OnInit {
           }
         });
         
-        console.log('Grouped solicitacoes por status:', solicitacoesPorStatus);
-        
         // Update chart data with distinct colors for each status
         const labels = Object.keys(solicitacoesPorStatus);
         const values = Object.values(solicitacoesPorStatus);
@@ -334,11 +464,8 @@ export class AdminDashboardComponent implements OnInit {
           values: values,
           colors: colors
         };
-        
-        console.log('Updated solicitacoesPorStatusChart:', this.solicitacoesPorStatusChart);
       },
       error: (error) => {
-        console.error('Error loading solicitacoes por status data:', error);
         // Fallback: search for each status individually
         this.loadSolicitacoesPorStatusDataFallback(statuses);
       }
@@ -346,15 +473,21 @@ export class AdminDashboardComponent implements OnInit {
   }
   
   private loadSolicitacoesPorStatusDataFallback(statuses: SolicitacaoStatus[]): void {
-    console.log('Using fallback method to load solicitacoes por status data');
+    if (!statuses || !Array.isArray(statuses) || statuses.length === 0) {
+      // Initialize with empty data
+      this.solicitacoesPorStatusChart = {
+        labels: ['Nenhum status encontrado'],
+        values: [1],
+        colors: ['#cccccc']
+      };
+      return;
+    }
     
     const statusRequests = statuses.map(status => {
       const cleanStatus = status.status.trim();
-      console.log(`Fetching solicitacoes for status: "${cleanStatus}" (ID: ${status.idstatus})`);
       
       return this.solicitacaoService.searchByStatus(cleanStatus).pipe(
         catchError((error) => {
-          console.error(`Error fetching solicitacoes for status "${cleanStatus}":`, error);
           return of([]);
         })
       );
@@ -367,15 +500,13 @@ export class AdminDashboardComponent implements OnInit {
         
         statuses.forEach((status, index) => {
           const cleanStatus = status.status.trim();
-          const solicitacoes = results[index] as Solicitacao[];
+          // Ensure the result is an array
+          const solicitacoes = Array.isArray(results[index]) ? results[index] : [];
           const count = solicitacoes.length;
           
-          console.log(`Status "${cleanStatus}" has ${count} solicitacoes`);
           solicitacoesPorStatus[cleanStatus] = count;
           totalSolicitacoes += count;
         });
-
-        console.log('Solicitacoes por status data (fallback):', solicitacoesPorStatus);
 
         // Update chart data
         let labels = Object.keys(solicitacoesPorStatus);
@@ -394,11 +525,8 @@ export class AdminDashboardComponent implements OnInit {
           values: values,
           colors: colors
         };
-        
-        console.log('Updated solicitacoesPorStatusChart (fallback):', this.solicitacoesPorStatusChart);
       },
       error: (error) => {
-        console.error('Error in fallback method:', error);
         // Initialize with error data
         this.solicitacoesPorStatusChart = {
           labels: ['Erro ao carregar dados'],
@@ -415,11 +543,9 @@ export class AdminDashboardComponent implements OnInit {
       this.stats.totalUsers,
       this.stats.totalCorrespondentes,
       this.stats.totalProcessos,
-      this.stats.totalSolicitacoes
+      this.stats.totalSolicitacoes,
+      this.stats.totalComarcas || 0 // Add comarcas
     ];
-
-    // Log chart data for debugging
-    console.log('Entity Type Chart Data:', this.entityTypeChart);
 
     // Update entity status chart
     this.entityStatusChart.values = [
@@ -428,28 +554,10 @@ export class AdminDashboardComponent implements OnInit {
       this.stats.processosEmAndamento,
       this.stats.solicitacoesPendentes
     ];
-    
-    // Log chart data for debugging
-    console.log('Entity Status Chart Data:', this.entityStatusChart);
-  }
-
-  // Debug method to log bar chart data
-  logBarChartData(): void {
-    console.log('Entity Type Chart:', this.entityTypeChart);
-    console.log('Solicitações Por Status Chart:', this.solicitacoesPorStatusChart);
-    
-    // Log individual bar data
-    this.entityTypeChart.values.forEach((value, index) => {
-      console.log(`Entity Bar ${index}: value=${value}, color=${this.entityTypeChart.colors[index]}`);
-    });
-    
-    this.solicitacoesPorStatusChart.values.forEach((value, index) => {
-      console.log(`Solicitações Bar ${index}: value=${value}, color=${this.solicitacoesPorStatusChart.colors[index]}`);
-    });
   }
 
   // Helper method to get color for a status with fallback to generated colors
-  private getStatusColor(status: string, index: number): string {
+  getStatusColor(status: string, index: number): string {
     // First check if we have a predefined color
     if (this.statusColors[status]) {
       return this.statusColors[status];
@@ -465,6 +573,22 @@ export class AdminDashboardComponent implements OnInit {
     
     // Return a color from our palette, cycling if necessary
     return colors[index % colors.length];
+  }
+
+  // Helper method to get max value from comarca counts
+  getMaxComarcaValue(): number {
+    if (!this.topComarcas || this.topComarcas.length === 0) {
+      return 1;
+    }
+    const counts = this.topComarcas.map(c => c.count);
+    return Math.max(...counts, 1); // Return at least 1 to avoid division by zero
+  }
+
+  // Helper method to get bar height for comarca
+  getComarcaBarHeight(count: number): string {
+    const maxValue = this.getMaxComarcaValue();
+    if (maxValue === 0) return '0%';
+    return `${(count / maxValue) * 100}%`;
   }
 
   // Chart helper methods

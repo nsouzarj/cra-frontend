@@ -34,7 +34,7 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     // Redirect if already logged in
     if (this.authService.isAuthenticated) {
-      this.router.navigate([this.returnUrl]);
+      this.redirectUser();
     }
   }
 
@@ -57,11 +57,10 @@ export class LoginComponent implements OnInit {
           duration: 3000,
           panelClass: ['success-snackbar']
         });
-        this.router.navigate([this.returnUrl]);
+        this.redirectUser();
       },
       error: (error) => {
         this.loading = false;
-        console.error('Login error:', error);
         
         let message = 'Erro ao fazer login. Verifique suas credenciais.';
         if (error.status === 400) {
@@ -74,6 +73,28 @@ export class LoginComponent implements OnInit {
           duration: 5000,
           panelClass: ['error-snackbar']
         });
+      }
+    });
+  }
+
+  private redirectUser(): void {
+    // Refresh user data to ensure we have the latest information
+    this.authService.getCurrentUser().subscribe({
+      next: (user) => {
+        // Check user role and redirect accordingly
+        if (this.authService.isCorrespondente()) {
+          this.router.navigate(['/correspondent-dashboard']);
+        } else {
+          this.router.navigate([this.returnUrl]);
+        }
+      },
+      error: (error) => {
+        // Fallback: check role directly from auth service
+        if (this.authService.isCorrespondente()) {
+          this.router.navigate(['/correspondent-dashboard']);
+        } else {
+          this.router.navigate([this.returnUrl]);
+        }
       }
     });
   }

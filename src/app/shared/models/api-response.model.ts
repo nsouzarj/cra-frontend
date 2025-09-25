@@ -24,4 +24,6 @@ export interface PaginatedResponse<T> {
   first: boolean;
   last: boolean;
   numberOfElements: number;
+  // Extended property that represents total count across all pages/filters
+  totalTableElements?: number;
 }

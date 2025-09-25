@@ -1,8 +1,9 @@
-import { Component, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpEventType } from '@angular/common/http';
+import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
@@ -14,6 +15,9 @@ import { TipoSolicitacao } from '../../../shared/models/tiposolicitacao.model';
 import { SolicitacaoStatus } from '../../../shared/models/solicitacao.model';
 import { SolicitacaoAnexo } from '../../../shared/models/solicitacao-anexo.model';
 import { Correspondente } from '../../../shared/models/correspondente.model';
+
+// Components
+import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 
 // Services
 import { SolicitacaoService } from '../../../core/services/solicitacao.service';
@@ -77,6 +81,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
+    private dialog: MatDialog,
     private solicitacaoService: SolicitacaoService,
     private solicitacaoStatusService: SolicitacaoStatusService,
     private processoService: ProcessoService,
@@ -88,7 +93,9 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     // Inject AuthService to determine user role
     private authService: AuthService,
     // Add external storage auth guard service
-    private externalStorageAuthGuard: ExternalStorageAuthGuardService
+    private externalStorageAuthGuard: ExternalStorageAuthGuardService,
+    // Inject ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef
   ) {
     this.requestForm = this.createForm();
   }
@@ -133,7 +140,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   }
 
   private createForm(): FormGroup {
-    return this.formBuilder.group({
+    const form = this.formBuilder.group({
       tipoSolicitacao: [null, Validators.required],
       status: [''], // Will be set to "Aguardando Confirmação" in onSubmit for new solicitations
       processo: [null, Validators.required],
@@ -144,9 +151,12 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       instrucoes: [''],
       // Conditional fields
       dataAgendamento: [''],
-      horaAudiencia: [''],
-      valor: ['', this.showValorField ? Validators.required : null]
+      horaAudiencia: [''], // Changed from horaAudiencia to match model property
+      valor: [''] // Remove initial validator, let onTipoSolicitacaoChange handle it
     });
+    
+    console.log('Form created with controls:', Object.keys(form.controls));
+    return form;
   }
 
   // Helper method to get current date in YYYY-MM-DD format
@@ -380,12 +390,21 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     const especie = tipoSolicitacao.especie?.toLowerCase() || '';
     const tipo = tipoSolicitacao.tipo?.toLowerCase() || '';
     
-    return especie.includes('diligencia') || especie.includes('diligência') || 
-           tipo.includes('diligencia') || tipo.includes('diligência');
+    console.log('Checking if tipo is diligencia:', { especie, tipo });
+    
+    // Match the diligência detection logic used in the dashboard
+    const isDiligencia = especie.includes('diligencia') || especie.includes('diligência') || 
+           tipo.includes('diligencia') || tipo.includes('diligência') ||
+           especie.includes('dilig') || tipo.includes('dilig') ||
+           especie.includes('cumprimento') || tipo.includes('cumprimento');
+           
+    console.log('Is diligencia result:', isDiligencia);
+    return isDiligencia;
   }
   
   // Method to handle tipoSolicitacao selection change
   onTipoSolicitacaoChange(tipoSolicitacaoId: number): void {
+    console.log('Tipo solicitacao changed to:', tipoSolicitacaoId);
     this.updateConditionalFields(tipoSolicitacaoId);
     
     // Update validator for valor field based on showValorField
@@ -396,44 +415,80 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       valorControl?.clearValidators();
     }
     valorControl?.updateValueAndValidity();
+    
+    // Force change detection to ensure the template updates
+    this.changeDetectorRef.detectChanges();
   }
 
   // Method to update visibility of conditional fields based on tipoSolicitacao
   private updateConditionalFields(tipoSolicitacaoId: number): void {
+    console.log('Updating conditional fields for tipo:', tipoSolicitacaoId);
     // Find the selected tipoSolicitacao
     const selectedTipo = this.tiposSolicitacao.find(tipo => tipo.idtiposolicitacao === tipoSolicitacaoId);
+    
+    console.log('Selected tipo:', selectedTipo);
     
     if (selectedTipo) {
       // Check if it's "Audiência" (case insensitive, with or without accents)
       const isAudiencia = this.isTipoAudiencia(selectedTipo);
+      // For diligência, we hide the audiência fields
       const isDiligencia = this.isTipoDiligencia(selectedTipo);
       
-      // Show/hide fields based on tipo
+      console.log('Is audiencia:', isAudiencia, 'Is diligencia:', isDiligencia);
+      
+      // Show/hide fields based on tipo - only show for audiencia, hide for diligencia
       this.showAudienciaFields = isAudiencia;
       this.showValorField = isAudiencia || isDiligencia;
+      
+      console.log('Setting showAudienciaFields to:', this.showAudienciaFields);
+      console.log('Setting showValorField to:', this.showValorField);
+      
+      // Additional logging for debugging
+      console.log('Tipo details:', {
+        especie: selectedTipo.especie,
+        tipo: selectedTipo.tipo,
+        isAudiencia,
+        isDiligencia
+      });
     } else {
       // Default to hiding conditional fields
       this.showAudienciaFields = false;
       this.showValorField = false;
+      console.log('Setting showAudienciaFields to false (default)');
+      console.log('Setting showValorField to false (default)');
     }
     
     // Special case: If we're in edit mode and already have audiencia data, ensure fields are visible
     if (this.isEditMode) {
       const formValue = this.requestForm.getRawValue();
+      console.log('Edit mode form values:', formValue);
+      
       if (formValue.dataAgendamento || formValue.horaAudiencia) {
-        this.showAudienciaFields = true;
+        // Only show for audiencia types in edit mode
+        if (selectedTipo && this.isTipoAudiencia(selectedTipo)) {
+          this.showAudienciaFields = true;
+          console.log('Overriding showAudienciaFields to true (edit mode with existing audiencia data)');
+        }
       }
       
       // Also check if the current tipoSolicitacao is Audiência
       if (selectedTipo && this.isTipoAudiencia(selectedTipo)) {
         this.showAudienciaFields = true;
+        console.log('Overriding showAudienciaFields to true (edit mode with audiencia tipo)');
       }
       
-      // Ensure valor field is visible if there's a value
+      // Ensure valor field is visible if there's a value (for both audiencia and diligencia)
       if (formValue.valor) {
         this.showValorField = true;
+        console.log('Overriding showValorField to true (edit mode with existing valor)');
       }
     }
+    
+    console.log('Final showAudienciaFields value:', this.showAudienciaFields);
+    console.log('Final showValorField value:', this.showValorField);
+    
+    // Force change detection to ensure the template updates
+    this.changeDetectorRef.detectChanges();
   }
 
   // Method to upload all selected files
@@ -520,6 +575,26 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Show confirmation dialog
+    const action = this.isEditMode ? 'atualizar' : 'criar';
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Confirmar operação',
+        message: `Tem certeza que deseja ${action} esta solicitação?`,
+        confirmText: 'SIM',
+        cancelText: 'NÃO'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.proceedWithSave();
+      }
+    });
+  }
+
+  private proceedWithSave(): void {
     this.loading = true;
     
     // Prepare the solicitacao object
@@ -538,9 +613,14 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     // For Audiência, always include horaAudiencia when it exists in the form (especially in edit mode)
     if (this.showAudienciaFields || (this.isEditMode && formValue.horaAudiencia !== undefined)) {
       solicitacao.dataagendamento = formValue.dataAgendamento || null;
-      solicitacao.horaaudiencia = formValue.horaAudiencia || null;
+      solicitacao.horaudiencia = formValue.horaAudiencia || null; // Fixed property name
+      console.log('Setting audiencia fields:', {
+        dataagendamento: solicitacao.dataagendamento,
+        horaudiencia: solicitacao.horaudiencia
+      });
     }
     
+    // Always include valor field for diligência and audiência types
     if (this.showValorField) {
       // The valor is already stored as a number in the form control
       solicitacao.valor = formValue.valor || null;
@@ -596,31 +676,56 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       finalize(() => this.loading = false)
     ).subscribe({
       next: (result: any) => {
-        const solicitacaoId = this.isEditMode ? this.requestId : result.id;
+        // Get the ID of the created/updated solicitation
+        const solicitacaoId = this.isEditMode ? this.requestId : (result?.id || result?.idsolicitacao);
+        
         const message = this.isEditMode 
           ? 'Solicitação atualizada com sucesso!' 
           : 'Solicitação criada com sucesso!';
-        this.snackBar.open(message, 'Fechar', { duration: 3000 });
+        this.snackBar.open(message, 'Fechar', { 
+          duration: 3000,
+          panelClass: ['success-snackbar']
+        });
         
         // Upload attachments if any were selected
         if (this.selectedFiles.length > 0 && solicitacaoId) {
           this.uploadAnexos(solicitacaoId);
         }
         
-        this.router.navigate(['/solicitacoes']);
+        // Navigate to request detail page instead of list
+        console.log('Navigating to solicitation details page with ID:', solicitacaoId);
+        if (solicitacaoId) {
+          // Ensure navigation happens after any file uploads complete
+          setTimeout(() => {
+            this.router.navigate(['/solicitacoes', solicitacaoId]);
+          }, 100);
+        } else {
+          console.error('Could not navigate to solicitation details page: solicitacaoId is null or undefined');
+          console.log('Result object:', result);
+          this.router.navigate(['/solicitacoes']);
+        }
       },
       error: (error) => {
         console.error('Error saving solicitacao:', error);
         const message = this.isEditMode
           ? 'Erro ao atualizar solicitação'
           : 'Erro ao criar solicitação';
-        this.snackBar.open(message, 'Fechar', { duration: 5000 });
+        this.snackBar.open(message, 'Fechar', { 
+          duration: 5000,
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }
 
   onCancel(): void {
-    this.router.navigate(['/solicitacoes']);
+    if (this.isEditMode && this.requestId) {
+      // When editing, go back to the detail page
+      this.router.navigate(['/solicitacoes', this.requestId]);
+    } else {
+      // When creating new, go back to the list
+      this.router.navigate(['/solicitacoes']);
+    }
   }
 
   private markFormGroupTouched(): void {

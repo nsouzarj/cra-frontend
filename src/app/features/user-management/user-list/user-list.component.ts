@@ -6,8 +6,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { FormControl } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, forkJoin } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, forkJoin, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 
 import { UserService } from '../../../core/services/user.service';
@@ -28,7 +28,7 @@ export class UserListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatSort) sort!: MatSort;
 
   dataSource = new MatTableDataSource<User>();
-  displayedColumns: string[] = ['id', 'login', 'nomeCompleto', 'emailPrincipal', 'correspondente', 'tipo', 'ativo', 'dataEntrada', 'actions'];
+  displayedColumns: string[] = ['id', 'login', 'nomecompleto', 'emailprincipal', 'correspondente', 'tipo', 'ativo', 'dataentrada', 'actions'];
   loading = true;
   
   searchControl = new FormControl('');
@@ -90,38 +90,51 @@ export class UserListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.userService.getUsers().subscribe({
       next: (users) => {
         // Fetch correspondent data for correspondent users
-        const correspondentUsers = users.filter(user => user.tipo === UserType.CORRESPONDENTE && user.correspondentId);
+        const correspondentUsers = users.filter(user => user.tipo === UserType.CORRESPONDENTE && user.correspondente?.id);
         if (correspondentUsers.length > 0) {
           const correspondentRequests = correspondentUsers.map(user => 
-            this.correspondenteService.getCorrespondenteById(user.correspondentId!)
+            this.correspondenteService.getCorrespondenteById(user.correspondente!.id!)
           );
           
-          forkJoin(correspondentRequests).subscribe({
+          forkJoin(correspondentRequests).pipe(
+            catchError(error => {
+              console.error('Error loading correspondents:', error);
+              return of([]); // Return empty array on error to continue processing
+            })
+          ).subscribe({
             next: (correspondents) => {
               // Map correspondents to their respective users
               correspondentUsers.forEach((user, index) => {
-                user.correspondente = correspondents[index];
+                if (correspondents[index]) {
+                  user.correspondente = correspondents[index];
+                }
               });
               
               this.dataSource.data = users;
               this.loading = false;
               
-              // Connect paginator after data is loaded with a slight delay to ensure DOM is updated
+              // Connect paginator and sort after data is loaded with a slight delay to ensure DOM is updated
               setTimeout(() => {
                 if (this.paginator) {
                   this.dataSource.paginator = this.paginator;
                 }
+                if (this.sort) {
+                  this.dataSource.sort = this.sort;
+                }
               }, 0);
             },
             error: (error) => {
-              console.error('Error loading correspondents:', error);
+              console.error('Error in correspondent loading:', error);
               this.dataSource.data = users;
               this.loading = false;
               
-              // Connect paginator after data is loaded with a slight delay to ensure DOM is updated
+              // Connect paginator and sort after data is loaded with a slight delay to ensure DOM is updated
               setTimeout(() => {
                 if (this.paginator) {
                   this.dataSource.paginator = this.paginator;
+                }
+                if (this.sort) {
+                  this.dataSource.sort = this.sort;
                 }
               }, 0);
             }
@@ -130,10 +143,13 @@ export class UserListComponent implements OnInit, AfterViewInit, OnDestroy {
           this.dataSource.data = users;
           this.loading = false;
           
-          // Connect paginator after data is loaded with a slight delay to ensure DOM is updated
+          // Connect paginator and sort after data is loaded with a slight delay to ensure DOM is updated
           setTimeout(() => {
             if (this.paginator) {
               this.dataSource.paginator = this.paginator;
+            }
+            if (this.sort) {
+              this.dataSource.sort = this.sort;
             }
           }, 0);
         }
@@ -186,7 +202,7 @@ export class UserListComponent implements OnInit, AfterViewInit, OnDestroy {
         user.login.toLowerCase().includes(searchTerm) ||
         user.nomecompleto.toLowerCase().includes(searchTerm) ||
         (user.emailprincipal ? user.emailprincipal.toLowerCase().includes(searchTerm) : false) ||
-        (user.tipo === UserType.CORRESPONDENTE && user.correspondente?.nome.toLowerCase().includes(searchTerm));
+        (user.tipo === UserType.CORRESPONDENTE && user.correspondente?.nome?.toLowerCase().includes(searchTerm));
 
       // Type filter
       const matchesType = !typeFilter || typeFilter === '' || user.tipo === Number(typeFilter);
@@ -206,6 +222,11 @@ export class UserListComponent implements OnInit, AfterViewInit, OnDestroy {
     };
 
     this.dataSource.filter = 'trigger'; // Trigger filter
+    
+    // Re-apply sorting after filtering
+    if (this.sort) {
+      this.dataSource.sort = this.sort;
+    }
   }
 
   clearFilters(): void {
@@ -305,7 +326,9 @@ export class UserListComponent implements OnInit, AfterViewInit, OnDestroy {
       if (result) {
         this.userService.deleteUser(user.id!).subscribe({
           next: () => {
-            this.dataSource.data = this.dataSource.data.filter(u => u.id !== user.id);
+            // Update the data source directly
+            const newData = this.dataSource.data.filter(u => u.id !== user.id);
+            this.dataSource.data = newData;
             this.snackBar.open('Usuário excluído com sucesso!', 'Fechar', {
               duration: 3000,
               panelClass: ['success-snackbar']

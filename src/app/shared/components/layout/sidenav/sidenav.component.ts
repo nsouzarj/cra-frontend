@@ -26,7 +26,7 @@ export class SidenavComponent implements OnInit {
       label: 'Dashboard',
       icon: 'dashboard',
       route: '/dashboard',
-      roles: ['ROLE_ADMIN', 'ROLE_ADVOGADO'] // Only Admins and Lawyers use main dashboard
+      roles: ['ROLE_ADMIN', 'ROLE_ADVOGADO'] // Admins and Lawyers use main dashboard
     },
     {
       label: 'Meu Dashboard',
@@ -146,7 +146,6 @@ export class SidenavComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('SidenavComponent: ngOnInit called');
     // Check screen size on init
     this.checkScreenSize();
     
@@ -165,11 +164,8 @@ export class SidenavComponent implements OnInit {
     // Listen for theme changes
     window.addEventListener('themeChanged', (event: Event) => {
       const customEvent = event as CustomEvent;
-      console.log('SidenavComponent: Theme changed to', customEvent.detail);
       // The theme styles are applied to the body, so the sidenav will automatically update
     });
-    
-    console.log('SidenavComponent: Current route:', this.currentRoute);
   }
 
   @HostListener('window:resize', ['$event'])

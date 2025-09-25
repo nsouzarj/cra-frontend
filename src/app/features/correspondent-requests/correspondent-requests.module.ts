@@ -73,7 +73,9 @@ const routes: Routes = [
     ExternalStorageModule
   ],
   providers: [
-    TipoSolicitacaoService
+    TipoSolicitacaoService,
+    // Add ComarcaService to providers
+    // Note: ComarcaService is provided in 'root' so it's not strictly necessary here
   ]
 })
 export class CorrespondentRequestsModule { }

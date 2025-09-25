@@ -261,7 +261,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
 
     // Store the correspondent data before updating
     const correspondentData = this.user.correspondente;
-    const correspondentId = this.user.correspondentId;
+    const correspondentId = this.user.correspondente?.id;
 
     // Open password reset dialog directly without initial confirmation
     const passwordDialogRef = this.dialog.open(PasswordResetDialogComponent, {
@@ -281,7 +281,6 @@ export class UserDetailComponent implements OnInit, OnDestroy {
             // we maintain it in our local user object
             this.user = {
               ...responseUser,
-              correspondentId: correspondentId,
               correspondente: correspondentData
             };
             
@@ -361,7 +360,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
   }
 
   getCorrespondentInfo(): any[] {
-    if (!this.user || this.user.tipo !== UserType.CORRESPONDENTE || !this.user.correspondentId) {
+    if (!this.user || this.user.tipo !== UserType.CORRESPONDENTE || !this.user.correspondente?.id) {
       return [];
     }
 
@@ -466,7 +465,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
   hasCorrespondentData(): boolean {
     return !!this.user && 
            this.user.tipo === UserType.CORRESPONDENTE && 
-           !!this.user.correspondentId &&
+           !!this.user.correspondente?.id &&
            !!this.user.correspondente;
   }
 
@@ -474,7 +473,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
   shouldShowCorrespondentSections(): boolean {
     return !!this.user && 
            this.user.tipo === UserType.CORRESPONDENTE && 
-           !!this.user.correspondentId;
+           !!this.user.correspondente?.id;
   }
 
   // Method to check if user is a correspondent (like in profile component)

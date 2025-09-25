@@ -86,7 +86,7 @@
             </mat-form-field>
           </div>
 
-          <!-- Conditional fields for Audiência -->
+          <!-- Conditional fields for Audiência only -->
           <div *ngIf="showAudienciaFields">
             <div class="form-row">
               <mat-form-field class="form-field" appearance="outline">
@@ -106,10 +106,10 @@
 
         <!-- Value and Status Information -->
         <div class="form-section">
-          <h3>Valor e Status (Já Preenchido) </h3>
+          <h3>Valor e Status</h3>
           
           <div class="form-row">
-            <!-- Valor field (always shown for Audiência and Diligência) -->
+            <!-- Valor field (shown for Audiência and Diligência) -->
             <mat-form-field class="form-field" appearance="outline" *ngIf="showValorField">
               <mat-label>Valor *</mat-label>
               <span matPrefix>R$&nbsp;</span>

@@ -71,13 +71,13 @@
           </ng-container>
 
           <!-- Nome Column -->
-          <ng-container matColumnDef="nomeCompleto">
+          <ng-container matColumnDef="nomecompleto">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Nome Completo</th>
             <td mat-cell *matCellDef="let user">{{ user.nomecompleto }}</td>
           </ng-container>
 
           <!-- Email Column -->
-          <ng-container matColumnDef="emailPrincipal">
+          <ng-container matColumnDef="emailprincipal">
             <th mat-header-cell *matHeaderCellDef>Email</th>
             <td mat-cell *matCellDef="let user">{{ user.emailprincipal || '-' }}</td>
           </ng-container>
@@ -89,8 +89,8 @@
               <span *ngIf="user.tipo === UserType.CORRESPONDENTE && user.correspondente">
                 {{ user.correspondente.nome }}
               </span>
-              <span *ngIf="user.tipo === UserType.CORRESPONDENTE && !user.correspondente">
-                Carregando...
+              <span *ngIf="user.tipo === UserType.CORRESPONDENTE && !user.correspondente && dataSource.data.length > 0">
+                Nenhum
               </span>
               <!-- For non-correspondent users, the cell will be blank -->
             </td>
@@ -117,10 +117,10 @@
           </ng-container>
 
           <!-- Data Entrada Column -->
-          <ng-container matColumnDef="dataEntrada">
+          <ng-container matColumnDef="dataentrada">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Data de Entrada</th>
             <td mat-cell *matCellDef="let user">
-              {{ user.dataEntrada ? (user.dataEntrada | date:'dd/MM/yyyy') : '-' }}
+              {{ user.dataentrada ? (user.dataentrada | date:'dd/MM/yyyy') : '-' }}
             </td>
           </ng-container>
 

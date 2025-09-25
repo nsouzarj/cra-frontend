@@ -55,6 +55,46 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
+
+        <!-- Date filters -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Data Solicitação (De)</mat-label>
+          <input matInput [matDatepicker]="solicitacaoPickerFrom" [(ngModel)]="filterDataSolicitacaoFrom" (dateChange)="applyFilter()">
+          <mat-datepicker-toggle matSuffix [for]="solicitacaoPickerFrom"></mat-datepicker-toggle>
+          <mat-datepicker #solicitacaoPickerFrom></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Data Solicitação (Até)</mat-label>
+          <input matInput [matDatepicker]="solicitacaoPickerTo" [(ngModel)]="filterDataSolicitacaoTo" (dateChange)="applyFilter()">
+          <mat-datepicker-toggle matSuffix [for]="solicitacaoPickerTo"></mat-datepicker-toggle>
+          <mat-datepicker #solicitacaoPickerTo></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Prazo (De)</mat-label>
+          <input matInput [matDatepicker]="prazoPickerFrom" [(ngModel)]="filterDataPrazoFrom" (dateChange)="applyFilter()">
+          <mat-datepicker-toggle matSuffix [for]="prazoPickerFrom"></mat-datepicker-toggle>
+          <mat-datepicker #prazoPickerFrom></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Prazo (Até)</mat-label>
+          <input matInput [matDatepicker]="prazoPickerTo" [(ngModel)]="filterDataPrazoTo" (dateChange)="applyFilter()">
+          <mat-datepicker-toggle matSuffix [for]="prazoPickerTo"></mat-datepicker-toggle>
+          <mat-datepicker #prazoPickerTo></mat-datepicker>
+        </mat-form-field>
+        
+        <!-- Add comarca filter here -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Comarca</mat-label>
+          <mat-select [(ngModel)]="filterComarca" (selectionChange)="applyFilter()">
+            <mat-option [value]="null">Todas</mat-option>
+            <mat-option *ngFor="let comarca of comarcas" [value]="comarca.id">
+              {{ comarca.nome }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
         
         <button mat-raised-button color="primary" (click)="clearFilters()" class="button-align">
           <mat-icon>clear</mat-icon>
@@ -69,6 +109,18 @@
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
             <td mat-cell *matCellDef="let solicitacao">{{ solicitacao.id }}</td>
+          </ng-container>
+          
+          <!-- Request Date Column -->
+          <ng-container matColumnDef="datasolicitacao">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Data Solicitação</th>
+            <td mat-cell *matCellDef="let solicitacao">{{ solicitacao.datasolicitacao | date:'dd/MM/yyyy' }}</td>
+          </ng-container>
+          
+          <!-- Deadline Column -->
+          <ng-container matColumnDef="dataprazo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Prazo</th>
+            <td mat-cell *matCellDef="let solicitacao">{{ solicitacao.dataprazo | date:'dd/MM/yyyy' }}</td>
           </ng-container>
           
           <!-- Type Column -->

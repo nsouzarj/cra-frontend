@@ -64,6 +64,16 @@ mat-slide-toggle {
   margin: 16px 0;
 }
 
+/* Back button styling */
+.back-button {
+  background-color: #f5f5f5 !important;
+  color: #333 !important;
+}
+
+.back-button mat-icon {
+  margin-right: 8px;
+}
+
 /* Styles for correspondent selection have been removed as we now use a select dropdown */
 
 @media (max-width: 768px) {

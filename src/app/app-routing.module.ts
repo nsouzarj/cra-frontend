@@ -33,8 +33,14 @@ const routes: Routes = [
   { 
     path: 'dashboard', 
     component: AdminDashboardComponent, 
-    canActivate: [AuthGuard],
+    canActivate: [RoleGuard],
     data: { expectedRoles: ['ROLE_ADMIN', 'ROLE_ADVOGADO'] }
+  },
+  {
+    path: 'advogado-dashboard',
+    loadChildren: () => import('./features/advogado-dashboard/advogado-dashboard.module').then(m => m.AdvogadoDashboardModule),
+    canActivate: [RoleGuard],
+    data: { expectedRoles: ['ROLE_ADVOGADO'] }
   },
   {
     path: 'correspondent-dashboard',

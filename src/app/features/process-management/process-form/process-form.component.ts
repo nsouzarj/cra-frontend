@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { ProcessoService } from '../../../core/services/processo.service';
 import { ComarcaService } from '../../../core/services/comarca.service';
@@ -9,6 +10,7 @@ import { OrgaoService } from '../../../core/services/orgao.service';
 import { Processo } from '../../../shared/models/processo.model';
 import { Comarca } from '../../../shared/models/comarca.model';
 import { Orgao } from '../../../shared/models/orgao.model';
+import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-process-form',
@@ -33,7 +35,8 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
     private orgaoService: OrgaoService,
     private router: Router,
     private route: ActivatedRoute,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.processForm = this.formBuilder.group({
       numeroprocesso: ['', [Validators.required]],
@@ -106,10 +109,11 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
   }
 
   loadComarcas(): void {
-    this.comarcaService.getComarcas().subscribe({
-      next: (comarcas) => {
-        this.comarcas = comarcas;
-        this.filteredComarcas = comarcas;
+    // For form components, we load all comarcas (first page with large size)
+    this.comarcaService.getComarcas(0, 1000, 'nome', 'ASC').subscribe({
+      next: (response) => {
+        this.comarcas = response.content;
+        this.filteredComarcas = response.content;
       },
       error: (error) => {
         console.error('Error loading comarcas:', error);
@@ -159,6 +163,26 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     if (this.processForm.invalid) return;
 
+    // Show confirmation dialog
+    const action = this.isEditMode ? 'atualizar' : 'criar';
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Confirmar operação',
+        message: `Tem certeza que deseja ${action} este processo?`,
+        confirmText: 'SIM',
+        cancelText: 'NÃO'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.proceedWithSave();
+      }
+    });
+  }
+
+  private proceedWithSave(): void {
     this.loading = true;
     
     // Prepare the processo data with proper orgao and comarca objects
@@ -186,15 +210,22 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
       this.processoService.createProcesso(processData);
 
     operation.subscribe({
-      next: () => {
+      next: (processo) => {
         this.loading = false;
         const message = this.isEditMode ? 'Processo atualizado com sucesso!' : 'Processo criado com sucesso!';
-        this.snackBar.open(message, 'Fechar', { duration: 3000 });
-        this.router.navigate(['/processos']);
+        this.snackBar.open(message, 'Fechar', { 
+          duration: 3000,
+          panelClass: ['success-snackbar']
+        });
+        // Navigate to process detail page instead of list
+        this.router.navigate(['/processos', processo.id]);
       },
       error: (error) => {
         this.loading = false;
-        this.snackBar.open('Erro ao salvar processo', 'Fechar', { duration: 5000 });
+        this.snackBar.open('Erro ao salvar processo', 'Fechar', { 
+          duration: 5000,
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }

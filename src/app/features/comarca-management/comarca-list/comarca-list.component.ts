@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
@@ -16,6 +16,7 @@ import { PermissionService } from '../../../core/services/permission.service';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { Comarca } from '../../../shared/models/comarca.model';
 import { Uf } from '../../../shared/models/uf.model';
+import { PaginatedResponse } from '../../../shared/models/api-response.model';
 
 @Component({
   selector: 'app-comarca-list',
@@ -35,6 +36,14 @@ export class ComarcaListComponent implements OnInit, AfterViewInit, OnDestroy {
   statusFilterControl = new FormControl('');
   
   ufs: Uf[] = [];
+  
+  // Pagination properties
+  pageSize = 20;
+  pageSizeOptions: number[] = [5, 10, 20, 50, 100];
+  totalElements = 0;
+  currentPage = 0;
+  sortBy = 'nome';
+  sortDirection = 'ASC';
 
   private themeSubscription: Subscription | null = null;
 
@@ -49,15 +58,24 @@ export class ComarcaListComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.loadComarcas();
     this.loadUfs();
     this.setupFilters();
     this.setupThemeListener();
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    // Set up sort
+    if (this.sort) {
+      this.sort.sortChange.subscribe(() => {
+        this.sortBy = this.sort.active;
+        this.sortDirection = this.sort.direction.toUpperCase() || 'ASC';
+        this.currentPage = 0;
+        this.loadComarcas();
+      });
+    }
+    
+    // Load initial data
+    this.loadComarcas();
   }
 
   ngOnDestroy(): void {
@@ -84,26 +102,98 @@ export class ComarcaListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   loadComarcas(): void {
     this.loading = true;
-    this.comarcaService.getComarcas().subscribe({
-      next: (comarcas) => {
-        this.dataSource.data = comarcas;
-        this.loading = false;
-        
-        // Connect paginator after data is loaded
-        setTimeout(() => {
-          if (this.paginator) {
-            this.dataSource.paginator = this.paginator;
+    
+    // Check if we have a search term
+    const searchTerm = this.searchControl.value;
+    const ufFilter = this.ufFilterControl.value;
+    
+    if (searchTerm) {
+      // Use search endpoint
+      this.comarcaService.searchByName(
+        searchTerm, 
+        this.currentPage, 
+        this.pageSize, 
+        this.sortBy, 
+        this.sortDirection
+      ).subscribe({
+        next: (response: PaginatedResponse<Comarca>) => {
+          this.handlePaginatedResponse(response);
+        },
+        error: (error) => {
+          this.handleLoadError(error);
+        }
+      });
+    } else if (ufFilter) {
+      // Use UF filter endpoint
+      const selectedUf = this.ufs.find(uf => uf.id === Number(ufFilter));
+      if (selectedUf) {
+        this.comarcaService.getByUfSigla(
+          selectedUf.sigla, 
+          this.currentPage, 
+          this.pageSize
+        ).subscribe({
+          next: (response: PaginatedResponse<Comarca>) => {
+            this.handlePaginatedResponse(response);
+          },
+          error: (error) => {
+            this.handleLoadError(error);
           }
-        }, 0);
-      },
-      error: (error) => {
-        console.error('Error loading comarcas:', error);
-        this.loading = false;
-        this.snackBar.open('Erro ao carregar comarcas', 'Fechar', {
-          duration: 5000,
-          panelClass: ['error-snackbar']
+        });
+      } else {
+        // Load all comarcas
+        this.comarcaService.getComarcas(
+          this.currentPage, 
+          this.pageSize, 
+          this.sortBy, 
+          this.sortDirection
+        ).subscribe({
+          next: (response: PaginatedResponse<Comarca>) => {
+            this.handlePaginatedResponse(response);
+          },
+          error: (error) => {
+            this.handleLoadError(error);
+          }
         });
       }
+    } else {
+      // Use default endpoint
+      this.comarcaService.getComarcas(
+        this.currentPage, 
+        this.pageSize, 
+        this.sortBy, 
+        this.sortDirection
+      ).subscribe({
+        next: (response: PaginatedResponse<Comarca>) => {
+          this.handlePaginatedResponse(response);
+        },
+        error: (error) => {
+          this.handleLoadError(error);
+        }
+      });
+    }
+  }
+
+  private handlePaginatedResponse(response: PaginatedResponse<Comarca>): void {
+    this.dataSource.data = response.content;
+    // USE totalTableElements for correct pagination - this is the total count across all pages
+    this.totalElements = response.totalTableElements ?? response.totalElements;
+    
+    // Update paginator
+    if (this.paginator) {
+      this.paginator.length = this.totalElements;
+      this.paginator.pageIndex = this.currentPage;
+      this.paginator.pageSize = this.pageSize;
+    }
+    
+    this.loading = false;
+  }
+
+  private handleLoadError(error: any): void {
+    console.error('Error loading comarcas:', error);
+    this.loading = false;
+    this.snackBar.open('Erro ao carregar comarcas', 'Fechar', {
+      duration: 5000,
+      panelClass: ['error-snackbar']
     });
   }
 
@@ -127,56 +217,41 @@ export class ComarcaListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.searchControl.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe(value => {
-        this.applyFilters();
+        this.currentPage = 0;
+        if (this.paginator) {
+          this.paginator.pageIndex = 0;
+        }
+        this.loadComarcas();
       });
 
     // UF filter
-    this.ufFilterControl.valueChanges.subscribe(() => {
-      this.applyFilters();
+    this.ufFilterControl.valueChanges.subscribe((ufId) => {
+      this.currentPage = 0;
+      if (this.paginator) {
+        this.paginator.pageIndex = 0;
+      }
+      this.loadComarcas();
     });
 
     // Status filter
     this.statusFilterControl.valueChanges.subscribe(() => {
-      this.applyFilters();
-    });
-  }
-
-  applyFilters(): void {
-    this.dataSource.filterPredicate = (comarca: Comarca, filter: string): boolean => {
-      const searchTerm = this.searchControl.value?.toLowerCase() || '';
-      const ufFilter = this.ufFilterControl.value;
-      const statusFilter = this.statusFilterControl.value;
-
-      // Search filter
-      const matchesSearch = !searchTerm || 
-        comarca.nome.toLowerCase().includes(searchTerm) ||
-        comarca.uf.nome.toLowerCase().includes(searchTerm) ||
-        comarca.uf.sigla.toLowerCase().includes(searchTerm);
-
-      // UF filter
-      const matchesUf = !ufFilter || ufFilter === '' || comarca.uf.id === Number(ufFilter);
-
-      // Status filter
-      let statusFilterValue: boolean | null = null;
-      if (statusFilter === 'true') {
-        statusFilterValue = true;
-      } else if (statusFilter === 'false') {
-        statusFilterValue = false;
+      this.currentPage = 0;
+      if (this.paginator) {
+        this.paginator.pageIndex = 0;
       }
-      
-      const matchesStatus = !statusFilter || statusFilter === '' || 
-                           (statusFilterValue !== null && comarca.ativo === statusFilterValue);
-
-      return Boolean(matchesSearch && matchesUf && matchesStatus);
-    };
-
-    this.dataSource.filter = 'trigger'; // Trigger filter
+      this.loadComarcas();
+    });
   }
 
   clearFilters(): void {
     this.searchControl.setValue('');
     this.ufFilterControl.setValue('');
     this.statusFilterControl.setValue('');
+    this.currentPage = 0;
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+    }
+    this.loadComarcas();
   }
 
   viewComarca(comarca: Comarca): void {
@@ -263,7 +338,8 @@ export class ComarcaListComponent implements OnInit, AfterViewInit, OnDestroy {
       if (result) {
         this.comarcaService.deleteComarca(comarca.id!).subscribe({
           next: () => {
-            this.dataSource.data = this.dataSource.data.filter(c => c.id !== comarca.id);
+            // After deletion, reload the current page
+            this.loadComarcas();
             this.snackBar.open('Comarca excluída com sucesso!', 'Fechar', {
               duration: 3000,
               panelClass: ['success-snackbar']
@@ -279,5 +355,12 @@ export class ComarcaListComponent implements OnInit, AfterViewInit, OnDestroy {
         });
       }
     });
+  }
+
+  // Handle paginator page change events
+  paginatorPageChanged(event: PageEvent): void {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.loadComarcas();
   }
 }

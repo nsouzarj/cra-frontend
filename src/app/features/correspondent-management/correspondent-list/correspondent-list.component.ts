@@ -84,10 +84,13 @@ export class CorrespondentListComponent implements OnInit, AfterViewInit, OnDest
         this.dataSource.data = correspondents;
         this.loading = false;
         
-        // Connect paginator after data is loaded with a slight delay to ensure DOM is updated
+        // Connect paginator and sort after data is loaded with a slight delay to ensure DOM is updated
         setTimeout(() => {
           if (this.paginator) {
             this.dataSource.paginator = this.paginator;
+          }
+          if (this.sort) {
+            this.dataSource.sort = this.sort;
           }
         }, 0);
       },
@@ -151,6 +154,11 @@ export class CorrespondentListComponent implements OnInit, AfterViewInit, OnDest
     };
 
     this.dataSource.filter = 'trigger'; // Trigger filter
+    
+    // Re-apply sorting after filtering
+    if (this.sort) {
+      this.dataSource.sort = this.sort;
+    }
   }
 
   clearFilters(): void {

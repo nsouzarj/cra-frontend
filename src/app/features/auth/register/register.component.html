@@ -24,31 +24,17 @@
 
           <mat-form-field class="form-field" appearance="outline">
             <mat-label>Nome Completo</mat-label>
-            <input matInput formControlName="nomeCompleto">
-            <mat-error *ngIf="registerForm.get('nomeCompleto')?.hasError('required')">
+            <input matInput formControlName="nomecompleto">
+            <mat-error *ngIf="registerForm.get('nomecompleto')?.hasError('required')">
               Nome completo é obrigatório
             </mat-error>
-            <mat-error *ngIf="registerForm.get('nomeCompleto')?.hasError('maxlength')">
+            <mat-error *ngIf="registerForm.get('nomecompleto')?.hasError('maxlength')">
               Nome deve ter no máximo 255 caracteres
             </mat-error>
           </mat-form-field>
         </div>
 
         <div class="form-row">
-          <mat-form-field class="form-field" appearance="outline">
-            <mat-label>Senha</mat-label>
-            <input matInput type="password" formControlName="senha" autocomplete="new-password">
-            <mat-error *ngIf="registerForm.get('senha')?.hasError('required')">
-              Senha é obrigatória
-            </mat-error>
-            <mat-error *ngIf="registerForm.get('senha')?.hasError('minlength')">
-              Senha deve ter pelo menos 6 caracteres
-            </mat-error>
-            <mat-error *ngIf="registerForm.get('senha')?.hasError('maxlength')">
-              Senha deve ter no máximo 100 caracteres
-            </mat-error>
-          </mat-form-field>
-
           <mat-form-field class="form-field" appearance="outline">
             <mat-label>Tipo de Usuário</mat-label>
             <mat-select formControlName="tipo">
@@ -60,12 +46,27 @@
               Tipo de usuário é obrigatório
             </mat-error>
           </mat-form-field>
+
+          <!-- Correspondent Selection (only for Correspondente type users) -->
+          <mat-form-field class="form-field" appearance="outline" *ngIf="showCorrespondentField">
+            <mat-label>Correspondente</mat-label>
+            <mat-select formControlName="correspondente" placeholder="Selecione um correspondente">
+              <mat-option *ngFor="let correspondente of correspondentes" [value]="correspondente.id">
+                {{ correspondente.nome }} 
+                <span *ngIf="correspondente.oab">({{ correspondente.oab }})</span>
+              </mat-option>
+            </mat-select>
+            <mat-hint>Selecione um correspondente associado a este usuário</mat-hint>
+            <mat-error *ngIf="registerForm.get('correspondente')?.hasError('required')">
+              Correspondente é obrigatório para usuários do tipo Correspondente
+            </mat-error>
+          </mat-form-field>
         </div>
 
         <mat-form-field class="form-field full-width" appearance="outline">
           <mat-label>Email Principal</mat-label>
-          <input matInput type="email" formControlName="emailPrincipal">
-          <mat-error *ngIf="registerForm.get('emailPrincipal')?.hasError('email')">
+          <input matInput type="email" formControlName="emailprincipal">
+          <mat-error *ngIf="registerForm.get('emailprincipal')?.hasError('email')">
             Email inválido
           </mat-error>
         </mat-form-field>
@@ -73,16 +74,16 @@
         <div class="form-row">
           <mat-form-field class="form-field" appearance="outline">
             <mat-label>Email Secundário</mat-label>
-            <input matInput type="email" formControlName="emailSecundario">
-            <mat-error *ngIf="registerForm.get('emailSecundario')?.hasError('email')">
+            <input matInput type="email" formControlName="emailsecundario">
+            <mat-error *ngIf="registerForm.get('emailsecundario')?.hasError('email')">
               Email inválido
             </mat-error>
           </mat-form-field>
 
           <mat-form-field class="form-field" appearance="outline">
             <mat-label>Email Responsável</mat-label>
-            <input matInput type="email" formControlName="emailResponsavel">
-            <mat-error *ngIf="registerForm.get('emailResponsavel')?.hasError('email')">
+            <input matInput type="email" formControlName="emailresponsavel">
+            <mat-error *ngIf="registerForm.get('emailresponsavel')?.hasError('email')">
               Email inválido
             </mat-error>
           </mat-form-field>
@@ -93,7 +94,7 @@
             Cancelar
           </button>
           <button mat-raised-button color="primary" type="submit" 
-                  [disabled]="registerForm.invalid || loading">
+                  [disabled]="loading">
             <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
             <span *ngIf="!loading">Cadastrar</span>
             <span *ngIf="loading">Cadastrando...</span>

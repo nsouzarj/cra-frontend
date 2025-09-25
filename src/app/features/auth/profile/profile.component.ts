@@ -50,12 +50,10 @@ export class ProfileComponent implements OnInit {
           }
           console.log('User is a correspondent');
           console.log('Correspondent data available:', !!this.currentUser.correspondente);
-          console.log('Correspondent ID available:', !!this.currentUser.correspondentId);
+          console.log('Correspondent ID available:', !!this.currentUser.correspondente?.id);
           if (this.currentUser.correspondente) {
             console.log('Correspondent data:', this.currentUser.correspondente);
-          }
-          if (this.currentUser.correspondentId) {
-            console.log('Correspondent ID:', this.currentUser.correspondentId);
+            console.log('Correspondent ID:', this.currentUser.correspondente.id);
           }
         } else {
           console.log('User is not a correspondent');
@@ -299,18 +297,36 @@ export class ProfileComponent implements OnInit {
     console.log('User Type Type:', typeof this.currentUser?.tipo);
     console.log('Authorities:', this.currentUser?.authorities);
     console.log('Is Correspondent:', this.isCorrespondent());
-    console.log('Correspondent ID:', this.currentUser?.correspondente?.nome);
+    console.log('Correspondent ID:', this.currentUser?.correspondente?.id);
+    
+    // Detailed inspection of currentUser object
+    if (this.currentUser) {
+      console.log('All keys in currentUser:', Object.keys(this.currentUser));
+      for (const key in this.currentUser) {
+        if (this.currentUser.hasOwnProperty(key)) {
+          console.log(`currentUser.${key}:`, this.currentUser[key as keyof User]);
+        }
+      }
+    }
     
     if (this.isCorrespondent()) {
       console.log('User is a correspondent');
       if (this.currentUser?.correspondente) {
         console.log('Correspondent Data:', this.currentUser.correspondente);
+        console.log('All keys in correspondent:', Object.keys(this.currentUser.correspondente));
+        for (const key in this.currentUser.correspondente) {
+          if (this.currentUser.correspondente.hasOwnProperty(key)) {
+            console.log(`correspondente.${key}:`, this.currentUser.correspondente[key as keyof Correspondente]);
+          }
+        }
       } else {
         console.log('No correspondent data found in currentUser');
-        if (this.currentUser?.correspondentId) {
-          console.log('User has correspondentId:', this.currentUser.correspondentId, 'but no correspondent data');
-        } else {
-          console.log('No correspondentId found in currentUser');
+        // Check for alternative property names
+        if ((this.currentUser as any)?.correspondentId) {
+          console.log('Found correspondentId property:', (this.currentUser as any).correspondentId);
+        }
+        if ((this.currentUser as any)?.correspondenteId) {
+          console.log('Found correspondenteId property:', (this.currentUser as any).correspondenteId);
         }
       }
     } else {
@@ -326,6 +342,15 @@ export class ProfileComponent implements OnInit {
         console.log('Parsed stored user data:', parsedUser);
         console.log('Stored user correspondent data:', parsedUser.correspondente);
         console.log('Stored user correspondentId:', parsedUser.correspondentId);
+        console.log('Stored user correspondenteId:', parsedUser.correspondenteId);
+        
+        // Check all keys in parsed user
+        console.log('All keys in stored user:', Object.keys(parsedUser));
+        for (const key in parsedUser) {
+          if (parsedUser.hasOwnProperty(key)) {
+            console.log(`parsedUser.${key}:`, parsedUser[key]);
+          }
+        }
       } catch (e) {
         console.error('Error parsing stored user data:', e);
       }
@@ -335,6 +360,38 @@ export class ProfileComponent implements OnInit {
     const authServiceUser = this.authService.currentUserValue;
     console.log('Auth service current user:', authServiceUser);
     console.log('Auth service user correspondent data:', authServiceUser?.correspondente);
-    console.log('Auth service user correspondentId:', authServiceUser?.correspondentId);
+    console.log('Auth service user correspondentId:', authServiceUser?.correspondente?.id);
+    
+    // Try to get user data directly from localStorage with more detailed inspection
+    const directStoredUser = localStorage.getItem('currentUser');
+    if (directStoredUser) {
+      try {
+        const directParsed = JSON.parse(directStoredUser);
+        console.log('Direct parsed user data:', directParsed);
+        // Deep inspection
+        this.inspectObjectRecursively(directParsed, 'directParsed', 3);
+      } catch (e) {
+        console.error('Error in direct parsing:', e);
+      }
+    }
+    
+    console.log('========================');
+  }
+  
+  // Helper method to recursively inspect an object
+  private inspectObjectRecursively(obj: any, name: string, depth: number, currentDepth: number = 0): void {
+    if (currentDepth >= depth) return;
+    
+    if (obj && typeof obj === 'object') {
+      for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          const value = obj[key];
+          console.log(`${name}.${key}:`, value);
+          if (value && typeof value === 'object' && !Array.isArray(value)) {
+            this.inspectObjectRecursively(value, `${name}.${key}`, depth, currentDepth + 1);
+          }
+        }
+      }
+    }
   }
 }

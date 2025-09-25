@@ -44,7 +44,8 @@ const routes: Routes = [
   { path: '', component: RequestListComponent, canActivate: [AuthGuard] },
   { path: 'novo', component: RequestFormComponent, canActivate: [AuthGuard] },
   { path: 'editar/:id', component: RequestFormComponent, canActivate: [AuthGuard] },
-  { path: 'visualizar/:id', component: RequestDetailComponent, canActivate: [AuthGuard] }
+  { path: 'visualizar/:id', component: RequestDetailComponent, canActivate: [AuthGuard] },
+  { path: ':id', component: RequestDetailComponent, canActivate: [AuthGuard] }
 ];
 
 @NgModule({

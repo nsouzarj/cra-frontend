@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { User } from '../../shared/models/user.model';
+import { User, UserType } from '../../shared/models/user.model';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { environment } from '../../../environments/environment';
 
@@ -60,8 +60,41 @@ export class UserService {
    * @returns Observable containing the created user
    */
   createUser(user: User): Observable<User> {
-    return this.http.post<User>(this.apiUrl, user)
-      .pipe(catchError(this.handleError));
+    console.log('=== SENDING CREATE USER REQUEST ===');
+    console.log('User data being sent:', user);
+    console.log('User correspondente:', user.correspondente);
+    console.log('User tipo:', user.tipo);
+    console.log('Is correspondent type:', user.tipo === UserType.CORRESPONDENTE);
+    
+    // Log the actual HTTP request being made
+    console.log('Making HTTP POST request to:', this.apiUrl);
+    console.log('Request body:', JSON.stringify(user, null, 2));
+    
+    // Check if the correspondente property exists and what it contains
+    if ('correspondente' in user) {
+      console.log('User object has correspondente property');
+      console.log('Correspondente value:', user.correspondente);
+      if (user.correspondente) {
+        console.log('Correspondente is truthy');
+        console.log('Correspondente type:', typeof user.correspondente);
+        console.log('Correspondente constructor:', user.correspondente.constructor.name);
+        if (typeof user.correspondente === 'object') {
+          console.log('Correspondente keys:', Object.keys(user.correspondente));
+        }
+      } else {
+        console.log('Correspondente is falsy (null/undefined)');
+      }
+    } else {
+      console.log('User object does NOT have correspondente property');
+    }
+    
+    const result = this.http.post<User>(this.apiUrl, user)
+      .pipe(
+        catchError(this.handleError)
+      );
+      
+    console.log('=== END CREATE USER REQUEST ===');
+    return result;
   }
 
   /**
@@ -72,8 +105,42 @@ export class UserService {
    * @returns Observable containing the updated user
    */
   updateUser(id: number, user: User): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/${id}`, user)
-      .pipe(catchError(this.handleError));
+    console.log('=== SENDING UPDATE USER REQUEST ===');
+    console.log('User ID being updated:', id);
+    console.log('User data being sent:', user);
+    console.log('User correspondente:', user.correspondente);
+    console.log('User tipo:', user.tipo);
+    console.log('Is correspondent type:', user.tipo === UserType.CORRESPONDENTE);
+    
+    // Log the actual HTTP request being made
+    console.log('Making HTTP PUT request to:', `${this.apiUrl}/${id}`);
+    console.log('Request body:', JSON.stringify(user, null, 2));
+    
+    // Check if the correspondente property exists and what it contains
+    if ('correspondente' in user) {
+      console.log('User object has correspondente property');
+      console.log('Correspondente value:', user.correspondente);
+      if (user.correspondente) {
+        console.log('Correspondente is truthy');
+        console.log('Correspondente type:', typeof user.correspondente);
+        console.log('Correspondente constructor:', user.correspondente.constructor.name);
+        if (typeof user.correspondente === 'object') {
+          console.log('Correspondente keys:', Object.keys(user.correspondente));
+        }
+      } else {
+        console.log('Correspondente is falsy (null/undefined)');
+      }
+    } else {
+      console.log('User object does NOT have correspondente property');
+    }
+    
+    const result = this.http.put<User>(`${this.apiUrl}/${id}`, user)
+      .pipe(
+        catchError(this.handleError)
+      );
+      
+    console.log('=== END UPDATE USER REQUEST ===');
+    return result;
   }
 
   /**
