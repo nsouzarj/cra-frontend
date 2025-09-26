@@ -192,7 +192,17 @@ export class SidenavComponent implements OnInit {
     const userRoles = this.authService.currentUserValue?.authorities || [];
     
     // Check if user has any of the required roles
-    return roles.some(role => userRoles.includes(role));
+    const hasRolePermission = roles.some(role => userRoles.includes(role));
+    
+    // Special handling for correspondent role - also check user type
+    if (roles.includes('ROLE_CORRESPONDENTE')) {
+      const isCorrespondentType = this.authService.currentUserValue?.tipo === 3; // UserType.CORRESPONDENTE
+      if (isCorrespondentType) {
+        return true;
+      }
+    }
+    
+    return hasRolePermission;
   }
 
   toggleExpanded(item: MenuItem): void {

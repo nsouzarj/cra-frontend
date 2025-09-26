@@ -126,7 +126,15 @@ export class AuthService {
     // Check both the user type and role to be sure
     const isCorrespondentType = user?.tipo === UserType.CORRESPONDENTE;
     const hasCorrespondentRole = this.hasRole('ROLE_CORRESPONDENTE');
-    return isCorrespondentType || hasCorrespondentRole;
+    
+    console.log('isCorrespondente check - User:', user);
+    console.log('isCorrespondente check - isCorrespondentType:', isCorrespondentType);
+    console.log('isCorrespondente check - hasCorrespondentRole:', hasCorrespondentRole);
+    
+    const result = isCorrespondentType || hasCorrespondentRole;
+    console.log('isCorrespondente check - result:', result);
+    
+    return result;
   }
 
   /**
@@ -190,6 +198,7 @@ export class AuthService {
           return normalizedResponse;
         }),
         tap(response => {
+          console.log('Login response:', response);
           // Store JWT token
           localStorage.setItem('token', response.token);
           localStorage.setItem('refreshToken', response.refreshToken);
@@ -197,6 +206,7 @@ export class AuthService {
           // Create user object from response
           // Ensure we correctly map roles/authorities regardless of backend field name
           const userAuthorities = response.roles || (response as any).authorities || [];
+          console.log('User authorities from response:', userAuthorities);
           
           const user: User = {
             id: response.id,
@@ -210,14 +220,21 @@ export class AuthService {
             correspondente: response.correspondente
           };
           
+          console.log('User before SPECIAL FIX:', user);
+          
           // SPECIAL FIX: Ensure correspondent users have ROLE_CORRESPONDENTE
           if (user.tipo === UserType.CORRESPONDENTE) {
             // Ensure ROLE_CORRESPONDENTE is present in authorities
             if (!user.authorities) {
               user.authorities = ['ROLE_CORRESPONDENTE'];
+              console.log('Added ROLE_CORRESPONDENTE to user with null authorities');
             } else if (!user.authorities.includes('ROLE_CORRESPONDENTE')) {
               user.authorities = [...user.authorities, 'ROLE_CORRESPONDENTE'];
+              console.log('Added ROLE_CORRESPONDENTE to user with existing authorities');
+            } else {
+              console.log('User already has ROLE_CORRESPONDENTE');
             }
+            console.log('User authorities after fix:', user.authorities);
           }
           
           // If we have a correspondentId but no correspondente object, create a minimal correspondent object
@@ -225,7 +242,10 @@ export class AuthService {
             user.correspondente = { id: response.correspondentId } as Correspondente;
           }
           
+          console.log('Final user object:', user);
+          
           // Store user and notify subscribers
+          console.log('Storing user in localStorage:', user);
           localStorage.setItem('currentUser', JSON.stringify(user));
           this.currentUserSubject.next(user);
         }),
@@ -292,6 +312,7 @@ export class AuthService {
     return this.http.get<User & { correspondentId?: number }>(`${this.apiUrl}/me`, { headers })
       .pipe(
         switchMap(response => {
+          console.log('getCurrentUser response:', response);
           // Handle potential case sensitivity or naming differences
           const normalizedUser = { ...response } as User;
           
@@ -310,19 +331,30 @@ export class AuthService {
           
           // Ensure authorities are properly set from any possible field name
           const possibleAuthorities = response.authorities || (response as any).roles || [];
+          console.log('Possible authorities from response:', possibleAuthorities);
           
           if (!normalizedUser.authorities || normalizedUser.authorities.length === 0) {
             normalizedUser.authorities = Array.isArray(possibleAuthorities) ? possibleAuthorities : [];
           }
           
+          console.log('Normalized user before SPECIAL FIX:', normalizedUser);
+          
           // SPECIAL FIX: Ensure correspondent users have ROLE_CORRESPONDENTE
           if (normalizedUser.tipo === UserType.CORRESPONDENTE) {
             // Ensure ROLE_CORRESPONDENTE is present in authorities
+            console.log('Processing correspondent user with tipo:', normalizedUser.tipo);
+            console.log('Current authorities:', normalizedUser.authorities);
+            
             if (!normalizedUser.authorities) {
               normalizedUser.authorities = ['ROLE_CORRESPONDENTE'];
+              console.log('Added ROLE_CORRESPONDENTE to user with null authorities in getCurrentUser');
             } else if (!normalizedUser.authorities.includes('ROLE_CORRESPONDENTE')) {
               normalizedUser.authorities = [...normalizedUser.authorities, 'ROLE_CORRESPONDENTE'];
+              console.log('Added ROLE_CORRESPONDENTE to user with existing authorities in getCurrentUser');
+            } else {
+              console.log('User already has ROLE_CORRESPONDENTE in getCurrentUser');
             }
+            console.log('User authorities after fix in getCurrentUser:', normalizedUser.authorities);
           }
           
           // Preserve correspondent data from localStorage if not provided by server
@@ -339,6 +371,12 @@ export class AuthService {
           // Check if user is a correspondent
           const isCorrespondentUser = normalizedUser.tipo === UserType.CORRESPONDENTE || 
                                     (normalizedUser.authorities && normalizedUser.authorities.includes('ROLE_CORRESPONDENTE'));
+          
+          console.log('isCorrespondentUser check:', {
+            userType: normalizedUser.tipo,
+            authorities: normalizedUser.authorities,
+            isCorrespondentUser
+          });
           
           // If this is a correspondent user but we don't have correspondent data, fetch it
           if (isCorrespondentUser) {
@@ -368,11 +406,13 @@ export class AuthService {
           }
           
           return new Observable<User>(observer => {
+            console.log('Returning user from getCurrentUser:', normalizedUser);
             observer.next(normalizedUser);
             observer.complete();
           });
         }),
         tap(user => {
+          console.log('Storing user in localStorage in getCurrentUser tap:', user);
           localStorage.setItem('currentUser', JSON.stringify(user));
           this.currentUserSubject.next(user);
         }),

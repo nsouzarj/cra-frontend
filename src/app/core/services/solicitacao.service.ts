@@ -515,7 +515,7 @@ export class SolicitacaoService {
       
     console.log(`Calling searchByComarcaAndCorrespondentePaginated with comarcaId: ${comarcaId}, correspondenteId: ${correspondenteId}, page: ${page}, size: ${size}`);
     console.log(`URL: ${this.apiUrl}/buscar with params:`, params);
-    return this.http.get<PaginatedResponse<Solicitacao>>(`${this.apiUrl}/buscar`, { params })
+    return this.http.get<PaginatedResponse<Solicitacao>>(`${this.apiUrl}/buscar/comarca`, { params })
       .pipe(
         catchError((error) => {
           console.error('Error calling search endpoint with parameters, trying alternative endpoint:', error);
