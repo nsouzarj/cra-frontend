@@ -1,0 +1,114 @@
+<div class="filters-container" [formGroup]="filterForm">
+  <div class="filter-row">
+    <!-- Search Filter -->
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Buscar</mat-label>
+      <input matInput placeholder="Buscar por processo" formControlName="search">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <!-- Status Filter - Using actual statuses from backend -->
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status">
+        <mat-option value="">Todos</mat-option>
+        <mat-option *ngFor="let status of statuses" [value]="status.status">
+          {{ status.status }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Process Filter -->
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Processo</mat-label>
+      <input matInput placeholder="Número do processo" formControlName="processo">
+    </mat-form-field>
+
+    <!-- Type Filter -->
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Tipo</mat-label>
+      <mat-select formControlName="tipo">
+        <mat-option value="">Todos</mat-option>
+        <mat-option *ngFor="let tipo of tiposSolicitacao" [value]="tipo.idtiposolicitacao">
+          {{ tipo.tipo }} - {{ tipo.especie }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="filter-row">
+    <!-- Comarca Filter -->
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Comarca</mat-label>
+      <mat-select formControlName="comarca">
+        <mat-option [value]="null">Todas</mat-option>
+        <mat-option *ngFor="let comarca of comarcas" [value]="comarca.id">
+          {{ comarca.nome }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Correspondent Filter (only shown for admins and lawyers) -->
+    <mat-form-field appearance="outline" class="filter-field" *ngIf="showCorrespondentFilter">
+      <mat-label>Correspondente</mat-label>
+      <mat-select formControlName="correspondenteId">
+        <mat-option [value]="null">Todos os correspondentes</mat-option>
+        <mat-option *ngFor="let correspondente of correspondentes" [value]="correspondente.id">
+          {{ correspondente.nome }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Correspondent Text Filter (alternative for searching by name) -->
+    <mat-form-field appearance="outline" class="filter-field" *ngIf="showCorrespondentFilter">
+      <mat-label>Buscar correspondente por nome</mat-label>
+      <input matInput placeholder="Nome do correspondente" formControlName="correspondenteText">
+    </mat-form-field>
+
+    <!-- Date Solicitação From -->
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Data Solicitação (De)</mat-label>
+      <input matInput [matDatepicker]="solicitacaoPickerFrom" formControlName="dataSolicitacaoFrom">
+      <mat-datepicker-toggle matSuffix [for]="solicitacaoPickerFrom"></mat-datepicker-toggle>
+      <mat-datepicker #solicitacaoPickerFrom></mat-datepicker>
+    </mat-form-field>
+
+    <!-- Date Solicitação To -->
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Data Solicitação (Até)</mat-label>
+      <input matInput [matDatepicker]="solicitacaoPickerTo" formControlName="dataSolicitacaoTo">
+      <mat-datepicker-toggle matSuffix [for]="solicitacaoPickerTo"></mat-datepicker-toggle>
+      <mat-datepicker #solicitacaoPickerTo></mat-datepicker>
+    </mat-form-field>
+  </div>
+
+  <div class="filter-row">
+    <!-- Date Prazo From -->
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Prazo (De)</mat-label>
+      <input matInput [matDatepicker]="prazoPickerFrom" formControlName="dataPrazoFrom">
+      <mat-datepicker-toggle matSuffix [for]="prazoPickerFrom"></mat-datepicker-toggle>
+      <mat-datepicker #prazoPickerFrom></mat-datepicker>
+    </mat-form-field>
+
+    <!-- Date Prazo To -->
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Prazo (Até)</mat-label>
+      <input matInput [matDatepicker]="prazoPickerTo" formControlName="dataPrazoTo">
+      <mat-datepicker-toggle matSuffix [for]="prazoPickerTo"></mat-datepicker-toggle>
+      <mat-datepicker #prazoPickerTo></mat-datepicker>
+    </mat-form-field>
+
+    <!-- Filter Actions -->
+    <div class="filter-actions">
+      <button mat-raised-button color="primary" (click)="applyFilters()" class="filter-button">
+        <mat-icon>search</mat-icon>
+        Filtrar
+      </button>
+      <button mat-raised-button color="accent" (click)="onClearFilters()" class="clear-button">
+        <mat-icon>clear</mat-icon>
+        Limpar Filtros
+      </button>
+    </div>
+  </div>
+</div>

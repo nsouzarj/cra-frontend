@@ -40,6 +40,9 @@ import { AuthGuard } from '../../core/guards/auth.guard';
 // External Storage Module
 import { ExternalStorageModule } from '../auth/external-storage/external-storage.module';
 
+// Shared Module for RequestFilterComponent
+import { SharedModule } from '../../shared/shared.module';
+
 const routes: Routes = [
   { path: '', component: RequestListComponent, canActivate: [AuthGuard] },
   { path: 'novo', component: RequestFormComponent, canActivate: [AuthGuard] },
@@ -78,7 +81,9 @@ const routes: Routes = [
     MatTooltipModule,
     MatRadioModule,
     // External Storage Module
-    ExternalStorageModule
+    ExternalStorageModule,
+    // Shared Module for RequestFilterComponent
+    SharedModule
   ],
   providers: [
     TipoSolicitacaoService,

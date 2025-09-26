@@ -1,0 +1,71 @@
+.filters-container {
+  padding: 16px 0;
+  
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 16px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  .filter-field {
+    flex: 1;
+    min-width: 200px;
+    max-width: 300px;
+  }
+  
+  .filter-actions {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 16px;
+    
+    .filter-button, .clear-button {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+    
+    .filter-button {
+      background-color: #673ab7; // Purple color for filter button
+      color: white;
+    }
+  }
+  
+  // Responsive design
+  @media (max-width: 768px) {
+    .filter-row {
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .filter-field {
+      min-width: 100%;
+      max-width: 100%;
+    }
+    
+    .filter-actions {
+      align-items: center;
+      flex-direction: column;
+      
+      .filter-button, .clear-button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+  
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .filter-field {
+      min-width: calc(50% - 8px);
+    }
+  }
+}

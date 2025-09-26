@@ -18,6 +18,8 @@ import { PermissionService } from '@/app/core/services/permission.service';
 import { ConfirmationDialogComponent } from '@/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { Subscription } from 'rxjs';
 import { PaginatedResponse } from '../../../shared/models/api-response.model';
+import { RequestFilterCriteria } from '@/app/shared/components/request-filter/request-filter.component';
+import { SolicitacaoFiltro } from '../../../shared/models/solicitacao-filtro.model';
 
 @Component({
   selector: 'app-request-list',
@@ -31,18 +33,23 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
   dataSource = new MatTableDataSource<Solicitacao>();
   displayedColumns: string[] = ['id', 'datasolicitacao', 'dataprazo', 'tipoSolicitacao', 'processo', 'correspondente', 'status', 'actions'];
   loading = true;
-  statuses: SolicitacaoStatus[] = [];
   
-  // Filter properties
-  filterStatus: string = '';
-  filterSearch: string = '';
-  filterProcesso: string = '';
-  filterComarca: number | null = null;
-  filterOrgao: number | null = null;
-  filterDataSolicitacaoFrom: Date | null = null;
-  filterDataSolicitacaoTo: Date | null = null;
-  filterDataPrazoFrom: Date | null = null;
-  filterDataPrazoTo: Date | null = null;
+  // Current filter criteria
+  currentFilter: RequestFilterCriteria = {
+    status: '',
+    search: '',
+    processo: '',
+    tipo: '',
+    comarca: null,
+    correspondenteId: null,
+    correspondenteText: '',
+    dataSolicitacaoFrom: null,
+    dataSolicitacaoTo: null,
+    dataPrazoFrom: null,
+    dataPrazoTo: null
+  };
+  
+  statuses: SolicitacaoStatus[] = [];
   
   // Filter options
   processos: Processo[] = [];
@@ -119,71 +126,35 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
   loadRequests(): void {
     this.loading = true;
     
-    // Check if we have a search term
-    const searchTerm = this.filterSearch;
-    const statusFilter = this.filterStatus;
-    const comarcaFilter = this.filterComarca;
+    // Prepare the filter object for the advanced search endpoint
+    const filtro: SolicitacaoFiltro = {
+      page: this.currentPage,
+      size: this.pageSize,
+      sortBy: this.sortBy,
+      direction: this.sortDirection
+    };
     
-    if (searchTerm) {
-      // Use search endpoint with pagination
-      this.solicitacaoService.searchSolicitacoesPaginated(
-        searchTerm,
-        this.currentPage,
-        this.pageSize,
-        this.sortBy,
-        this.sortDirection
-      ).subscribe({
-        next: (response: PaginatedResponse<Solicitacao>) => {
-          this.handlePaginatedResponse(response);
-        },
-        error: (error) => {
-          this.handleLoadError(error);
-        }
-      });
-    } else if (statusFilter) {
-      // Use status filter endpoint with pagination
-      this.solicitacaoService.searchByStatusPaginated(
-        statusFilter,
-        this.currentPage,
-        this.pageSize
-      ).subscribe({
-        next: (response: PaginatedResponse<Solicitacao>) => {
-          this.handlePaginatedResponse(response);
-        },
-        error: (error) => {
-          this.handleLoadError(error);
-        }
-      });
-    } else if (comarcaFilter) {
-      // Use comarca filter endpoint with pagination
-      this.solicitacaoService.searchByComarcaPaginated(
-        comarcaFilter,
-        this.currentPage,
-        this.pageSize
-      ).subscribe({
-        next: (response: PaginatedResponse<Solicitacao>) => {
-          this.handlePaginatedResponse(response);
-        },
-        error: (error) => {
-          this.handleLoadError(error);
-        }
-      });
-    } else {
-      // Use default endpoint with pagination
-      this.solicitacaoService.getSolicitacoesPaginated(
-        this.currentPage,
-        this.pageSize,
-        this.sortBy,
-        this.sortDirection
-      ).subscribe({
-        next: (response: PaginatedResponse<Solicitacao>) => {
-          this.handlePaginatedResponse(response);
-        },
-        error: (error) => {
-          this.handleLoadError(error);
-        }
-      });
-    }
+    // Add filter criteria if they exist
+    if (this.currentFilter.comarca) filtro.comarcaId = this.currentFilter.comarca;
+    if (this.currentFilter.correspondenteId) filtro.correspondenteId = this.currentFilter.correspondenteId;
+    if (this.currentFilter.processo) filtro.numero = this.currentFilter.processo;
+    if (this.currentFilter.status) filtro.statusExterno = this.currentFilter.status;
+    if (this.currentFilter.search) filtro.texto = this.currentFilter.search;
+    if (this.currentFilter.tipo) filtro.tipoSolicitacaoId = parseInt(this.currentFilter.tipo);
+    
+    // Add date filters if they exist
+    if (this.currentFilter.dataSolicitacaoFrom) filtro.dataInicio = this.currentFilter.dataSolicitacaoFrom;
+    if (this.currentFilter.dataSolicitacaoTo) filtro.dataFim = this.currentFilter.dataSolicitacaoTo;
+    
+    // Use the advanced search endpoint for more efficient searching
+    this.solicitacaoService.searchAdvanced(filtro).subscribe({
+      next: (response: PaginatedResponse<Solicitacao>) => {
+        this.handlePaginatedResponse(response);
+      },
+      error: (error) => {
+        this.handleLoadError(error);
+      }
+    });
   }
 
   private handlePaginatedResponse(response: PaginatedResponse<Solicitacao>): void {
@@ -272,7 +243,10 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  applyFilter(): void {
+  // New method to handle filter changes from the RequestFilterComponent
+  onFilterChange(filterCriteria: RequestFilterCriteria): void {
+    console.log('Filter changed:', filterCriteria);
+    this.currentFilter = filterCriteria;
     this.currentPage = 0;
     if (this.paginator) {
       this.paginator.pageIndex = 0;
@@ -281,15 +255,21 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   clearFilters(): void {
-    this.filterStatus = '';
-    this.filterSearch = '';
-    this.filterProcesso = '';
-    this.filterComarca = null;
-    this.filterOrgao = null;
-    this.filterDataSolicitacaoFrom = null;
-    this.filterDataSolicitacaoTo = null;
-    this.filterDataPrazoFrom = null;
-    this.filterDataPrazoTo = null;
+    // Reset the current filter criteria
+    this.currentFilter = {
+      status: '',
+      search: '',
+      processo: '',
+      tipo: '',
+      comarca: null,
+      correspondenteId: null,
+      correspondenteText: '',
+      dataSolicitacaoFrom: null,
+      dataSolicitacaoTo: null,
+      dataPrazoFrom: null,
+      dataPrazoTo: null
+    };
+    
     this.currentPage = 0;
     if (this.paginator) {
       this.paginator.pageIndex = 0;

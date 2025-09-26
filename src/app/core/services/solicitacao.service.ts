@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { catchError, tap, map } from 'rxjs/operators'; // Adicionando tap e map
+import { catchError, tap, map } from 'rxjs/operators';
 import { Solicitacao, SolicitacaoStatus } from '../../shared/models/solicitacao.model';
+import { SolicitacaoFiltro } from '../../shared/models/solicitacao-filtro.model';
 import { environment } from '../../../environments/environment';
-import { PaginatedResponse } from '../../shared/models/api-response.model'; // Add this import
+import { PaginatedResponse } from '../../shared/models/api-response.model';
 
 /**
  * Service for managing service requests in the CRA system
@@ -17,7 +18,7 @@ export class SolicitacaoService {
   private apiUrl = `${environment.apiUrl}/api/solicitacoes`;
 
   constructor(private http: HttpClient) { 
-    console.log('URL da API de solicitações:', this.apiUrl); // Adicionando log para debug
+    console.log('URL da API de solicitações:', this.apiUrl);
   }
 
   /**
@@ -46,7 +47,7 @@ export class SolicitacaoService {
    * @returns Observable containing array of service requests
    */
   getSolicitacoes(): Observable<Solicitacao[]> {
-    console.log('Buscando solicitações na URL:', this.apiUrl); // Adicionando log para debug
+    console.log('Buscando solicitações na URL:', this.apiUrl);
     return this.http.get<PaginatedResponse<Solicitacao>>(this.apiUrl)
       .pipe(
         catchError(this.handleError),
@@ -81,7 +82,7 @@ export class SolicitacaoService {
    * @returns Observable containing the requested service request
    */
   getSolicitacaoById(id: number): Observable<Solicitacao> {
-    console.log('Buscando solicitação por ID:', id); // Adicionando log para debug
+    console.log('Buscando solicitação por ID:', id);
     return this.http.get<Solicitacao>(`${this.apiUrl}/${id}`)
       .pipe(catchError(this.handleError));
   }
@@ -431,6 +432,17 @@ export class SolicitacaoService {
    */
   getSolicitacaoStatuses(): Observable<SolicitacaoStatus[]> {
     return this.http.get<SolicitacaoStatus[]>(`${environment.apiUrl}/api/status-solicitacao`)
+      .pipe(catchError(this.handleError));
+  }
+
+  /**
+   * Performs an advanced search for service requests using multiple filter criteria
+   * 
+   * @param filtro The filter criteria object
+   * @returns Observable containing paginated list of matching service requests
+   */
+  searchAdvanced(filtro: SolicitacaoFiltro): Observable<PaginatedResponse<Solicitacao>> {
+    return this.http.post<PaginatedResponse<Solicitacao>>(`${this.apiUrl}/buscar/avancado`, filtro)
       .pipe(catchError(this.handleError));
   }
 

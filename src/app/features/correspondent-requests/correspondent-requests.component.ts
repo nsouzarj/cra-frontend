@@ -13,6 +13,9 @@ import { TipoSolicitacao } from '../../shared/models/tiposolicitacao.model';
 import { Comarca } from '../../shared/models/comarca.model';
 import { User } from '../../shared/models/user.model';
 import { ConfirmationDialogComponent } from '../../shared/components/confirmation-dialog/confirmation-dialog.component';
+import { RequestFilterCriteria } from '../../shared/components/request-filter/request-filter.component';
+import { PaginatedResponse } from '../../shared/models/api-response.model';
+import { SolicitacaoFiltro } from '../../shared/models/solicitacao-filtro.model';
 
 @Component({
   selector: 'app-correspondent-requests',
@@ -27,17 +30,20 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['id', 'datasolicitacao', 'dataprazo', 'tipoSolicitacao', 'processo', 'correspondente', 'status', 'actions'];
   loading = true;
   
-  // Filter properties
-  filterStatus: string = '';
-  filterSearch: string = '';
-  filterProcesso: string = '';
-  filterCorrespondente: string = '';
-  filterTipo: string = ''; // This will now hold the tipo ID instead of text
-  filterComarca: number | null = null; // Add comarca filter
-  filterDataSolicitacaoFrom: Date | null = null;
-  filterDataSolicitacaoTo: Date | null = null;
-  filterDataPrazoFrom: Date | null = null;
-  filterDataPrazoTo: Date | null = null;
+  // Current filter criteria
+  currentFilter: RequestFilterCriteria = {
+    status: '',
+    search: '',
+    processo: '',
+    tipo: '',
+    comarca: null,
+    correspondenteId: null,
+    correspondenteText: '',
+    dataSolicitacaoFrom: null,
+    dataSolicitacaoTo: null,
+    dataPrazoFrom: null,
+    dataPrazoTo: null
+  };
   
   // Available tipos de solicitação for the dropdown
   tiposSolicitacao: TipoSolicitacao[] = [];
@@ -115,78 +121,171 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
 
   loadRequests(): void {
     console.log('loadRequests called with currentUser:', this.currentUser);
-    console.log('filterComarca:', this.filterComarca);
+    console.log('currentFilter:', this.currentFilter);
     console.log('currentUser.correspondente:', this.currentUser?.correspondente);
     
+    // Set loading to true when starting to load requests
+    this.loading = true;
+    
     if (this.currentUser && this.currentUser.id) {
-      // Check if we have a comarca filter
-      if (this.filterComarca && this.currentUser.correspondente?.id) {
-        console.log('Loading requests filtered by comarca:', this.filterComarca, 'and correspondent:', this.currentUser.correspondente.id);
-        // Load requests for the current user's correspondent filtered by comarca
-        this.solicitacaoService.searchByComarcaAndCorrespondentePaginated(
-          this.filterComarca, 
-          this.currentUser.correspondente.id
-        ).subscribe({
-          next: (response) => {
-            console.log('Received paginated response filtered by comarca:', response);
-            this.dataSource.data = response.content || [];
-            this.loading = false;
-            console.log('Loaded', this.dataSource.data.length, 'requests filtered by comarca');
-            
-            // Connect paginator and sort after data is loaded
-            setTimeout(() => {
-              if (this.paginator) {
-                this.dataSource.paginator = this.paginator;
-              }
-              if (this.sort) {
-                this.dataSource.sort = this.sort;
-              }
-            }, 0);
-          },
-          error: (error) => {
-            console.error('Error loading requests:', error);
-            this.dataSource.data = [];
-            this.loading = false;
-            this.snackBar.open('Erro ao carregar solicitações', 'Fechar', { duration: 5000 });
-          }
-        });
-      } else {
-        console.log('Loading all requests for correspondent:', this.currentUser.id);
-        // Load requests specifically for the current user's correspondent
-        this.solicitacaoService.searchByUserCorrespondente(this.currentUser.id).subscribe({
-          next: (solicitacoes) => {
-            console.log('Received all solicitacoes for correspondent:', solicitacoes);
-            this.dataSource.data = solicitacoes;
-            this.loading = false;
-            console.log('Loaded', this.dataSource.data.length, 'requests for correspondent');
-            
-            // Connect paginator and sort after data is loaded
-            setTimeout(() => {
-              if (this.paginator) {
-                this.dataSource.paginator = this.paginator;
-              }
-              if (this.sort) {
-                this.dataSource.sort = this.sort;
-              }
-            }, 0);
-          },
-          error: (error) => {
-            console.error('Error loading requests:', error);
-            this.dataSource.data = [];
-            this.loading = false;
-            this.snackBar.open('Erro ao carregar solicitações', 'Fechar', { duration: 5000 });
-          }
-        });
+      // Prepare the filter object for the advanced search endpoint
+      const filtro: SolicitacaoFiltro = {
+        page: 0,
+        size: 1000, // Load all requests for correspondent
+        sortBy: 'datasolicitacao',
+        direction: 'DESC'
+      };
+      
+      // For correspondents, always filter by their own requests
+      if (this.authService.isCorrespondente() && this.currentUser.correspondente?.id) {
+        console.log('Loading requests for correspondent:', this.currentUser.correspondente.id);
+        filtro.correspondenteId = this.currentUser.correspondente.id;
+      } 
+      // For admins and lawyers, we can filter by various criteria including correspondent
+      else if (this.authService.isAdmin() || this.authService.isAdvogado()) {
+        console.log('Loading requests for admin/lawyer with filter:', this.currentFilter);
+        // Add filter criteria if they exist
+        if (this.currentFilter.comarca) filtro.comarcaId = this.currentFilter.comarca;
+        if (this.currentFilter.correspondenteId) filtro.correspondenteId = this.currentFilter.correspondenteId;
+        if (this.currentFilter.processo) filtro.numero = this.currentFilter.processo;
+        if (this.currentFilter.status) filtro.statusExterno = this.currentFilter.status;
+        if (this.currentFilter.search) filtro.texto = this.currentFilter.search;
+        if (this.currentFilter.tipo) filtro.tipoSolicitacaoId = parseInt(this.currentFilter.tipo);
+        
+        // Add date filters if they exist
+        if (this.currentFilter.dataSolicitacaoFrom) filtro.dataInicio = this.currentFilter.dataSolicitacaoFrom;
+        if (this.currentFilter.dataSolicitacaoTo) filtro.dataFim = this.currentFilter.dataSolicitacaoTo;
       }
-    } else if (this.currentUser && this.authService.isCorrespondente()) {
-      // If we don't have user ID, show an error
+      
+      // Use the advanced search endpoint for more efficient searching
+      this.solicitacaoService.searchAdvanced(filtro).subscribe({
+        next: (response: PaginatedResponse<Solicitacao>) => {
+          // Apply client-side filtering for additional criteria that might not be supported by backend
+          const filteredSolicitacoes = this.applyClientSideFilter(response.content || []);
+          
+          console.log('Received solicitacoes:', filteredSolicitacoes);
+          this.dataSource.data = filteredSolicitacoes;
+          this.loading = false;
+          console.log('Loaded', this.dataSource.data.length, 'requests');
+          
+          // Connect paginator and sort after data is loaded
+          setTimeout(() => {
+            if (this.paginator) {
+              this.dataSource.paginator = this.paginator;
+            }
+            if (this.sort) {
+              this.dataSource.sort = this.sort;
+            }
+          }, 0);
+        },
+        error: (error: any) => {
+          console.error('Error loading requests:', error);
+          this.dataSource.data = [];
+          this.loading = false;
+          this.snackBar.open('Erro ao carregar solicitações', 'Fechar', { duration: 5000 });
+        }
+      });
+    } else {
+      // If we don't have user data, show an error
       this.loading = false;
       this.snackBar.open('Erro ao carregar dados do usuário', 'Fechar', { duration: 5000 });
-    } else {
-      // User is not a correspondent
-      this.loading = false;
-      this.snackBar.open('Acesso restrito a correspondentes', 'Fechar', { duration: 5000 });
     }
+  }
+
+  // Helper method to apply client-side filtering
+  private applyClientSideFilter(solicitacoes: Solicitacao[]): Solicitacao[] {
+    return solicitacoes.filter(solicitacao => {
+      // Filter by status
+      if (this.currentFilter.status && 
+          solicitacao.statusSolicitacao?.status !== this.currentFilter.status) {
+        return false;
+      }
+      
+      // Filter by search term (process number)
+      if (this.currentFilter.search && 
+          (!solicitacao.processo?.numeroprocesso || 
+           !solicitacao.processo.numeroprocesso.toLowerCase().includes(this.currentFilter.search.toLowerCase()))) {
+        return false;
+      }
+      
+      // Filter by process
+      if (this.currentFilter.processo && 
+          (!solicitacao.processo?.numeroprocesso || 
+           solicitacao.processo.numeroprocesso !== this.currentFilter.processo)) {
+        return false;
+      }
+      
+      // Filter by tipo
+      if (this.currentFilter.tipo && 
+          (!solicitacao.tipoSolicitacao?.idtiposolicitacao || 
+           solicitacao.tipoSolicitacao.idtiposolicitacao.toString() !== this.currentFilter.tipo)) {
+        return false;
+      }
+      
+      // Filter by comarca
+      if (this.currentFilter.comarca && 
+          (!solicitacao.comarca?.id || 
+           solicitacao.comarca.id !== this.currentFilter.comarca)) {
+        return false;
+      }
+      
+      // Filter by correspondent ID (for admins and lawyers)
+      if (this.currentFilter.correspondenteId && 
+          (!solicitacao.correspondente?.id || 
+           solicitacao.correspondente.id !== this.currentFilter.correspondenteId)) {
+        return false;
+      }
+      
+      // Filter by correspondent name (for admins and lawyers)
+      if (this.currentFilter.correspondenteText && 
+          (!solicitacao.correspondente?.nome || 
+           !solicitacao.correspondente.nome.toLowerCase().includes(this.currentFilter.correspondenteText.toLowerCase()))) {
+        return false;
+      }
+      
+      // Filter by data solicitação from
+      if (this.currentFilter.dataSolicitacaoFrom && solicitacao.datasolicitacao) {
+        const filterDate = new Date(this.currentFilter.dataSolicitacaoFrom);
+        const solicitacaoDate = new Date(solicitacao.datasolicitacao);
+        if (solicitacaoDate < filterDate) {
+          return false;
+        }
+      }
+      
+      // Filter by data solicitação to
+      if (this.currentFilter.dataSolicitacaoTo && solicitacao.datasolicitacao) {
+        const filterDate = new Date(this.currentFilter.dataSolicitacaoTo);
+        const solicitacaoDate = new Date(solicitacao.datasolicitacao);
+        // Add one day to include the entire end date
+        filterDate.setDate(filterDate.getDate() + 1);
+        if (solicitacaoDate >= filterDate) {
+          return false;
+        }
+      }
+      
+      // Filter by data prazo from
+      if (this.currentFilter.dataPrazoFrom && solicitacao.dataprazo) {
+        const filterDate = new Date(this.currentFilter.dataPrazoFrom);
+        const solicitacaoDate = new Date(solicitacao.dataprazo);
+        if (solicitacaoDate < filterDate) {
+          return false;
+        }
+      }
+      
+      // Filter by data prazo to
+      if (this.currentFilter.dataPrazoTo && solicitacao.dataprazo) {
+        const filterDate = new Date(this.currentFilter.dataPrazoTo);
+        const solicitacaoDate = new Date(solicitacao.dataprazo);
+        // Add one day to include the entire end date
+        filterDate.setDate(filterDate.getDate() + 1);
+        if (solicitacaoDate >= filterDate) {
+          return false;
+        }
+      }
+      
+      // If all filters pass, include this solicitation
+      return true;
+    });
   }
 
   getStatusClass(status: string | undefined): string {
@@ -208,8 +307,10 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
     }
   }
 
-  applyFilter(): void {
-    console.log('applyFilter called with filterComarca:', this.filterComarca);
+  // New method to handle filter changes from the RequestFilterComponent
+  onFilterChange(filterCriteria: RequestFilterCriteria): void {
+    console.log('Filter changed:', filterCriteria);
+    this.currentFilter = filterCriteria;
     // Always reload requests, the loadRequests method will handle the filtering logic
     this.loadRequests();
     
@@ -225,16 +326,20 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
   }
 
   clearFilters(): void {
-    this.filterStatus = '';
-    this.filterSearch = '';
-    this.filterProcesso = '';
-    this.filterCorrespondente = '';
-    this.filterTipo = '';
-    this.filterComarca = null; // Add this line
-    this.filterDataSolicitacaoFrom = null;
-    this.filterDataSolicitacaoTo = null;
-    this.filterDataPrazoFrom = null;
-    this.filterDataPrazoTo = null;
+    // Reset the current filter criteria
+    this.currentFilter = {
+      status: '',
+      search: '',
+      processo: '',
+      tipo: '',
+      comarca: null,
+      correspondenteId: null,
+      correspondenteText: '',
+      dataSolicitacaoFrom: null,
+      dataSolicitacaoTo: null,
+      dataPrazoFrom: null,
+      dataPrazoTo: null
+    };
     
     // Clear the filter
     this.dataSource.filter = '';
@@ -277,6 +382,12 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
   
   canAdminOrLawyerChangeStatus(): boolean {
     // Admins or lawyers can always change status, even when it's "Finalizada"
+    return this.authService.isAdmin() || this.authService.isAdvogado();
+  }
+  
+  // Method to determine if correspondent filter should be shown
+  shouldShowCorrespondentFilter(): boolean {
+    // Show correspondent filter only for admins and lawyers
     return this.authService.isAdmin() || this.authService.isAdvogado();
   }
   

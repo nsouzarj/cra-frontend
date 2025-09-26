@@ -17,89 +17,13 @@
         <p>Carregando solicitações...</p>
       </div>
       
-      <!-- Filters -->
+      <!-- Filters - Using the new RequestFilterComponent -->
       <div class="filters-container" *ngIf="!loading">
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Buscar</mat-label>
-          <input matInput placeholder="Buscar por processo" [(ngModel)]="filterSearch" (input)="applyFilter()">
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-        
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Status</mat-label>
-          <mat-select [(ngModel)]="filterStatus" (selectionChange)="applyFilter()">
-            <mat-option value="">Todos</mat-option>
-            <mat-option value="Pendente">Pendente</mat-option>
-            <mat-option value="Em Andamento">Em Andamento</mat-option>
-            <mat-option value="Finalizada">Finalizada</mat-option>
-            <mat-option value="Cancelada">Cancelada</mat-option>
-          </mat-select>
-        </mat-form-field>
-        
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Processo</mat-label>
-          <input matInput placeholder="Número do processo" [(ngModel)]="filterProcesso" (input)="applyFilter()">
-        </mat-form-field>
-        
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Correspondente</mat-label>
-          <input matInput placeholder="Nome do correspondente" [(ngModel)]="filterCorrespondente" (input)="applyFilter()">
-        </mat-form-field>
-        
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Tipo</mat-label>
-          <mat-select [(ngModel)]="filterTipo" (selectionChange)="applyFilter()">
-            <mat-option value="">Todos</mat-option>
-            <mat-option *ngFor="let tipo of tiposSolicitacao" [value]="tipo.idtiposolicitacao">
-              {{ tipo.tipo }} - {{ tipo.especie }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <!-- Date filters -->
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Data Solicitação (De)</mat-label>
-          <input matInput [matDatepicker]="solicitacaoPickerFrom" [(ngModel)]="filterDataSolicitacaoFrom" (dateChange)="applyFilter()">
-          <mat-datepicker-toggle matSuffix [for]="solicitacaoPickerFrom"></mat-datepicker-toggle>
-          <mat-datepicker #solicitacaoPickerFrom></mat-datepicker>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Data Solicitação (Até)</mat-label>
-          <input matInput [matDatepicker]="solicitacaoPickerTo" [(ngModel)]="filterDataSolicitacaoTo" (dateChange)="applyFilter()">
-          <mat-datepicker-toggle matSuffix [for]="solicitacaoPickerTo"></mat-datepicker-toggle>
-          <mat-datepicker #solicitacaoPickerTo></mat-datepicker>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Prazo (De)</mat-label>
-          <input matInput [matDatepicker]="prazoPickerFrom" [(ngModel)]="filterDataPrazoFrom" (dateChange)="applyFilter()">
-          <mat-datepicker-toggle matSuffix [for]="prazoPickerFrom"></mat-datepicker-toggle>
-          <mat-datepicker #prazoPickerFrom></mat-datepicker>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Prazo (Até)</mat-label>
-          <input matInput [matDatepicker]="prazoPickerTo" [(ngModel)]="filterDataPrazoTo" (dateChange)="applyFilter()">
-          <mat-datepicker-toggle matSuffix [for]="prazoPickerTo"></mat-datepicker-toggle>
-          <mat-datepicker #prazoPickerTo></mat-datepicker>
-        </mat-form-field>
-        
-        <!-- Add comarca filter here -->
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Comarca</mat-label>
-          <mat-select [(ngModel)]="filterComarca" (selectionChange)="applyFilter()">
-            <mat-option [value]="null">Todas</mat-option>
-            <mat-option *ngFor="let comarca of comarcas" [value]="comarca.id">
-              {{ comarca.nome }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        
-        <button mat-raised-button color="primary" (click)="clearFilters()" class="button-align">
-          <mat-icon>clear</mat-icon>
-          Limpar Filtros
-        </button>
+        <app-request-filter 
+          [showCorrespondentFilter]="shouldShowCorrespondentFilter()"
+          (filterChange)="onFilterChange($event)"
+          (clearFilters)="clearFilters()">
+        </app-request-filter>
       </div>
       
       <!-- Requests table -->

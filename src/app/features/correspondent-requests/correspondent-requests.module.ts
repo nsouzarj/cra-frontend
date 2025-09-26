@@ -36,6 +36,9 @@ import { CorrespondenteGuard } from '../../core/guards/correspondente.guard';
 // External Storage Module
 import { ExternalStorageModule } from '../auth/external-storage/external-storage.module';
 
+// Shared Module for RequestFilterComponent
+import { SharedModule } from '../../shared/shared.module';
+
 const routes: Routes = [
   { path: '', component: CorrespondentRequestsComponent, canActivate: [CorrespondenteGuard] },
   { path: 'visualizar/:id', component: CorrespondentRequestDetailComponent, canActivate: [CorrespondenteGuard] }
@@ -70,7 +73,9 @@ const routes: Routes = [
     MatTooltipModule,
     MatRadioModule,
     // External Storage Module
-    ExternalStorageModule
+    ExternalStorageModule,
+    // Shared Module for RequestFilterComponent
+    SharedModule
   ],
   providers: [
     TipoSolicitacaoService,
