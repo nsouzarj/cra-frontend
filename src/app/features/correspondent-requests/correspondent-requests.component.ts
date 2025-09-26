@@ -5,6 +5,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { SolicitacaoService } from '../../core/services/solicitacao.service';
+import { SolicitacaoStatusService } from '../../core/services/solicitacao-status.service'; // Add this import
 import { AuthService } from '../../core/services/auth.service';
 import { TipoSolicitacaoService } from '../../core/services/tiposolicitacao.service';
 import { ComarcaService } from '../../core/services/comarca.service';
@@ -48,14 +49,16 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
   // Available tipos de solicitação for the dropdown
   tiposSolicitacao: TipoSolicitacao[] = [];
   comarcas: Comarca[] = []; // Add comarcas array for filter options
+  statuses: SolicitacaoStatus[] = []; // Add statuses array for filter options
   
   currentUser: User | null = null;
 
   constructor(
     private solicitacaoService: SolicitacaoService,
+    private solicitacaoStatusService: SolicitacaoStatusService,
     private authService: AuthService,
     private tipoSolicitacaoService: TipoSolicitacaoService,
-    private comarcaService: ComarcaService, // Add comarca service
+    private comarcaService: ComarcaService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog
   ) {}
@@ -64,6 +67,7 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
     this.loadCurrentUserAndRequests();
     this.loadTiposSolicitacao();
     this.loadComarcas(); // Add this to load comarcas for filter
+    this.loadStatuses(); // Add this to load statuses for filter
   }
 
   ngAfterViewInit(): void {
@@ -119,6 +123,20 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
     });
   }
 
+  loadStatuses(): void {
+    // Load statuses for filter options
+    this.solicitacaoStatusService.getSolicitacaoStatuses().subscribe({
+      next: (statuses: SolicitacaoStatus[]) => {
+        this.statuses = statuses;
+        console.log('Loaded', this.statuses.length, 'statuses for filter');
+      },
+      error: (error: any) => {
+        console.error('Error loading statuses:', error);
+        this.snackBar.open('Erro ao carregar statuses', 'Fechar', { duration: 5000 });
+      }
+    });
+  }
+
   loadRequests(): void {
     console.log('loadRequests called with currentUser:', this.currentUser);
     console.log('currentFilter:', this.currentFilter);
@@ -140,6 +158,19 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
       if (this.authService.isCorrespondente() && this.currentUser.correspondente?.id) {
         console.log('Loading requests for correspondent:', this.currentUser.correspondente.id);
         filtro.correspondenteId = this.currentUser.correspondente.id;
+        
+        // Apply other filter criteria for correspondents as well
+        if (this.currentFilter.comarca) filtro.comarcaId = this.currentFilter.comarca;
+        if (this.currentFilter.processo) filtro.numero = this.currentFilter.processo;
+        if (this.currentFilter.status) filtro.statusId = this.getStatusIdByName(this.currentFilter.status);
+        if (this.currentFilter.search) filtro.texto = this.currentFilter.search;
+        if (this.currentFilter.tipo) filtro.tipoSolicitacaoId = parseInt(this.currentFilter.tipo);
+        
+        // Add date filters if they exist
+        if (this.currentFilter.dataSolicitacaoFrom) filtro.dataInicio = this.currentFilter.dataSolicitacaoFrom;
+        if (this.currentFilter.dataSolicitacaoTo) filtro.dataFim = this.currentFilter.dataSolicitacaoTo;
+        if (this.currentFilter.dataPrazoFrom) filtro.dataPrazoInicio = this.currentFilter.dataPrazoFrom;
+        if (this.currentFilter.dataPrazoTo) filtro.dataPrazoFim = this.currentFilter.dataPrazoTo;
       } 
       // For admins and lawyers, we can filter by various criteria including correspondent
       else if (this.authService.isAdmin() || this.authService.isAdvogado()) {
@@ -148,7 +179,7 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
         if (this.currentFilter.comarca) filtro.comarcaId = this.currentFilter.comarca;
         if (this.currentFilter.correspondenteId) filtro.correspondenteId = this.currentFilter.correspondenteId;
         if (this.currentFilter.processo) filtro.numero = this.currentFilter.processo;
-        if (this.currentFilter.status) filtro.statusExterno = this.currentFilter.status;
+        if (this.currentFilter.status) filtro.statusId = this.getStatusIdByName(this.currentFilter.status);
         if (this.currentFilter.search) filtro.texto = this.currentFilter.search;
         if (this.currentFilter.tipo) filtro.tipoSolicitacaoId = parseInt(this.currentFilter.tipo);
         
@@ -391,6 +422,14 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
     return this.authService.isAdmin() || this.authService.isAdvogado();
   }
   
+  // Helper method to get status ID by name
+  private getStatusIdByName(statusName: string): number | null {
+    if (!statusName) return null;
+    
+    const status = this.statuses.find(s => s.status === statusName);
+    return status ? status.idstatus : null;
+  }
+  
   // Updated method to show confirmation dialog before updating status
   updateStatus(solicitacao: Solicitacao, newStatus: string): void {
     if (!this.canChangeStatus()) {
@@ -470,5 +509,17 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
         });
       }
     });
+  }
+  
+  // Helper method to format date to Brazilian format dd/MM/yyyy HH:mm:ss
+  private formatDateToBrazilian(date: Date): string {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    
+    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
   }
 }

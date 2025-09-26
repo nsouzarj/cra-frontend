@@ -138,13 +138,15 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.currentFilter.comarca) filtro.comarcaId = this.currentFilter.comarca;
     if (this.currentFilter.correspondenteId) filtro.correspondenteId = this.currentFilter.correspondenteId;
     if (this.currentFilter.processo) filtro.numero = this.currentFilter.processo;
-    if (this.currentFilter.status) filtro.statusExterno = this.currentFilter.status;
+    if (this.currentFilter.status) filtro.statusId = this.getStatusIdByName(this.currentFilter.status);
     if (this.currentFilter.search) filtro.texto = this.currentFilter.search;
     if (this.currentFilter.tipo) filtro.tipoSolicitacaoId = parseInt(this.currentFilter.tipo);
     
     // Add date filters if they exist
     if (this.currentFilter.dataSolicitacaoFrom) filtro.dataInicio = this.currentFilter.dataSolicitacaoFrom;
     if (this.currentFilter.dataSolicitacaoTo) filtro.dataFim = this.currentFilter.dataSolicitacaoTo;
+    if (this.currentFilter.dataPrazoFrom) filtro.dataPrazoInicio = this.currentFilter.dataPrazoFrom;
+    if (this.currentFilter.dataPrazoTo) filtro.dataPrazoFim = this.currentFilter.dataPrazoTo;
     
     // Use the advanced search endpoint for more efficient searching
     this.solicitacaoService.searchAdvanced(filtro).subscribe({
@@ -322,5 +324,13 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
         });
       }
     });
+  }
+  
+  // Helper method to get status ID by name
+  private getStatusIdByName(statusName: string): number | null {
+    if (!statusName) return null;
+    
+    const status = this.statuses.find(s => s.status === statusName);
+    return status ? status.idstatus : null;
   }
 }

@@ -64,6 +64,82 @@
   overflow: hidden;
 }
 
+.stat-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background-color: rgb(255, 219, 178);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.stat-content {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+}
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20px;
+  flex-shrink: 0;
+}
+
+.stat-icon.audiencia {
+  background-color: #4facfe;
+  color: white;
+}
+
+.stat-icon.diligencia {
+  background-color: #ffcc00;
+  color: white;
+}
+
+.stat-icon.total {
+  background-color: #43e97b;
+  color: white;
+}
+
+.stat-icon mat-icon {
+  font-size: 30px;
+  width: 30px;
+  height: 30px;
+}
+
+.stat-details {
+  flex: 1;
+}
+
+.stat-details h3 {
+  margin: 0 0 5px 0;
+  color: var(--text-color, #333);
+  font-size: 18px;
+}
+
+.stat-numbers {
+  display: flex;
+  flex-direction: column;
+}
+
+.primary-number {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--text-color, #333);
+}
+
+.secondary-number {
+  font-size: 14px;
+  color: var(--secondary-text-color, #666);
+}
+
 /* Charts Section */
 .charts-section {
   margin-bottom: 30px;

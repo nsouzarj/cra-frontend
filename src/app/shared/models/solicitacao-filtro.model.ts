@@ -11,12 +11,18 @@ export interface SolicitacaoFiltro {
   processoId?: number | null;
   usuarioId?: number | null;
   statusId?: number | null;
+  status?: string | null; // Status by name
   tipoSolicitacaoId?: number | null;
   grupo?: number | null;
   statusExterno?: string | null;
   texto?: string | null; // For text search in observacao or instrucoes
   dataInicio?: Date | null;
   dataFim?: Date | null;
+  // Additional date filters
+  dataConclusaoInicio?: Date | null;
+  dataConclusaoFim?: Date | null;
+  dataPrazoInicio?: Date | null;
+  dataPrazoFim?: Date | null;
   pago?: boolean | null;
   concluida?: boolean | null;
   atrasada?: boolean | null;
