@@ -1,6 +1,11 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 export interface PasswordResetDialogData {
   userName: string;
@@ -10,7 +15,14 @@ export interface PasswordResetDialogData {
   selector: 'app-password-reset-dialog',
   templateUrl: './password-reset-dialog.component.html',
   styleUrls: ['./password-reset-dialog.component.scss'],
-  standalone: true
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule
+  ]
 })
 export class PasswordResetDialogComponent {
   newPassword: string = '';

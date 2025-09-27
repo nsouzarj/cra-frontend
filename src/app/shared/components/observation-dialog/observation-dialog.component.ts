@@ -1,5 +1,10 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 
 export interface ObservationDialogData {
   title: string;
@@ -13,7 +18,14 @@ export interface ObservationDialogData {
   selector: 'app-observation-dialog',
   templateUrl: './observation-dialog.component.html',
   styleUrls: ['./observation-dialog.component.scss'],
-  standalone: true
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatInputModule,
+    MatButtonModule,
+    MatCardModule
+  ]
 })
 export class ObservationDialogComponent {
   observation: string = '';
