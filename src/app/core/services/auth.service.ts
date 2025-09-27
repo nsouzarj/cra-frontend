@@ -127,12 +127,7 @@ export class AuthService {
     const isCorrespondentType = user?.tipo === UserType.CORRESPONDENTE;
     const hasCorrespondentRole = this.hasRole('ROLE_CORRESPONDENTE');
     
-    console.log('isCorrespondente check - User:', user);
-    console.log('isCorrespondente check - isCorrespondentType:', isCorrespondentType);
-    console.log('isCorrespondente check - hasCorrespondentRole:', hasCorrespondentRole);
-    
     const result = isCorrespondentType || hasCorrespondentRole;
-    console.log('isCorrespondente check - result:', result);
     
     return result;
   }
@@ -198,7 +193,6 @@ export class AuthService {
           return normalizedResponse;
         }),
         tap(response => {
-          console.log('Login response:', response);
           // Store JWT token
           localStorage.setItem('token', response.token);
           localStorage.setItem('refreshToken', response.refreshToken);
@@ -206,7 +200,6 @@ export class AuthService {
           // Create user object from response
           // Ensure we correctly map roles/authorities regardless of backend field name
           const userAuthorities = response.roles || (response as any).authorities || [];
-          console.log('User authorities from response:', userAuthorities);
           
           const user: User = {
             id: response.id,
@@ -220,21 +213,14 @@ export class AuthService {
             correspondente: response.correspondente
           };
           
-          console.log('User before SPECIAL FIX:', user);
-          
           // SPECIAL FIX: Ensure correspondent users have ROLE_CORRESPONDENTE
           if (user.tipo === UserType.CORRESPONDENTE) {
             // Ensure ROLE_CORRESPONDENTE is present in authorities
             if (!user.authorities) {
               user.authorities = ['ROLE_CORRESPONDENTE'];
-              console.log('Added ROLE_CORRESPONDENTE to user with null authorities');
             } else if (!user.authorities.includes('ROLE_CORRESPONDENTE')) {
               user.authorities = [...user.authorities, 'ROLE_CORRESPONDENTE'];
-              console.log('Added ROLE_CORRESPONDENTE to user with existing authorities');
-            } else {
-              console.log('User already has ROLE_CORRESPONDENTE');
             }
-            console.log('User authorities after fix:', user.authorities);
           }
           
           // If we have a correspondentId but no correspondente object, create a minimal correspondent object
@@ -242,10 +228,7 @@ export class AuthService {
             user.correspondente = { id: response.correspondentId } as Correspondente;
           }
           
-          console.log('Final user object:', user);
-          
           // Store user and notify subscribers
-          console.log('Storing user in localStorage:', user);
           localStorage.setItem('currentUser', JSON.stringify(user));
           this.currentUserSubject.next(user);
         }),

@@ -244,6 +244,36 @@ export class ProcessoService {
   }
 
   /**
+   * Retrieves processes with advanced filtering and pagination support
+   * 
+   * @param filtro Object containing filter parameters
+   * @param page Page number (0-based)
+   * @param size Number of items per page
+   * @param sortBy Field to sort by
+   * @param direction Sort direction (ASC or DESC)
+   * @returns Observable containing paginated response
+   */
+  getProcessosWithFilter(filtro: any, page: number, size: number, sortBy: string, direction: string): Observable<PaginatedResponse<Processo>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sortBy', sortBy)
+      .set('direction', direction);
+
+    // Add filter parameters to the request
+    if (filtro) {
+      Object.keys(filtro).forEach(key => {
+        if (filtro[key] !== null && filtro[key] !== undefined && filtro[key] !== '') {
+          params = params.set(key, filtro[key]);
+        }
+      });
+    }
+      
+    return this.http.get<PaginatedResponse<Processo>>(this.apiUrl, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  /**
    * Searches for processes by search term with pagination
    * 
    * @param searchTerm The term to search for

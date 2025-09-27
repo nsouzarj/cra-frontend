@@ -25,14 +25,12 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    console.log('AppComponent: ngOnInit called');
     // Initialize theme
     // Theme is now initialized in the service constructor
     
     // Listen for theme changes
     window.addEventListener('themeChanged', (event: Event) => {
       const customEvent = event as CustomEvent;
-      console.log('AppComponent: Theme changed to', customEvent.detail);
     });
     
     // Check if we just returned from external storage authentication
@@ -68,16 +66,9 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
   
   toggleSidenav(): void {
-    console.log('Toggling sidenav');
-    console.log('Sidenav reference:', this.sidenav);
     if (this.sidenav) {
-      console.log('Sidenav mode:', this.sidenav.mode);
-      console.log('Sidenav opened:', this.sidenav.opened);
       this.sidenav.toggle();
       this.isSidenavOpen = !this.isSidenavOpen;
-      console.log('Sidenav is now:', this.isSidenavOpen ? 'open' : 'closed');
-    } else {
-      console.log('Sidenav reference is not available');
     }
   }
   
@@ -91,7 +82,6 @@ export class AppComponent implements OnInit, AfterViewInit {
       window.history.replaceState({}, document.title, window.location.pathname);
       
       // Show a success message or notification
-      console.log('External storage authentication successful');
       
       // Optionally, you could show a toast notification here
       // or trigger a refresh of any components that depend on the auth status

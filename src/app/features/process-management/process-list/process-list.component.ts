@@ -125,6 +125,12 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
     
     console.log('Filter values:', { searchTerm, comarcaFilter, orgaoFilter, statusFilter }); // Debug log
 
+    // Create filter object
+    const filtro: any = {};
+    if (comarcaFilter) filtro.comarcaId = Number(comarcaFilter);
+    if (orgaoFilter) filtro.orgaoId = Number(orgaoFilter);
+    if (statusFilter) filtro.status = statusFilter;
+
     if (searchTerm) {
       // Use search endpoint with pagination
       this.processoService.searchProcessosPaginated(
@@ -141,40 +147,14 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
           this.handleLoadError(error);
         }
       });
-    } else if (comarcaFilter) {
-      // Use comarca filter endpoint with pagination
-      this.processoService.searchByComarcaPaginated(
-        Number(comarcaFilter),
+    } else if (Object.keys(filtro).length > 0) {
+      // Use new filter endpoint with pagination
+      this.processoService.getProcessosWithFilter(
+        filtro,
         this.currentPage,
-        this.pageSize
-      ).subscribe({
-        next: (response: PaginatedResponse<Processo>) => {
-          this.handlePaginatedResponse(response);
-        },
-        error: (error) => {
-          this.handleLoadError(error);
-        }
-      });
-    } else if (orgaoFilter) {
-      // Use orgao filter endpoint with pagination
-      this.processoService.searchByOrgaoPaginated(
-        Number(orgaoFilter),
-        this.currentPage,
-        this.pageSize
-      ).subscribe({
-        next: (response: PaginatedResponse<Processo>) => {
-          this.handlePaginatedResponse(response);
-        },
-        error: (error) => {
-          this.handleLoadError(error);
-        }
-      });
-    } else if (statusFilter) {
-      // Use status filter endpoint with pagination
-      this.processoService.searchByStatusPaginated(
-        statusFilter,
-        this.currentPage,
-        this.pageSize
+        this.pageSize,
+        this.sortBy,
+        this.sortDirection
       ).subscribe({
         next: (response: PaginatedResponse<Processo>) => {
           this.handlePaginatedResponse(response);

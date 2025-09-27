@@ -179,12 +179,22 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   }
 
   private loadDropdownData(): void {
-    // Load processos
-    this.processoService.getProcessos().subscribe({
-      next: (processos) => {
+    // Load processos using paginated method to ensure we get all processes
+    this.processoService.getProcessosPaginated(0, 1000, 'numeroprocesso', 'ASC').subscribe({
+      next: (response) => {
+        const processos = response.content || [];
         this.processos = processos;
+        
         // Filter to only show processes with status "EM_ANDAMENTO"
-        this.filteredProcessos = processos.filter(p => p.status === 'EM_ANDAMENTO');
+        this.filteredProcessos = this.processos.filter(p => p.status === 'EM_ANDAMENTO');
+        
+        // If no processes with "EM_ANDAMENTO" status, show all processes
+        if (this.filteredProcessos.length === 0) {
+          this.filteredProcessos = this.processos;
+        }
+        
+        // Force change detection to ensure the template updates
+        this.changeDetectorRef.detectChanges();
       },
       error: (error) => {
         console.error('Error loading processos:', error);
@@ -613,10 +623,10 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     // For Audiência, always include horaAudiencia when it exists in the form (especially in edit mode)
     if (this.showAudienciaFields || (this.isEditMode && formValue.horaAudiencia !== undefined)) {
       solicitacao.dataagendamento = formValue.dataAgendamento || null;
-      solicitacao.horaudiencia = formValue.horaAudiencia || null; // Fixed property name
+      solicitacao.horaaudiencia = formValue.horaAudiencia || null; // Fixed property name
       console.log('Setting audiencia fields:', {
         dataagendamento: solicitacao.dataagendamento,
-        horaudiencia: solicitacao.horaudiencia
+        horaudiencia: solicitacao.horaaudiencia
       });
     }
     
