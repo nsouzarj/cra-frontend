@@ -10,11 +10,28 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { Comarca } from '../../../shared/models/comarca.model';
 import { Uf } from '../../../shared/models/uf.model';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-comarca-form',
   templateUrl: './comarca-form.component.html',
-  styleUrls: ['./comarca-form.component.scss']
+  styleUrls: ['./comarca-form.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatCardModule,
+    MatCheckboxModule
+  ]
 })
 export class ComarcaFormComponent implements OnInit {
   comarcaForm: FormGroup;

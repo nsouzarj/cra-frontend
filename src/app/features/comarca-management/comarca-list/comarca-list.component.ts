@@ -17,11 +17,32 @@ import { ConfirmationDialogComponent } from '../../../shared/components/confirma
 import { Comarca } from '../../../shared/models/comarca.model';
 import { Uf } from '../../../shared/models/uf.model';
 import { PaginatedResponse } from '../../../shared/models/api-response.model';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatTableModule } from '@angular/material/table';
+import { MatIconModule } from '@angular/material/icon';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-comarca-list',
   templateUrl: './comarca-list.component.html',
-  styleUrls: ['./comarca-list.component.scss']
+  styleUrls: ['./comarca-list.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatCardModule,
+    MatTableModule,
+    MatIconModule,
+    MatPaginatorModule
+  ]
 })
 export class ComarcaListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;

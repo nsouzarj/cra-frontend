@@ -7,12 +7,26 @@ import { UserService } from '../../../core/services/user.service';
 import { CorrespondenteService } from '../../../core/services/correspondente.service';
 import { RegisterRequest, UserType } from '../../../shared/models/user.model';
 import { Correspondente } from '../../../shared/models/correspondente.model';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
-  standalone: true
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatCardModule
+  ]
 })
 export class RegisterComponent implements OnInit {
   registerForm: FormGroup;
