@@ -19,10 +19,10 @@ export class DateFormatService {
    * @returns Formatted date string in DD/MM/YYYY format or 'Não informado' if invalid
    */
   formatDate(date: Date | string | undefined): string {
-    console.log('=== formatDate called with:', date, '===');
+    // Debug log removed
     
     if (!date) {
-      console.log('Date is empty, returning "Não informado"');
+      // Debug log removed
       return 'Não informado';
     }
     
@@ -35,18 +35,18 @@ export class DateFormatService {
       } 
       // If it's a string, try to parse it
       else if (typeof date === 'string') {
-        console.log('Formatting string date:', date);
+        // Debug log removed
         
         // Handle the specific format: "2025,9,11,3,0" (year,month,day,hour,minute)
         if (date.includes(',')) {
           const parts = date.split(',');
-          console.log('Comma-separated date parts:', parts);
+          // Debug log removed
           if (parts.length >= 3) {
             const year = parseInt(parts[0], 10);
             const month = parseInt(parts[1], 10) - 1; // JS months are 0-indexed
             const day = parseInt(parts[2], 10);
             dateObj = new Date(year, month, day);
-            console.log('Parsed comma-separated date:', dateObj);
+            // Debug log removed
           } else {
             // Fallback to regular parsing
             dateObj = new Date(date);
@@ -55,12 +55,12 @@ export class DateFormatService {
         // Handle ISO date format with time (2025-09-11T03:00:00.000+00:00)
         else if (date.includes('T') && date.includes(':')) {
           dateObj = new Date(date);
-          console.log('Parsed ISO date with time:', dateObj);
+          // Debug log removed
         }
         // Handle ISO date format (YYYY-MM-DD)
         else if (date.match(/^\d{4}-\d{2}-\d{2}/)) {
           dateObj = new Date(date);
-          console.log('Parsed ISO date:', dateObj);
+          // Debug log removed
         }
         // Handle Brazilian date format (DD/MM/YYYY)
         else if (date.match(/^\d{2}\/\d{2}\/\d{4}/)) {
@@ -69,12 +69,12 @@ export class DateFormatService {
           const month = parseInt(parts[1], 10) - 1; // JS months are 0-indexed
           const year = parseInt(parts[2], 10);
           dateObj = new Date(year, month, day);
-          console.log('Parsed Brazilian format date:', dateObj);
+          // Debug log removed
         }
         // Handle other formats
         else {
           dateObj = new Date(date);
-          console.log('Parsed other format date:', dateObj);
+          // Debug log removed
         }
       } 
       // Fallback
@@ -84,7 +84,7 @@ export class DateFormatService {
       
       // Check if the date is valid
       if (isNaN(dateObj.getTime())) {
-        console.log('Invalid date, returning "Não informado"');
+        // Debug log removed
         return 'Não informado';
       }
       
@@ -97,7 +97,7 @@ export class DateFormatService {
       const monthStr = month < 10 ? '0' + month : month.toString();
       
       const result = `${dayStr}/${monthStr}/${year}`;
-      console.log('Formatted date:', result);
+      // Debug log removed
       return result;
     } catch (error) {
       // If there's an error parsing, return "Não informado"
@@ -114,10 +114,10 @@ export class DateFormatService {
    * @returns Formatted date string in DD/MM/YYYY HH:mm format or 'Não informado' if invalid
    */
   formatDateTime(date: Date | string | undefined): string {
-    console.log('=== formatDateTime called with:', date, '===');
+    // Debug log removed
     
     if (!date) {
-      console.log('DateTime is empty, returning "Não informado"');
+      // Debug log removed
       return 'Não informado';
     }
     
@@ -130,17 +130,17 @@ export class DateFormatService {
       } 
       // If it's a string, try to parse it
       else if (typeof date === 'string') {
-        console.log('Formatting string datetime:', date);
+        // Debug log removed
         
         // Handle ISO date format with time (2025-09-11T03:00:00.000+00:00 or 2025-09-11T03:00:00)
         if (date.includes('T') && date.includes(':')) {
           dateObj = new Date(date);
-          console.log('Parsed ISO datetime:', dateObj);
+          // Debug log removed
         }
         // Handle other formats by falling back to regular date parsing
         else {
           dateObj = new Date(date);
-          console.log('Parsed other format datetime:', dateObj);
+          // Debug log removed
         }
       } 
       // Fallback
@@ -150,7 +150,7 @@ export class DateFormatService {
       
       // Check if the date is valid
       if (isNaN(dateObj.getTime())) {
-        console.log('Invalid datetime, returning "Não informado"');
+        // Debug log removed
         return 'Não informado';
       }
       
@@ -167,7 +167,7 @@ export class DateFormatService {
       const minutesStr = minutes < 10 ? '0' + minutes : minutes.toString();
       
       const result = `${dayStr}/${monthStr}/${year} ${hoursStr}:${minutesStr}`;
-      console.log('Formatted datetime:', result);
+      // Debug log removed
       return result;
     } catch (error) {
       // If there's an error parsing, return "Não informado"

@@ -104,19 +104,13 @@ export class CorrespondentDashboardComponent implements OnInit {
     // Try to get fresh user data from the server
     this.authService.getCurrentUser().subscribe({
       next: (user) => {
-        console.log('Received fresh user data in dashboard:', user);
         this.currentUser = user;
-        console.log('Correspondent ID:', this.currentUser?.correspondente?.id);
-        console.log('User ID:', this.currentUser?.id);
         this.loadDashboardData();
       },
       error: (error) => {
         console.error('Error loading current user in dashboard:', error);
         // Fallback to cached data
         this.currentUser = this.authService.currentUserValue;
-        console.log('Using cached user data in dashboard:', this.currentUser);
-        console.log('Correspondent ID:', this.currentUser?.correspondente?.id);
-        console.log('User ID:', this.currentUser?.id);
         this.loadDashboardData();
       }
     });
@@ -127,7 +121,6 @@ export class CorrespondentDashboardComponent implements OnInit {
     let correspondentId = this.currentUser?.correspondente?.id;
     
     if (correspondentId) {
-      console.log('Using correspondent ID from current user:', correspondentId);
       this.loadDashboardDataWithId(correspondentId);
       return;
     }
@@ -135,27 +128,22 @@ export class CorrespondentDashboardComponent implements OnInit {
     // If we don't have the correspondent ID, try to get it from the user service
     const userId = this.currentUser?.id;
     if (userId) {
-      console.log('Attempting to fetch user data to get correspondent ID for user ID:', userId);
       this.userService.getUserById(userId).pipe(
         switchMap(user => {
-          console.log('Received user data from userService:', user);
           const fetchedCorrespondentId = user?.correspondente?.id;
           if (fetchedCorrespondentId) {
-            console.log('Found correspondent ID from userService:', fetchedCorrespondentId);
             // Update the current user in auth service with the full data
             this.authService.updateCurrentUser(user);
             this.currentUser = user;
             return of(fetchedCorrespondentId);
           } else {
             // If still no correspondent ID, try other fallbacks
-            console.log('No correspondent ID in userService response, trying other fallbacks');
             const storedUser = localStorage.getItem('currentUser');
             if (storedUser) {
               try {
                 const parsedUser = JSON.parse(storedUser);
                 const fallbackCorrespondentId = parsedUser?.correspondente?.id || parsedUser?.correspondentId;
                 if (fallbackCorrespondentId) {
-                  console.log('Using fallback correspondent ID from localStorage:', fallbackCorrespondentId);
                   return of(fallbackCorrespondentId);
                 }
               } catch (e) {
@@ -168,7 +156,6 @@ export class CorrespondentDashboardComponent implements OnInit {
       ).subscribe({
         next: (id) => {
           if (id) {
-            console.log('Using correspondent ID for dashboard data:', id);
             this.loadDashboardDataWithId(id);
           } else {
             console.error('No correspondent ID found for dashboard data after all attempts');
@@ -190,15 +177,12 @@ export class CorrespondentDashboardComponent implements OnInit {
     // Fetch correspondent-specific dashboard data
     this.dashboardService.getCorrespondentDashboardData(correspondentId).subscribe({
       next: (dashboardData: DashboardData) => {
-        console.log('Loaded correspondent dashboard data:', dashboardData);
-        
         // Update tipo solicitacao counts
         this.updateTipoSolicitacaoCounts(dashboardData);
         
         // Update chart data
         this.solicitacoesPorStatusChart = this.dashboardService.mapSolicitacoesPorStatusData(dashboardData);
         
-        console.log('Updated solicitacoesPorStatusChart:', this.solicitacoesPorStatusChart);
         this.loading = false;
       },
       error: (error: any) => {
@@ -228,40 +212,27 @@ export class CorrespondentDashboardComponent implements OnInit {
         }
       });
     }
-
-    console.log('Tipo solicitacao counts:', this.tipoSolicitacaoCounts);
   }
 
   // Chart helper methods
   getBarHeight(value: number, maxValue: number): string {
-    console.log(`Calculating bar height for value: ${value}, max: ${maxValue}`);
     if (maxValue === 0) {
-      console.log('Max value is 0, returning 0%');
       return '0%';
     }
-    const height = `${(value / maxValue) * 100}%`;
-    console.log(`Calculated height: ${height}`);
-    return height;
+    return `${(value / maxValue) * 100}%`;
   }
 
   getMaxValue(values: number[]): number {
-    console.log('Getting max value from:', values);
-    const max = Math.max(...values, 1); // Return at least 1 to avoid division by zero
-    console.log(`Max value: ${max}`);
-    return max;
+    return Math.max(...values, 1); // Return at least 1 to avoid division by zero
   }
 
   getPieStrokeDasharray(value: number, values: number[]): string {
     const total = values.reduce((sum, val) => sum + val, 0);
-    console.log(`Calculating stroke dasharray for value: ${value}, total: ${total}`);
     if (total === 0) {
-      console.log('Total is 0, returning 0, 100');
       return '0, 100';
     }
     const percentage = (value / total) * 100;
-    const result = `${percentage}, 100`;
-    console.log(`Calculated stroke dasharray: ${result}`);
-    return result;
+    return `${percentage}, 100`;
   }
 
   getPieStrokeDashoffset(index: number, values: number[]): string {
@@ -269,30 +240,22 @@ export class CorrespondentDashboardComponent implements OnInit {
     for (let i = 0; i < index; i++) {
       const total = values.reduce((sum, val) => sum + val, 0);
       if (total === 0) {
-        console.log('Total is 0, returning 0');
         return '0';
       }
       offset += (values[i] / total) * 100;
     }
-    const result = `-${offset}`;
-    console.log(`Calculated stroke dashoffset for index ${index}: ${result}`);
-    return result;
+    return `-${offset}`;
   }
 
   // Method to calculate total solicitacoes for pie chart center
   getTotalSolicitacoes(): number {
-    const total = this.solicitacoesPorStatusChart.values.reduce((sum, value) => sum + value, 0);
-    console.log(`Calculating total solicitacoes: ${total}`);
-    return total;
+    return this.solicitacoesPorStatusChart.values.reduce((sum, value) => sum + value, 0);
   }
 
   // Helper method to get color for a status with fallback to generated colors
   private getStatusColor(status: string, index: number): string {
-    console.log(`Getting color for status: "${status}" at index: ${index}`);
-    
     // First check if we have a predefined color
     if (this.statusColors[status]) {
-      console.log(`Found predefined color for status "${status}": ${this.statusColors[status]}`);
       return this.statusColors[status];
     }
     
@@ -305,8 +268,6 @@ export class CorrespondentDashboardComponent implements OnInit {
     ];
     
     // Return a color from our palette, cycling if necessary
-    const color = colors[index % colors.length];
-    console.log(`Generated color for status "${status}": ${color}`);
-    return color;
+    return colors[index % colors.length];
   }
 }

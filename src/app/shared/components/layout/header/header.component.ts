@@ -28,8 +28,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    console.log('HeaderComponent: ngOnInit called');
-    console.log('HeaderComponent: Current theme on init:', this.getCurrentTheme());
+    // Debug log removed
+    // Debug log removed
     
     // Listen for theme changes
     this.setupThemeListener();
@@ -55,7 +55,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.themeSubscription = new Subscription();
     const themeHandler = (event: Event) => {
       const customEvent = event as CustomEvent;
-      console.log('HeaderComponent: Theme changed to', customEvent.detail);
+      // Debug log removed
       // Force change detection when theme changes
       this.cdr.detectChanges();
     };
@@ -93,18 +93,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   onToggleSidenav(): void {
-    console.log('Header: Toggling sidenav');
+    // Debug log removed
     this.toggleSidenav.emit();
   }
 
   onThemeMenuClick(event: Event): void {
-    console.log('HeaderComponent: Theme menu clicked');
+    // Debug log removed
     event.preventDefault();
     event.stopPropagation();
   }
 
   onThemeSelect(theme: Theme, event: Event): void {
-    console.log('HeaderComponent: Theme selected:', theme);
+    // Debug log removed
     event.preventDefault();
     event.stopPropagation();
     
@@ -119,7 +119,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   setTheme(theme: Theme): void {
-    console.log('HeaderComponent: Setting theme to', theme);
+    // Debug log removed
     // Simple approach - just call the theme service directly
     this.themeService.setTheme(theme);
     // Force change detection
@@ -128,13 +128,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   getCurrentTheme(): Theme {
     const theme = this.themeService.getCurrentTheme();
-    console.log('HeaderComponent: Getting current theme:', theme);
+    // Debug log removed
     return theme;
   }
 
   getAvailableThemes(): { value: Theme; label: string }[] {
     const themes = this.themeService.getAvailableThemes();
-    console.log('HeaderComponent: Getting available themes:', themes);
+    // Debug log removed
     return themes;
   }
 
@@ -185,16 +185,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   testTheme(): void {
-    console.log('Testing theme functionality');
-    console.log('Current theme:', this.getCurrentTheme());
-    console.log('Available themes:', this.getAvailableThemes());
-    console.log('Body classes before test:', Array.from(document.body.classList));
+    // Debug log removed
+    // Debug log removed
+    // Debug log removed
+    // Debug log removed
     // Try setting a specific theme
     this.setTheme('green');
   }
 
   refreshTheme(): void {
-    console.log('Refreshing theme');
+    // Debug log removed
     this.themeService.setTheme(this.themeService.getCurrentTheme());
   }
 

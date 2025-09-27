@@ -26,7 +26,6 @@ export class ExternalStorageAuthDialogComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    console.log('Initializing ExternalStorageAuthDialogComponent');
     // Check if we have a return URL in the data
     if (this.data && this.data.returnUrl) {
       this.returnUrl = this.data.returnUrl;
@@ -44,21 +43,17 @@ export class ExternalStorageAuthDialogComponent implements OnInit, OnDestroy {
 
   // Check authorization status
   checkAuthorizationStatus() {
-    console.log('Checking authorization status');
     this.isCheckingStatus = true;
     this.error = null;
     
     this.externalStorageService.getConnectionStatus().subscribe({
       next: (response) => {
-        console.log('Received connection status response:', response);
         this.isCheckingStatus = false;
         // Store debug info
         this.debugInfo = response;
-        console.log('Connection status response:', response);
         
         if (response.status === 'OK') {
           // Authorization successful
-          console.log('User is connected to Google Drive');
           this.isConnected = true;
           // Clear interval since we're connected
           if (this.statusCheckInterval) {
@@ -70,7 +65,6 @@ export class ExternalStorageAuthDialogComponent implements OnInit, OnDestroy {
             this.closeDialog(true);
           }, 1500);
         } else {
-          console.log('User is not connected to Google Drive');
           this.isConnected = false;
           // If status is UNAVAILABLE, show a specific error message
           if (response.status === 'UNAVAILABLE') {
@@ -98,7 +92,6 @@ export class ExternalStorageAuthDialogComponent implements OnInit, OnDestroy {
 
   // Start Google Drive authentication flow
   startGoogleDriveAuth() {
-    console.log('Starting Google Drive authentication flow');
     this.isLoading = true;
     this.error = null;
     
@@ -106,7 +99,6 @@ export class ExternalStorageAuthDialogComponent implements OnInit, OnDestroy {
     this.externalStorageService.getAuthorizationUrl(this.returnUrl || undefined).subscribe({
       next: (response) => {
         const authUrl = response.authorizationUrl;
-        console.log('Received authorization URL:', authUrl);
         this.isLoading = false;
         
         if (authUrl) {
@@ -162,7 +154,6 @@ export class ExternalStorageAuthDialogComponent implements OnInit, OnDestroy {
 
   // Close dialog and return result
   closeDialog(result: boolean = false) {
-    console.log('Closing dialog with result:', result);
     // Clear interval when closing dialog
     if (this.statusCheckInterval) {
       clearInterval(this.statusCheckInterval);

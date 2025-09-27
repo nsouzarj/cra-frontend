@@ -14,8 +14,9 @@ import { Processo } from '../../shared/models/processo.model';
 import { Solicitacao, SolicitacaoStatus } from '../../shared/models/solicitacao.model';
 import { TipoSolicitacao } from '../../shared/models/tiposolicitacao.model';
 import { Comarca } from '../../shared/models/comarca.model';
+import { PaginatedResponse } from '../../shared/models/api-response.model';
 import { forkJoin, Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
 interface DashboardStats {
@@ -267,9 +268,23 @@ export class AdminDashboardComponent implements OnInit {
       this.processoService.getProcessos().pipe(catchError((error) => {
         return of([]);
       })),
-      this.processoService.searchByStatus('EM_ANDAMENTO').pipe(catchError((error) => {
-        return of([]);
-      }))
+      this.processoService.searchByStatusPaginated('EM_ANDAMENTO', 0, 1000).pipe(
+        catchError((error) => {
+          return of({ 
+            content: [], 
+            totalElements: 0, 
+            totalPages: 0, 
+            size: 0, 
+            number: 0, 
+            first: true, 
+            last: true, 
+            numberOfElements: 0,
+            totalTableElements: 0 
+          });
+        }),
+        // Extract content array from paginated response
+        map((response: PaginatedResponse<Processo>) => response.content || [])
+      )
     );
 
     // Add solicitacao requests

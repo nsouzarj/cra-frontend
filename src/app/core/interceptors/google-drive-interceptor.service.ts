@@ -19,7 +19,6 @@ export class GoogleDriveInterceptor implements HttpInterceptor {
                 'refresh_token_received' in event.body) {
               // This is a Google Drive auth success response
               // We could handle it here if needed
-              console.log('Google Drive authentication successful');
             }
           }
         }),
@@ -35,14 +34,12 @@ export class GoogleDriveInterceptor implements HttpInterceptor {
       return next.handle(req).pipe(
         tap(event => {
           if (event instanceof HttpResponse) {
-            console.log('Google Drive authorization URL response:', event.body);
           }
         }),
         catchError((error: HttpErrorResponse) => {
           console.error('Google Drive authorization URL error:', error);
           // Check if this is the UNAVAILABLE response
           if (error.status === 400 && error.error && typeof error.error === 'object' && error.error.status === 'UNAVAILABLE') {
-            console.log('Google Drive service is unavailable');
           }
           return throwError(() => error);
         })
@@ -54,7 +51,6 @@ export class GoogleDriveInterceptor implements HttpInterceptor {
       return next.handle(req).pipe(
         tap(event => {
           if (event instanceof HttpResponse) {
-            console.log('Google Drive status response:', event.body);
           }
         }),
         catchError((error: HttpErrorResponse) => {

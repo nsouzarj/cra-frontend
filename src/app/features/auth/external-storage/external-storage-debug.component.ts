@@ -12,15 +12,12 @@ export class ExternalStorageDebugComponent implements OnInit {
   constructor(private externalStorageService: ExternalStorageService) {}
 
   ngOnInit(): void {
-    console.log('ExternalStorageDebugComponent initialized');
   }
 
   checkStatus(): void {
-    console.log('Checking status...');
     this.error = '';
     this.externalStorageService.getConnectionStatus().subscribe({
       next: (response) => {
-        console.log('Status response:', response);
         this.debugInfo = response;
       },
       error: (error) => {
@@ -32,11 +29,9 @@ export class ExternalStorageDebugComponent implements OnInit {
   }
 
   getAuthUrl(): void {
-    console.log('Getting auth URL...');
     this.error = '';
     this.externalStorageService.getAuthorizationUrl().subscribe({
       next: (response) => {
-        console.log('Auth URL response:', response);
         this.debugInfo = response;
       },
       error: (error) => {
@@ -48,11 +43,9 @@ export class ExternalStorageDebugComponent implements OnInit {
   }
 
   testConnection(): void {
-    console.log('Testing connection...');
     this.error = '';
     this.externalStorageService.testConnection().subscribe({
       next: (response) => {
-        console.log('Test connection response:', response);
         this.debugInfo = response;
       },
       error: (error) => {
@@ -64,11 +57,9 @@ export class ExternalStorageDebugComponent implements OnInit {
   }
 
   isAuthenticated(): void {
-    console.log('Checking if authenticated...');
     this.error = '';
     this.externalStorageService.isAuthenticated().subscribe({
       next: (response) => {
-        console.log('Is authenticated response:', response);
         this.debugInfo = { isAuthenticated: response };
       },
       error: (error) => {

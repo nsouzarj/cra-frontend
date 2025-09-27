@@ -247,7 +247,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // New method to handle filter changes from the RequestFilterComponent
   onFilterChange(filterCriteria: RequestFilterCriteria): void {
-    console.log('Filter changed:', filterCriteria);
+    // Debug log removed
     this.currentFilter = filterCriteria;
     this.currentPage = 0;
     if (this.paginator) {

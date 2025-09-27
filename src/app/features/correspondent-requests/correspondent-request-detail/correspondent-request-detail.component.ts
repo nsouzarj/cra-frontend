@@ -52,18 +52,9 @@ export class CorrespondentRequestDetailComponent implements OnInit {
     // Add external storage auth guard service
     private externalStorageAuthGuard: ExternalStorageAuthGuardService
   ) {
-    console.log('AuthService in constructor:', authService);
-    console.log('AuthService isAdmin:', authService.isAdmin());
-    console.log('AuthService isAdvogado:', authService.isAdvogado());
-    console.log('AuthService isCorrespondente:', authService.isCorrespondente());
   }
 
   ngOnInit(): void {
-    console.log('AuthService in ngOnInit:', this.authService);
-    console.log('AuthService isAdmin:', this.authService.isAdmin());
-    console.log('AuthService isAdvogado:', this.authService.isAdvogado());
-    console.log('AuthService isCorrespondente:', this.authService.isCorrespondente());
-    
     this.route.params.subscribe(params => {
       const requestId = +params['id'];
       if (requestId) {
@@ -77,22 +68,11 @@ export class CorrespondentRequestDetailComponent implements OnInit {
   private loadRequest(requestId: number): void {
     this.solicitacaoService.getSolicitacaoById(requestId).subscribe({
       next: (solicitacao) => {
-        // Log the raw data for debugging
-        console.log('=== Raw solicitacao data ===');
-        console.log('Complete solicitacao object:', solicitacao);
-        console.log('datasolicitacao value:', solicitacao.datasolicitacao);
-        console.log('dataprazo value:', solicitacao.dataprazo);
-        console.log('dataconclusao value:', solicitacao.dataconclusao);
-        console.log('dataagendamento value:', solicitacao.dataagendamento);
-        console.log('Status value:', solicitacao.statusSolicitacao?.status);
-        console.log('Status type:', typeof solicitacao.statusSolicitacao?.status);
-        
         // Run date format tests
         this.testDateFormat();
         
         this.solicitacao = solicitacao;
         this.loading = false;
-        console.log('=== End of loadRequest ===');
       },
       error: (error) => {
         console.error('Error loading solicitacao:', error);
@@ -107,11 +87,6 @@ export class CorrespondentRequestDetailComponent implements OnInit {
   private loadAnexos(requestId: number): void {
     this.solicitacaoAnexoService.getAnexosBySolicitacaoId(requestId).subscribe({
       next: (anexos) => {
-        console.log('Attachments loaded:', anexos);
-        // Add debugging to check origin values
-        anexos.forEach(anexo => {
-          console.log(`Attachment ${anexo.nomearquivo} has origin:`, anexo.origem);
-        });
         this.anexos = anexos;
       },
       error: (error) => {
@@ -551,13 +526,9 @@ export class CorrespondentRequestDetailComponent implements OnInit {
 
   // Method to get the CSS class for an attachment based on its origin
   getAttachmentClass(anexo: SolicitacaoAnexo): string {
-    console.log('Getting class for attachment:', anexo);
-    console.log('Attachment origin:', anexo.origem);
     if (anexo.origem === 'correspondente') {
-      console.log('Returning attachment-correspondente class');
       return 'attachment-correspondente';
     } else {
-      console.log('Returning attachment-solicitante class');
       return 'attachment-solicitante';
     }
   }
@@ -591,38 +562,16 @@ export class CorrespondentRequestDetailComponent implements OnInit {
 
   // Simple test method that can be called from template
   simpleTestDateFormat(dateString: string): string {
-    console.log('Simple test called with:', dateString);
     return this.formatDate(dateString);
   }
 
   // Test method to verify date formatting
   testDateFormat(): void {
-    console.log('=== Testing date format methods ===');
-    
-    // Test the specific format mentioned
-    const testDate1 = '2025,9,11,3,0';
-    console.log('Test 1 - Input:', testDate1, 'Output:', this.formatDate(testDate1));
-    
-    // Test standard ISO format
-    const testDate2 = '2025-09-11';
-    console.log('Test 2 - Input:', testDate2, 'Output:', this.formatDate(testDate2));
-    
-    // Test Brazilian format
-    const testDate3 = '11/09/2025';
-    console.log('Test 3 - Input:', testDate3, 'Output:', this.formatDate(testDate3));
-    
-    // Test another comma-separated format
-    const testDate4 = '2025,12,3,15,30';
-    console.log('Test 4 - Input:', testDate4, 'Output:', this.formatDate(testDate4));
-    
-    
-    console.log('=== End of date format tests ===');
   }
 
   // Helper method to check if the solicitation is of type Audiência
   isAudiencia(): boolean {
     if (!this.solicitacao?.tipoSolicitacao) {
-      console.log('isAudiencia: No tipoSolicitacao');
       return false;
     }
     
@@ -632,14 +581,12 @@ export class CorrespondentRequestDetailComponent implements OnInit {
     const result = especie.includes('audiencia') || especie.includes('audiência') || 
            tipo.includes('audiencia') || tipo.includes('audiência');
     
-    console.log('isAudiencia check:', { especie, tipo, result });
     return result;
   }
 
   // Helper method to check if the solicitation is of type Diligência
   isDiligencia(): boolean {
     if (!this.solicitacao?.tipoSolicitacao) {
-      console.log('isDiligencia: No tipoSolicitacao');
       return false;
     }
     
@@ -649,7 +596,6 @@ export class CorrespondentRequestDetailComponent implements OnInit {
     const result = especie.includes('diligencia') || especie.includes('diligência') || 
            tipo.includes('diligencia') || tipo.includes('diligência');
     
-    console.log('isDiligencia check:', { especie, tipo, result });
     return result;
   }
 }

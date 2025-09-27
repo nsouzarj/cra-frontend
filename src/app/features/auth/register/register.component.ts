@@ -51,25 +51,16 @@ export class RegisterComponent implements OnInit {
     // Subscribe to tipo changes to show/hide correspondent field
     this.registerForm.get('tipo')?.valueChanges.subscribe(tipo => {
       this.showCorrespondentField = tipo === UserType.CORRESPONDENTE;
-      console.log('Tipo changed to:', tipo, 'Show correspondent field:', this.showCorrespondentField);
       // Remove the required validator - users can have no correspondent associated
       this.registerForm.get('correspondente')?.clearValidators();
       this.registerForm.get('correspondente')?.updateValueAndValidity();
     });
-    
-    // Subscribe to correspondent changes for debugging
-    this.registerForm.get('correspondente')?.valueChanges.subscribe(value => {
-      console.log('Correspondent field value changed to:', value);
-    });
   }
 
   loadCorrespondentes(): void {
-    console.log('Loading correspondentes...');
     this.correspondenteService.getCorrespondentes().subscribe({
       next: (correspondentes) => {
-        console.log('Correspondentes loaded:', correspondentes);
         this.correspondentes = correspondentes;
-        console.log('Correspondentes array updated, length:', this.correspondentes.length);
       },
       error: (error) => {
         console.error('Error loading correspondentes:', error);
@@ -98,14 +89,6 @@ export class RegisterComponent implements OnInit {
     this.loading = true;
     const formData = this.registerForm.value;
     
-    // Debug: Log form data
-    console.log('=== REGISTRATION FORM SUBMISSION DEBUG ===');
-    console.log('Form Data:', formData);
-    console.log('Show Correspondent Field:', this.showCorrespondentField);
-    console.log('Correspondent Value:', formData.correspondente);
-    console.log('User Type:', formData.tipo);
-    console.log('Is Correspondent Type:', formData.tipo === UserType.CORRESPONDENTE);
-    
     // Prepare user data
     const userData: any = {
       login: formData.login,
@@ -121,35 +104,11 @@ export class RegisterComponent implements OnInit {
       // If a correspondent is selected, send it as { id: correspondentId }
       if (formData.correspondente) {
         userData.correspondente = { id: formData.correspondente };
-        console.log('Setting correspondente as ID object:', { id: formData.correspondente });
       } else {
         // For correspondent users, if no correspondent is selected, send null to clear any existing association
         userData.correspondente = null;
-        console.log('Setting correspondente to null for correspondent user type');
       }
-    } else {
-      console.log('Not setting correspondente. Tipo:', formData.tipo);
     }
-
-    console.log('Final user data being sent:', userData);
-    console.log('Final user data as JSON:', JSON.stringify(userData, null, 2));
-    
-    // Additional debugging - check if the correspondente property exists in the object
-    if ('correspondente' in userData) {
-      console.log('Correspondente property exists in userData');
-      console.log('Correspondente value:', userData.correspondente);
-      if (userData.correspondente) {
-        console.log('Correspondente is truthy');
-        console.log('Correspondente type:', typeof userData.correspondente);
-        console.log('Correspondente keys:', Object.keys(userData.correspondente));
-      } else {
-        console.log('Correspondente is falsy');
-      }
-    } else {
-      console.log('Correspondente property does NOT exist in userData');
-    }
-    
-    console.log('=== END DEBUG ===');
 
     this.userService.createUser(userData).subscribe({
       next: (user) => {

@@ -17,7 +17,6 @@ export class ExternalStorageService {
    * @param returnUrl Optional return URL to be passed as state parameter
    */
   getAuthorizationUrl(returnUrl?: string): Observable<{ authorizationUrl: string }> {
-    console.log('Calling getAuthorizationUrl endpoint');
     let url = `${this.apiUrl}/authorize`;
     
     // If we have a return URL, pass it as a query parameter
@@ -28,10 +27,6 @@ export class ExternalStorageService {
     }
     
     return this.http.get<{ authorizationUrl: string }>(url).pipe(
-      tap(response => {
-        console.log('Authorization URL response:', response);
-        console.log('Authorization URL:', response.authorizationUrl);
-      }),
       catchError((error: HttpErrorResponse) => {
         console.error('Error getting authorization URL:', error);
         // Log detailed error information
@@ -47,12 +42,7 @@ export class ExternalStorageService {
    * Check connection status
    */
   getConnectionStatus(): Observable<{ message: string; status: string }> {
-    console.log('Calling getConnectionStatus endpoint');
     return this.http.get<{ message: string; status: string }>(`${this.apiUrl}/status`).pipe(
-      tap(response => {
-        console.log('Connection status response:', response);
-        console.log('Is connected:', response.status === 'OK');
-      }),
       catchError((error: HttpErrorResponse) => {
         console.error('Error getting connection status:', error);
         // Log detailed error information
@@ -68,12 +58,10 @@ export class ExternalStorageService {
    * Check if user is authenticated with external storage
    */
   isAuthenticated(): Observable<boolean> {
-    console.log('Checking if user is authenticated');
     return new Observable<boolean>(observer => {
       this.getConnectionStatus().subscribe({
         next: (response) => {
           const isAuthenticated = response.status === 'OK';
-          console.log('isAuthenticated check result:', isAuthenticated, response);
           observer.next(isAuthenticated);
           observer.complete();
         },
@@ -90,7 +78,6 @@ export class ExternalStorageService {
    * Test Google Drive connection by trying to list files
    */
   testConnection(): Observable<any> {
-    console.log('Testing Google Drive connection');
     return this.http.get<any>(`${this.apiUrl}/test`).pipe(
       catchError((error: HttpErrorResponse) => {
         console.error('Error testing Google Drive connection:', error);

@@ -30,17 +30,11 @@ export class ProfileComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('Profile component initialized');
-    
     // Try to get fresh user data from the server
     this.authService.getCurrentUser().subscribe({
       next: (user) => {
-        console.log('Received user data in profile component:', user);
         // Ensure emailprincipal is properly set
         this.currentUser = this.normalizeUser(user);
-        
-        console.log('Nome do Correspondente:', this.currentUser?.correspondente?.nome);
-        console.log('Normalized user data in profile component:', this.currentUser);
         
         // Check if user is a correspondent and log correspondent data status
         if (this.isCorrespondent()) {
@@ -48,15 +42,6 @@ export class ProfileComponent implements OnInit {
           if (this.idusuario !== null) {
             this.findUser(this.idusuario);
           }
-          console.log('User is a correspondent');
-          console.log('Correspondent data available:', !!this.currentUser.correspondente);
-          console.log('Correspondent ID available:', !!this.currentUser.correspondente?.id);
-          if (this.currentUser.correspondente) {
-            console.log('Correspondent data:', this.currentUser.correspondente);
-            console.log('Correspondent ID:', this.currentUser.correspondente.id);
-          }
-        } else {
-          console.log('User is not a correspondent');
         }
         
         this.loading = false;
@@ -74,7 +59,6 @@ export class ProfileComponent implements OnInit {
   findUser(id: number): void {
     this.userService.getUserById(id).subscribe({
       next: (user) => {
-        console.log('User obtained:', JSON.stringify(user));
         this.userFind = user;
         // If the userFind has correspondent data, use it
         if (user.correspondente && !this.currentUser?.correspondente) {
@@ -83,7 +67,6 @@ export class ProfileComponent implements OnInit {
             correspondente: user.correspondente
           } as User;
         }
-        console.log('User obtained:', JSON.stringify(this.userFind));
       },
       error: (error) => {
         console.error('Error obtaining user:', error);
@@ -156,15 +139,12 @@ export class ProfileComponent implements OnInit {
    * Handles potential case sensitivity or naming differences from backend
    */
   private normalizeUser(user: User): User {
-    console.log('Normalizing user data:', user);
-    
     // If emailprincipal is not set but emailPrincipal is, use that
     if (!user.emailprincipal && (user as any).emailPrincipal) {
       const normalized = {
         ...user,
         emailprincipal: (user as any).emailPrincipal
       };
-      console.log('Normalized emailprincipal:', normalized);
       return normalized;
     }
     
@@ -174,7 +154,6 @@ export class ProfileComponent implements OnInit {
         ...user,
         nomecompleto: (user as any).nomeCompleto
       };
-      console.log('Normalized nomecompleto:', normalized);
       return normalized;
     }
     
@@ -184,20 +163,16 @@ export class ProfileComponent implements OnInit {
         ...user,
         nomecompleto: user.login || 'Usuário'
       };
-      console.log('Applied nomecompleto fallback:', normalized);
       return normalized;
     }
     
     // Ensure correspondent data is preserved
-    console.log('User data normalization complete:', user);
     return user;
   }
 
   private loadCachedUserData(): void {
-    console.log('Loading cached user data');
     // Get cached user data
     let user = this.authService.currentUserValue;
-    console.log('Cached user from authService:', user);
     
     // Normalize the user data
     if (user) {
@@ -207,22 +182,17 @@ export class ProfileComponent implements OnInit {
     
     // If we have cached data, we're done
     if (this.currentUser) {
-      console.log('Using cached user data:', this.currentUser);
-      console.log('Correspondent NOME:', this.currentUser?.correspondente?.nome);
       this.loading = false;
       return;
     }
     
     // If no cached data, try to get it from localStorage directly
     const storedUser = localStorage.getItem('currentUser');
-    console.log('Stored user from localStorage:', storedUser);
     if (storedUser) {
       try {
         let user = JSON.parse(storedUser);
-        console.log('Parsed user from localStorage:', user);
         user = this.normalizeUser(user);
         this.currentUser = user;
-        console.log('Normalized user from localStorage:', this.currentUser);
       } catch (e) {
         console.error('Error parsing stored user data:', e);
       }
@@ -278,104 +248,25 @@ export class ProfileComponent implements OnInit {
     const hasCorrespondentRole = this.currentUser?.authorities?.includes('ROLE_CORRESPONDENTE') || false;
     const result = isCorrespondentType || hasCorrespondentRole;
     
-    console.log('isCorrespondent check:', {
-      userType: this.currentUser?.tipo,
-      authorities: this.currentUser?.authorities,
-      isCorrespondentType,
-      hasCorrespondentRole,
-      result
-    });
-    
     return result;
   }
   
   // Add this method for debugging
   debugUserData(): void {
-    console.log('=== DEBUG USER DATA ===');
-    console.log('Current User Data:', this.currentUser);
-    console.log('User Type:', this.currentUser?.tipo);
-    console.log('User Type Type:', typeof this.currentUser?.tipo);
-    console.log('Authorities:', this.currentUser?.authorities);
-    console.log('Is Correspondent:', this.isCorrespondent());
-    console.log('Correspondent ID:', this.currentUser?.correspondente?.id);
-    
-    // Detailed inspection of currentUser object
-    if (this.currentUser) {
-      console.log('All keys in currentUser:', Object.keys(this.currentUser));
-      for (const key in this.currentUser) {
-        if (this.currentUser.hasOwnProperty(key)) {
-          console.log(`currentUser.${key}:`, this.currentUser[key as keyof User]);
-        }
-      }
-    }
-    
-    if (this.isCorrespondent()) {
-      console.log('User is a correspondent');
-      if (this.currentUser?.correspondente) {
-        console.log('Correspondent Data:', this.currentUser.correspondente);
-        console.log('All keys in correspondent:', Object.keys(this.currentUser.correspondente));
-        for (const key in this.currentUser.correspondente) {
-          if (this.currentUser.correspondente.hasOwnProperty(key)) {
-            console.log(`correspondente.${key}:`, this.currentUser.correspondente[key as keyof Correspondente]);
-          }
-        }
-      } else {
-        console.log('No correspondent data found in currentUser');
-        // Check for alternative property names
-        if ((this.currentUser as any)?.correspondentId) {
-          console.log('Found correspondentId property:', (this.currentUser as any).correspondentId);
-        }
-        if ((this.currentUser as any)?.correspondenteId) {
-          console.log('Found correspondenteId property:', (this.currentUser as any).correspondenteId);
-        }
-      }
-    } else {
-      console.log('User is not a correspondent');
-    }
-    
-    // Also check what's in localStorage
-    const storedUser = localStorage.getItem('currentUser');
-    console.log('Raw stored user data:', storedUser);
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        console.log('Parsed stored user data:', parsedUser);
-        console.log('Stored user correspondent data:', parsedUser.correspondente);
-        console.log('Stored user correspondentId:', parsedUser.correspondentId);
-        console.log('Stored user correspondenteId:', parsedUser.correspondenteId);
-        
-        // Check all keys in parsed user
-        console.log('All keys in stored user:', Object.keys(parsedUser));
-        for (const key in parsedUser) {
-          if (parsedUser.hasOwnProperty(key)) {
-            console.log(`parsedUser.${key}:`, parsedUser[key]);
-          }
-        }
-      } catch (e) {
-        console.error('Error parsing stored user data:', e);
-      }
-    }
-    
     // Check auth service current user
     const authServiceUser = this.authService.currentUserValue;
-    console.log('Auth service current user:', authServiceUser);
-    console.log('Auth service user correspondent data:', authServiceUser?.correspondente);
-    console.log('Auth service user correspondentId:', authServiceUser?.correspondente?.id);
     
     // Try to get user data directly from localStorage with more detailed inspection
     const directStoredUser = localStorage.getItem('currentUser');
     if (directStoredUser) {
       try {
         const directParsed = JSON.parse(directStoredUser);
-        console.log('Direct parsed user data:', directParsed);
         // Deep inspection
         this.inspectObjectRecursively(directParsed, 'directParsed', 3);
       } catch (e) {
         console.error('Error in direct parsing:', e);
       }
     }
-    
-    console.log('========================');
   }
   
   // Helper method to recursively inspect an object
@@ -386,7 +277,6 @@ export class ProfileComponent implements OnInit {
       for (const key in obj) {
         if (obj.hasOwnProperty(key)) {
           const value = obj[key];
-          console.log(`${name}.${key}:`, value);
           if (value && typeof value === 'object' && !Array.isArray(value)) {
             this.inspectObjectRecursively(value, `${name}.${key}`, depth, currentDepth + 1);
           }

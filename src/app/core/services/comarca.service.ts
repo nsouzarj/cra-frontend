@@ -74,13 +74,9 @@ export class ComarcaService {
       .set('sortBy', sortBy)
       .set('direction', direction);
       
-    console.log('Making request to get comarcas with params:', { page, size, sortBy, direction }); // Debug log
     return this.http.get<PaginatedResponse<Comarca>>(this.apiUrl, { params })
       .pipe(
         tap((response: PaginatedResponse<Comarca>) => {
-          console.log('Comarcas response:', response); // Debug log
-          console.log('Comarcas content length:', response.content?.length); // Debug log
-          
           // Ensure response has the correct structure
           if (response && !response.content) {
             response.content = [];
@@ -97,16 +93,14 @@ export class ComarcaService {
    * @returns Observable containing all court districts
    */
   getAllComarcas(): Observable<Comarca[]> {
-    console.log('Getting all comarcas without DTO'); // Debug log
     // Get all comarcas with a large page size to ensure we get everything
     return this.getComarcas(0, 10000, 'nome', 'ASC').pipe(
       // Extract the content array from the paginated response
       map(response => {
-        console.log('getAllComarcas response:', response); // Debug log
         return response.content || [];
       }),
       catchError(error => {
-        console.error('Error in getAllComarcas:', error); // Debug log
+        console.error('Error in getAllComarcas:', error);
         throw error;
       })
     );
@@ -124,13 +118,9 @@ export class ComarcaService {
       .set('page', page.toString())
       .set('size', size.toString());
       
-    console.log('Making request to get comarcas DTO with params:', { page, size }); // Debug log
     return this.http.get<PaginatedResponse<Comarca>>(`${this.apiUrl}/list/dto`, { params })
       .pipe(
         tap((response: PaginatedResponse<Comarca>) => {
-          console.log('Comarcas DTO response:', response); // Debug log
-          console.log('Comarcas DTO content length:', response.content?.length); // Debug log
-          
           // Ensure response has the correct structure
           if (response && !response.content) {
             response.content = [];
@@ -147,16 +137,14 @@ export class ComarcaService {
    * @returns Observable containing all court districts as DTOs
    */
   getAllComarcasDto(): Observable<Comarca[]> {
-    console.log('Getting all comarcas with DTO'); // Debug log
     // Get all comarcas with a large page size to ensure we get everything
     return this.getComarcasDto(0, 10000).pipe(
       // Extract the content array from the paginated response
       map(response => {
-        console.log('getAllComarcasDto response:', response); // Debug log
         return response.content || [];
       }),
       catchError(error => {
-        console.error('Error in getAllComarcasDto:', error); // Debug log
+        console.error('Error in getAllComarcasDto:', error);
         throw error;
       })
     );

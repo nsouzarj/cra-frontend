@@ -62,7 +62,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
     // Subscribe to tipo changes to show/hide correspondent field
     this.userForm.get('tipo')?.valueChanges.subscribe(tipo => {
       this.showCorrespondentField = tipo === UserType.CORRESPONDENTE;
-      console.log('Tipo changed to:', tipo, 'Show correspondent field:', this.showCorrespondentField);
+      // Debug log removed
       // Remove the required validator - users can have no correspondent associated
       this.userForm.get('correspondente')?.clearValidators();
       this.userForm.get('correspondente')?.updateValueAndValidity();
@@ -70,10 +70,10 @@ export class UserFormComponent implements OnInit, OnDestroy {
     
     // Subscribe to correspondent changes for debugging
     this.userForm.get('correspondente')?.valueChanges.subscribe(value => {
-      console.log('=== CORRESPONDENT FIELD CHANGED ===');
-      console.log('Correspondent field value changed to:', value);
-      console.log('Current form state:', this.userForm.value);
-      console.log('=== END CORRESPONDENT FIELD CHANGED ===');
+      // Debug log removed
+      // Debug log removed
+      // Debug log removed
+      // Debug log removed
     });
     
     this.setupThemeListener();
@@ -142,12 +142,12 @@ export class UserFormComponent implements OnInit, OnDestroy {
   }
 
   loadCorrespondentes(): void {
-    console.log('Loading correspondentes in user form...');
+    // Debug log removed
     this.correspondenteService.getCorrespondentes().subscribe({
       next: (correspondentes) => {
-        console.log('Correspondentes loaded in user form:', correspondentes);
+        // Debug log removed
         this.correspondentes = correspondentes;
-        console.log('Correspondentes array updated in user form, length:', this.correspondentes.length);
+        // Debug log removed
       },
       error: (error) => {
         console.error('Error loading correspondentes in user form:', error);
@@ -165,9 +165,9 @@ export class UserFormComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.userService.getUserById(this.userId).subscribe({
       next: (user) => {
-        console.log('=== LOADING USER DATA ===');
-        console.log('User data received from backend:', user);
-        console.log('User correspondente:', user.correspondente);
+        // Debug log removed
+        // Debug log removed
+        // Debug log removed
         
         this.userForm.patchValue({
           login: user.login,
@@ -183,8 +183,8 @@ export class UserFormComponent implements OnInit, OnDestroy {
         // Set the showCorrespondentField flag based on user type
         this.showCorrespondentField = user.tipo === UserType.CORRESPONDENTE;
         
-        console.log('Form correspondente field value after loading:', this.userForm.get('correspondente')?.value);
-        console.log('=== END LOADING USER DATA ===');
+        // Debug log removed
+        // Debug log removed
         
         this.loading = false;
       },
@@ -235,12 +235,12 @@ export class UserFormComponent implements OnInit, OnDestroy {
     const formData = this.userForm.value;
     
     // Debug: Log form data
-    console.log('=== FORM SUBMISSION DEBUG ===');
-    console.log('Form Data:', formData);
-    console.log('Show Correspondent Field:', this.showCorrespondentField);
-    console.log('Correspondent Value:', formData.correspondente);
-    console.log('User Type:', formData.tipo);
-    console.log('Is Correspondent Type:', formData.tipo === UserType.CORRESPONDENTE);
+    // Debug log removed
+    // Debug log removed
+    // Debug log removed
+    // Debug log removed
+    // Debug log removed
+    // Debug log removed;
     
     // First, get the current user data to preserve authorities
     let userData: any = {};
@@ -272,35 +272,35 @@ export class UserFormComponent implements OnInit, OnDestroy {
             // If a correspondent is selected, send it as { id: correspondentId }
             if (formData.correspondente) {
               userData.correspondente = { id: formData.correspondente };
-              console.log('Setting correspondente as ID object:', { id: formData.correspondente });
+              // Debug log removed
             } else {
               // For correspondent users, if no correspondent is selected, send null to clear any existing association
               userData.correspondente = null;
-              console.log('Setting correspondente to null for correspondent user type');
+              // Debug log removed
             }
           } else {
-            console.log('Not setting correspondente. Tipo:', formData.tipo);
+            // Debug log removed
           }
 
-          console.log('Final user data being sent:', userData);
-          console.log('Final user data as JSON:', JSON.stringify(userData, null, 2));
+          // Debug log removed
+          // Debug log removed
           
           // Additional debugging - check if the correspondente property exists in the object
           if ('correspondente' in userData) {
-            console.log('Correspondente property exists in userData');
-            console.log('Correspondente value:', userData.correspondente);
+            // Debug log removed
+            // Debug log removed
             if (userData.correspondente) {
-              console.log('Correspondente is truthy');
-              console.log('Correspondente type:', typeof userData.correspondente);
-              console.log('Correspondente keys:', Object.keys(userData.correspondente));
+              // Debug log removed
+              // Debug log removed
+              // Debug log removed
             } else {
-              console.log('Correspondente is falsy');
+              // Debug log removed
             }
           } else {
-            console.log('Correspondente property does NOT exist in userData');
+            // Debug log removed
           }
           
-          console.log('=== END DEBUG ===');
+          // Debug log removed
 
           const operation = this.isEditMode && this.userId
             ? this.userService.updateUser(this.userId, userData)
@@ -364,35 +364,35 @@ export class UserFormComponent implements OnInit, OnDestroy {
         // If a correspondent is selected, send it as { id: correspondentId }
         if (formData.correspondente) {
           userData.correspondente = { id: formData.correspondente };
-          console.log('Setting correspondente as ID object:', { id: formData.correspondente });
+          // Debug log removed
         } else {
           // For correspondent users, if no correspondent is selected, send null to clear any existing association
           userData.correspondente = null;
-          console.log('Setting correspondente to null for correspondent user type');
+          // Debug log removed
         }
       } else {
-        console.log('Not setting correspondente. Tipo:', formData.tipo);
+        // Debug log removed
       }
 
-      console.log('Final user data being sent:', userData);
-      console.log('Final user data as JSON:', JSON.stringify(userData, null, 2));
+      // Debug log removed
+      // Debug log removed
       
       // Additional debugging - check if the correspondente property exists in the object
       if ('correspondente' in userData) {
-        console.log('Correspondente property exists in userData');
-        console.log('Correspondente value:', userData.correspondente);
+        // Debug log removed
+        // Debug log removed
         if (userData.correspondente) {
-          console.log('Correspondente is truthy');
-          console.log('Correspondente type:', typeof userData.correspondente);
-          console.log('Correspondente keys:', Object.keys(userData.correspondente));
+          // Debug log removed
+          // Debug log removed
+          // Debug log removed
         } else {
-          console.log('Correspondente is falsy');
+          // Debug log removed
         }
       } else {
-        console.log('Correspondente property does NOT exist in userData');
+        // Debug log removed
       }
       
-      console.log('=== END DEBUG ===');
+      // Debug log removed
 
       const operation = this.isEditMode && this.userId
         ? this.userService.updateUser(this.userId, userData)

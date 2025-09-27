@@ -18,7 +18,6 @@ export class SolicitacaoAnexoService {
   private apiUrl = `${environment.apiUrl}/api/soli-arquivos`;
 
   constructor(private http: HttpClient, private authService: AuthService) {
-    console.log("SolicitacaoAnexoService constructor called");
   }
 
   uploadAnexo(
@@ -26,11 +25,6 @@ export class SolicitacaoAnexoService {
     solicitacaoId: number,
     storageLocation: "local" | "google_drive" = "google_drive"
   ): Observable<HttpEvent<any>> {
-    console.log("uploadAnexo called with:", {
-      file,
-      solicitacaoId,
-      storageLocation,
-    });
     const formData: FormData = new FormData();
     formData.append("file", file, file.name);
     const userId = this.authService.currentUserValue?.id ?? "";
@@ -39,18 +33,12 @@ export class SolicitacaoAnexoService {
     formData.append("storageLocation", storageLocation);
     // Determine the origin based on user role using AuthService
     let origem = "usuario"; // default value
-    console.log("User roles:", this.authService.currentUserValue?.authorities);
-    console.log("Is admin:", this.authService.isAdmin());
-    console.log("Is advogado:", this.authService.isAdvogado());
-    console.log("Is correspondente:", this.authService.isCorrespondente());
 
     if (this.authService.isAdmin() || this.authService.isAdvogado()) {
       origem = "solicitante";
     } else if (this.authService.isCorrespondente()) {
       origem = "correspondente";
     }
-
-    console.log("Setting origin to:", origem);
 
     formData.append("origem", origem);
 
@@ -154,19 +142,16 @@ export class SolicitacaoAnexoService {
   getAnexosBySolicitacaoId(
     solicitacaoId: number
   ): Observable<SolicitacaoAnexo[]> {
-    console.log("getAnexosBySolicitacaoId called with:", solicitacaoId);
     return this.http
       .get<SolicitacaoAnexo[]>(`${this.apiUrl}/solicitacao/${solicitacaoId}`)
       .pipe(
         // Transform date strings to Date objects
         map((anexos: SolicitacaoAnexo[]) => {
-          console.log("Raw attachments from server:", anexos);
           return anexos.map((anexo) => {
             if (anexo.dataInclusao && typeof anexo.dataInclusao === "string") {
               // Convert string to Date object
               anexo.dataInclusao = new Date(anexo.dataInclusao);
             }
-            console.log("Processed attachment:", anexo);
             return anexo;
           });
         })

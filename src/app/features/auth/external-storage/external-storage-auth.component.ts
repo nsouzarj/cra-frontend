@@ -28,8 +28,6 @@ export class ExternalStorageAuthComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('Initializing ExternalStorageComponent');
-    
     // Check if we're returning from Google Drive auth (URL contains code parameter)
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
@@ -53,14 +51,12 @@ export class ExternalStorageAuthComponent implements OnInit {
   }
 
   handleAuthSuccess(): void {
-    console.log('Handling auth success from redirect');
     this.isLoading = true;
     this.showAuthSuccessMessage = true;
     
     // Check connection status to confirm authentication
     this.externalStorageService.getConnectionStatus().subscribe({
       next: (response) => {
-        console.log('Received status response after auth:', response);
         this.connectionStatus = response;
         this.debugInfo = JSON.stringify(response, null, 2);
         this.isLoading = false;
@@ -75,7 +71,6 @@ export class ExternalStorageAuthComponent implements OnInit {
             // Decode the return URL and navigate to it
             try {
               const decodedReturnUrl = decodeURIComponent(this.returnUrl);
-              console.log('Will navigate back to return URL:', decodedReturnUrl);
               // Navigate after a short delay to show the success message
               setTimeout(() => {
                 this.router.navigateByUrl(decodedReturnUrl);
@@ -104,7 +99,6 @@ export class ExternalStorageAuthComponent implements OnInit {
   }
 
   openExternalStorageAuthPopup(): void {
-    console.log('Initiating authentication process');
     this.isLoading = true;
     this.error = null;
     this.showAuthSuccessMessage = false;
@@ -113,13 +107,10 @@ export class ExternalStorageAuthComponent implements OnInit {
     const currentUrl = this.router.url;
     this.externalStorageService.getAuthorizationUrl(currentUrl).subscribe({
       next: (response) => {
-        console.log('Received auth response:', response);
         this.debugInfo = JSON.stringify(response, null, 2);
         this.isLoading = false;
         
         if (response.authorizationUrl) {
-          console.log('Opening popup with URL:', response.authorizationUrl);
-          
           // Calculate responsive popup dimensions
           const maxWidth = 600;
           const maxHeight = 700;
@@ -152,7 +143,6 @@ export class ExternalStorageAuthComponent implements OnInit {
           // Check periodically if the popup is closed
           const checkPopup = setInterval(() => {
             if (popup?.closed) {
-              console.log('Popup closed, checking connection status');
               clearInterval(checkPopup);
               this.checkAuthorizationStatus();
             }
@@ -169,18 +159,15 @@ export class ExternalStorageAuthComponent implements OnInit {
   }
 
   checkAuthorizationStatus(): void {
-    console.log('Checking connection status');
     this.isCheckingStatus = true;
     this.error = null;
     
     this.externalStorageService.getConnectionStatus().subscribe({
       next: (response) => {
-        console.log('Received status response:', response);
         this.connectionStatus = response;
         this.debugInfo = JSON.stringify(response, null, 2);
         this.isCheckingStatus = false;
         this.isConnected = response.status === 'OK';
-        console.log('Connection status updated. Is connected:', this.isConnected);
       },
       error: (error) => {
         console.error('Status error:', error);
@@ -194,13 +181,11 @@ export class ExternalStorageAuthComponent implements OnInit {
   }
 
   testConnection(): void {
-    console.log('Testing connection');
     this.isLoading = true;
     this.error = null;
     
     this.externalStorageService.testConnection().subscribe({
       next: (response) => {
-        console.log('Test connection response:', response);
         this.debugInfo = `Test Connection Response:\n${JSON.stringify(response, null, 2)}`;
         this.isLoading = false;
       },

@@ -76,20 +76,20 @@ export class UserDetailComponent implements OnInit, OnDestroy {
 
   loadUser(userId: number): void {
     this.loading = true;
-    console.log('Loading user with ID:', userId);
+    // Debug log removed
     this.userService.getUserById(userId).subscribe({
       next: (user) => {
-        console.log('Received user data:', user);
+        // Debug log removed
         this.user = user;
         // Initialize userFind with the user data
         this.userFind = user;
         // If user is a correspondent, ensure correspondent data is loaded
         if (user.tipo === UserType.CORRESPONDENTE) {
-          console.log('User is a correspondent, loading complete user data with correspondent information');
+          // Debug log removed
           // For correspondent users, we need to load the complete user data that includes correspondent information
           this.findUser(userId);
         } else {
-          console.log('User is not a correspondent');
+          // Debug log removed
           this.loading = false;
         }
       },
@@ -108,7 +108,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
   findUser(id: number): void {
     this.userService.getUserById(id).subscribe({
       next: (user) => {
-        console.log('User obtained with correspondent data:', JSON.stringify(user));
+        // Debug log removed
         this.userFind = user;
         // If the userFind has correspondent data, use it
         if (user.correspondente) {
@@ -118,7 +118,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
           } as User;
         }
         this.loading = false;
-        console.log('User obtained:', JSON.stringify(this.userFind));
+        // Debug log removed
       },
       error: (error) => {
         console.error('Error obtaining user with correspondent data:', error);

@@ -1,30 +1,24 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { Processo, Orgao } from '../../shared/models/processo.model';
+import { Processo } from '../../shared/models/processo.model';
 import { Comarca } from '../../shared/models/comarca.model';
-import { ComarcaService } from './comarca.service';
+import { Orgao } from '../../shared/models/orgao.model';
 import { environment } from '../../../environments/environment';
+import { ComarcaService } from './comarca.service';
 import { PaginatedResponse } from '../../shared/models/api-response.model';
 
-/**
- * Service for managing legal processes in the CRA system
- * Provides CRUD operations and process management functionality
- */
 @Injectable({
   providedIn: 'root'
 })
 export class ProcessoService {
   private apiUrl = `${environment.apiUrl}/api/processos`;
 
-  constructor(
-    private http: HttpClient,
-    private comarcaService: ComarcaService
-  ) { }
+  constructor(private http: HttpClient, private comarcaService: ComarcaService) { }
 
   /**
-   * Retrieves all legal processes from the system
+   * Retrieves all processes from the system
    * 
    * @returns Observable containing array of processes
    */
@@ -34,7 +28,7 @@ export class ProcessoService {
   }
 
   /**
-   * Retrieves a specific legal process by ID
+   * Retrieves a specific process by ID
    * 
    * @param id The ID of the process to retrieve
    * @returns Observable containing the requested process
@@ -45,7 +39,7 @@ export class ProcessoService {
   }
 
   /**
-   * Creates a new legal process in the system
+   * Creates a new process in the system
    * 
    * @param processo The process object to create
    * @returns Observable containing the created process
@@ -56,7 +50,7 @@ export class ProcessoService {
   }
 
   /**
-   * Updates an existing legal process
+   * Updates an existing process
    * 
    * @param id The ID of the process to update
    * @param processo The updated process data
@@ -68,126 +62,13 @@ export class ProcessoService {
   }
 
   /**
-   * Deletes a legal process from the system
+   * Deletes a process from the system
    * 
    * @param id The ID of the process to delete
    * @returns Observable for the delete operation
    */
   deleteProcesso(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`)
-      .pipe(catchError(this.handleError));
-  }
-
-  /**
-   * Searches for a process by process number
-   * 
-   * @param numeroProcesso The process number to search for
-   * @returns Observable containing the found process
-   */
-  searchByNumero(numeroprocesso: string): Observable<Processo> {
-    return this.http.get<Processo>(`${this.apiUrl}/buscar/numero/${numeroprocesso}`)
-      .pipe(catchError(this.handleError));
-  }
-
-  /**
-   * Searches for processes by process number (for research)
-   * 
-   * @param numero The process number to search for
-   * @returns Observable containing array of matching processes
-   */
-  searchByNumeroPesquisa(numero: string): Observable<Processo[]> {
-    const params = new HttpParams().set('numero', numero);
-    return this.http.get<Processo[]>(`${this.apiUrl}/buscar/numero-pesquisa`, { params })
-      .pipe(catchError(this.handleError));
-  }
-
-  /**
-   * Searches for processes by party name
-   * 
-   * @param parte The party name to search for
-   * @returns Observable containing array of matching processes
-   */
-  searchByParte(parte: string): Observable<Processo[]> {
-    const params = new HttpParams().set('parte', parte);
-    return this.http.get<Processo[]>(`${this.apiUrl}/buscar/parte`, { params })
-      .pipe(catchError(this.handleError));
-  }
-
-  /**
-   * Searches for processes by opposing party name
-   * 
-   * @param adverso The opposing party name to search for
-   * @returns Observable containing array of matching processes
-   */
-  searchByAdverso(adverso: string): Observable<Processo[]> {
-    const params = new HttpParams().set('adverso', adverso);
-    return this.http.get<Processo[]>(`${this.apiUrl}/buscar/adverso`, { params })
-      .pipe(catchError(this.handleError));
-  }
-
-  /**
-   * Searches for processes by status
-   * 
-   * @param status The process status to search for
-   * @returns Observable containing array of matching processes
-   */
-  searchByStatus(status: string): Observable<Processo[]> {
-    return this.http.get<Processo[]>(`${this.apiUrl}/buscar/status/${status}`)
-      .pipe(catchError(this.handleError));
-  }
-
-  /**
-   * Searches for processes by subject
-   * 
-   * @param assunto The subject to search for
-   * @returns Observable containing array of matching processes
-   */
-  searchByAssunto(assunto: string): Observable<Processo[]> {
-    const params = new HttpParams().set('assunto', assunto);
-    return this.http.get<Processo[]>(`${this.apiUrl}/buscar/assunto`, { params })
-      .pipe(catchError(this.handleError));
-  }
-
-  /**
-   * Searches for processes by court district
-   * 
-   * @param comarcaId The court district ID to search for
-   * @returns Observable containing array of matching processes
-   */
-  searchByComarca(comarcaId: number): Observable<Processo[]> {
-    return this.http.get<Processo[]>(`${this.apiUrl}/buscar/comarca/${comarcaId}`)
-      .pipe(catchError(this.handleError));
-  }
-
-  /**
-   * Searches for processes by agency
-   * 
-   * @param orgaoId The agency ID to search for
-   * @returns Observable containing array of matching processes
-   */
-  searchByOrgao(orgaoId: number): Observable<Processo[]> {
-    return this.http.get<Processo[]>(`${this.apiUrl}/buscar/orgao/${orgaoId}`)
-      .pipe(catchError(this.handleError));
-  }
-
-  /**
-   * Retrieves process statistics by status
-   * 
-   * @param status The process status to get statistics for
-   * @returns Observable containing the count of processes with the specified status
-   */
-  getStatusStatistics(status: string): Observable<number> {
-    return this.http.get<number>(`${this.apiUrl}/estatisticas/status/${status}`)
-      .pipe(catchError(this.handleError));
-  }
-
-  /**
-   * Retrieves all process statuses from the backend
-   * 
-   * @returns Observable containing array of process statuses
-   */
-  getProcessoStatuses(): Observable<{id: number, status: string}[]> {
-    return this.http.get<{id: number, status: string}[]>(`${this.apiUrl}/status`)
       .pipe(catchError(this.handleError));
   }
 
@@ -201,12 +82,11 @@ export class ProcessoService {
     return new Observable<Comarca[]>(observer => {
       this.comarcaService.getComarcas(0, 1000, 'nome', 'ASC').subscribe({
         next: (response) => {
-          console.log('ProcessoService - Comarcas response:', response); // Debug log
           observer.next(response.content);
           observer.complete();
         },
         error: (error) => {
-          console.error('ProcessoService - Error loading comarcas:', error); // Debug log
+          console.error('ProcessoService - Error loading comarcas:', error);
           observer.error(error);
         }
       });

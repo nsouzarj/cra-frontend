@@ -155,7 +155,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       valor: [''] // Remove initial validator, let onTipoSolicitacaoChange handle it
     });
     
-    console.log('Form created with controls:', Object.keys(form.controls));
+    // Debug log removed
     return form;
   }
 
@@ -400,7 +400,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     const especie = tipoSolicitacao.especie?.toLowerCase() || '';
     const tipo = tipoSolicitacao.tipo?.toLowerCase() || '';
     
-    console.log('Checking if tipo is diligencia:', { especie, tipo });
+    // Debug log removed
     
     // Match the diligência detection logic used in the dashboard
     const isDiligencia = especie.includes('diligencia') || especie.includes('diligência') || 
@@ -408,13 +408,13 @@ export class RequestFormComponent implements OnInit, OnDestroy {
            especie.includes('dilig') || tipo.includes('dilig') ||
            especie.includes('cumprimento') || tipo.includes('cumprimento');
            
-    console.log('Is diligencia result:', isDiligencia);
+    // Debug log removed
     return isDiligencia;
   }
   
   // Method to handle tipoSolicitacao selection change
   onTipoSolicitacaoChange(tipoSolicitacaoId: number): void {
-    console.log('Tipo solicitacao changed to:', tipoSolicitacaoId);
+    // Debug log removed
     this.updateConditionalFields(tipoSolicitacaoId);
     
     // Update validator for valor field based on showValorField
@@ -432,11 +432,11 @@ export class RequestFormComponent implements OnInit, OnDestroy {
 
   // Method to update visibility of conditional fields based on tipoSolicitacao
   private updateConditionalFields(tipoSolicitacaoId: number): void {
-    console.log('Updating conditional fields for tipo:', tipoSolicitacaoId);
+    // Debug log removed
     // Find the selected tipoSolicitacao
     const selectedTipo = this.tiposSolicitacao.find(tipo => tipo.idtiposolicitacao === tipoSolicitacaoId);
     
-    console.log('Selected tipo:', selectedTipo);
+    // Debug log removed
     
     if (selectedTipo) {
       // Check if it's "Audiência" (case insensitive, with or without accents)
@@ -444,58 +444,53 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       // For diligência, we hide the audiência fields
       const isDiligencia = this.isTipoDiligencia(selectedTipo);
       
-      console.log('Is audiencia:', isAudiencia, 'Is diligencia:', isDiligencia);
+      // Debug log removed
       
       // Show/hide fields based on tipo - only show for audiencia, hide for diligencia
       this.showAudienciaFields = isAudiencia;
       this.showValorField = isAudiencia || isDiligencia;
       
-      console.log('Setting showAudienciaFields to:', this.showAudienciaFields);
-      console.log('Setting showValorField to:', this.showValorField);
+      // Debug log removed
+      // Debug log removed
       
       // Additional logging for debugging
-      console.log('Tipo details:', {
-        especie: selectedTipo.especie,
-        tipo: selectedTipo.tipo,
-        isAudiencia,
-        isDiligencia
-      });
+      // Debug log removed
     } else {
       // Default to hiding conditional fields
       this.showAudienciaFields = false;
       this.showValorField = false;
-      console.log('Setting showAudienciaFields to false (default)');
-      console.log('Setting showValorField to false (default)');
+      // Debug log removed
+      // Debug log removed
     }
     
     // Special case: If we're in edit mode and already have audiencia data, ensure fields are visible
     if (this.isEditMode) {
       const formValue = this.requestForm.getRawValue();
-      console.log('Edit mode form values:', formValue);
+      // Debug log removed
       
       if (formValue.dataAgendamento || formValue.horaAudiencia) {
         // Only show for audiencia types in edit mode
         if (selectedTipo && this.isTipoAudiencia(selectedTipo)) {
           this.showAudienciaFields = true;
-          console.log('Overriding showAudienciaFields to true (edit mode with existing audiencia data)');
+          // Debug log removed
         }
       }
       
       // Also check if the current tipoSolicitacao is Audiência
       if (selectedTipo && this.isTipoAudiencia(selectedTipo)) {
         this.showAudienciaFields = true;
-        console.log('Overriding showAudienciaFields to true (edit mode with audiencia tipo)');
+        // Debug log removed
       }
       
       // Ensure valor field is visible if there's a value (for both audiencia and diligencia)
       if (formValue.valor) {
         this.showValorField = true;
-        console.log('Overriding showValorField to true (edit mode with existing valor)');
+        // Debug log removed
       }
     }
     
-    console.log('Final showAudienciaFields value:', this.showAudienciaFields);
-    console.log('Final showValorField value:', this.showValorField);
+    // Debug log removed
+    // Debug log removed
     
     // Force change detection to ensure the template updates
     this.changeDetectorRef.detectChanges();
@@ -703,7 +698,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         }
         
         // Navigate to request detail page instead of list
-        console.log('Navigating to solicitation details page with ID:', solicitacaoId);
+        // Debug log removed
         if (solicitacaoId) {
           // Ensure navigation happens after any file uploads complete
           setTimeout(() => {
@@ -711,7 +706,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
           }, 100);
         } else {
           console.error('Could not navigate to solicitation details page: solicitacaoId is null or undefined');
-          console.log('Result object:', result);
+          // Debug log removed
           this.router.navigate(['/solicitacoes']);
         }
       },

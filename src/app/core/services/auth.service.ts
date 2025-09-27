@@ -295,7 +295,6 @@ export class AuthService {
     return this.http.get<User & { correspondentId?: number }>(`${this.apiUrl}/me`, { headers })
       .pipe(
         switchMap(response => {
-          console.log('getCurrentUser response:', response);
           // Handle potential case sensitivity or naming differences
           const normalizedUser = { ...response } as User;
           
@@ -314,30 +313,19 @@ export class AuthService {
           
           // Ensure authorities are properly set from any possible field name
           const possibleAuthorities = response.authorities || (response as any).roles || [];
-          console.log('Possible authorities from response:', possibleAuthorities);
           
           if (!normalizedUser.authorities || normalizedUser.authorities.length === 0) {
             normalizedUser.authorities = Array.isArray(possibleAuthorities) ? possibleAuthorities : [];
           }
           
-          console.log('Normalized user before SPECIAL FIX:', normalizedUser);
-          
           // SPECIAL FIX: Ensure correspondent users have ROLE_CORRESPONDENTE
           if (normalizedUser.tipo === UserType.CORRESPONDENTE) {
             // Ensure ROLE_CORRESPONDENTE is present in authorities
-            console.log('Processing correspondent user with tipo:', normalizedUser.tipo);
-            console.log('Current authorities:', normalizedUser.authorities);
-            
             if (!normalizedUser.authorities) {
               normalizedUser.authorities = ['ROLE_CORRESPONDENTE'];
-              console.log('Added ROLE_CORRESPONDENTE to user with null authorities in getCurrentUser');
             } else if (!normalizedUser.authorities.includes('ROLE_CORRESPONDENTE')) {
               normalizedUser.authorities = [...normalizedUser.authorities, 'ROLE_CORRESPONDENTE'];
-              console.log('Added ROLE_CORRESPONDENTE to user with existing authorities in getCurrentUser');
-            } else {
-              console.log('User already has ROLE_CORRESPONDENTE in getCurrentUser');
             }
-            console.log('User authorities after fix in getCurrentUser:', normalizedUser.authorities);
           }
           
           // Preserve correspondent data from localStorage if not provided by server
@@ -354,12 +342,6 @@ export class AuthService {
           // Check if user is a correspondent
           const isCorrespondentUser = normalizedUser.tipo === UserType.CORRESPONDENTE || 
                                     (normalizedUser.authorities && normalizedUser.authorities.includes('ROLE_CORRESPONDENTE'));
-          
-          console.log('isCorrespondentUser check:', {
-            userType: normalizedUser.tipo,
-            authorities: normalizedUser.authorities,
-            isCorrespondentUser
-          });
           
           // If this is a correspondent user but we don't have correspondent data, fetch it
           if (isCorrespondentUser) {
@@ -389,13 +371,11 @@ export class AuthService {
           }
           
           return new Observable<User>(observer => {
-            console.log('Returning user from getCurrentUser:', normalizedUser);
             observer.next(normalizedUser);
             observer.complete();
           });
         }),
         tap(user => {
-          console.log('Storing user in localStorage in getCurrentUser tap:', user);
           localStorage.setItem('currentUser', JSON.stringify(user));
           this.currentUserSubject.next(user);
         }),
@@ -602,4 +582,4 @@ export class AuthService {
     
     return throwError(() => error);
   }
-}    
+}

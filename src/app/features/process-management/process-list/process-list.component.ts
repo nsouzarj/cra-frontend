@@ -63,18 +63,18 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
     private snackBar: MatSnackBar
   ) {
-    console.log('ProcessListComponent constructor'); // Debug log
+    // Debug log removed
   }
 
   ngOnInit(): void {
-    console.log('ProcessListComponent ngOnInit'); // Debug log
+    // Debug log removed
     this.loadFilterOptions();
     this.setupFilters();
     this.setupThemeListener();
   }
 
   ngAfterViewInit(): void {
-    console.log('ProcessListComponent ngAfterViewInit'); // Debug log
+    // Debug log removed
     // Set up sort
     if (this.sort) {
       this.sort.sortChange.subscribe((sortState: Sort) => {
@@ -90,14 +90,14 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log('ProcessListComponent ngOnDestroy'); // Debug log
+    // Debug log removed
     if (this.themeSubscription) {
       this.themeSubscription.unsubscribe();
     }
   }
 
   setupThemeListener(): void {
-    console.log('Setting up theme listener...'); // Debug log
+    // Debug log removed
     // Listen for theme changes to trigger change detection
     this.themeSubscription = new Subscription();
     const themeHandler = (event: Event) => {
@@ -114,7 +114,7 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadProcesses(): void {
-    console.log('Loading processes...'); // Debug log
+    // Debug log removed
     this.loading = true;
     
     // Check filter values
@@ -123,7 +123,7 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
     const orgaoFilter = this.orgaoFilterControl.value;
     const statusFilter = this.statusFilterControl.value;
     
-    console.log('Filter values:', { searchTerm, comarcaFilter, orgaoFilter, statusFilter }); // Debug log
+    // Debug log removed
 
     // Create filter object
     const filtro: any = {};
@@ -182,7 +182,7 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private handlePaginatedResponse(response: PaginatedResponse<Processo>): void {
-    console.log('Processes loaded:', response.content.length); // Debug log
+    // Debug log removed
     this.dataSource.data = response.content;
     // USE totalTableElements for correct pagination - this is the total count across all pages
     this.totalElements = response.totalTableElements ?? response.totalElements;
@@ -207,12 +207,12 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadFilterOptions(): void {
-    console.log('Loading filter options...'); // Debug log
+    // Debug log removed
     
     // Try to load comarcas using the DTO method first
     this.comarcaService.getAllComarcasDto().subscribe({
       next: (comarcas) => {
-        console.log('Comarcas loaded from DTO API:', comarcas); // Debug log
+        // Debug log removed
         if (comarcas && comarcas.length > 0) {
           this.comarcas = comarcas;
           this.processComarcasData();
@@ -231,14 +231,14 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
     // Load orgaos
     this.orgaoService.getOrgaos().subscribe({
       next: (orgaos) => {
-        console.log('Orgaos loaded:', orgaos); // Debug log
+        // Debug log removed
         this.orgaos = orgaos;
-        console.log('Number of orgaos:', this.orgaos.length); // Debug log
+        // Debug log removed
         
         // Check if orgaos have the expected structure
         if (this.orgaos.length > 0) {
-          console.log('First orgao:', this.orgaos[0]); // Debug log
-          console.log('First orgao keys:', Object.keys(this.orgaos[0])); // Debug log
+          // Debug log removed
+          // Debug log removed
         }
       },
       error: (error) => {
@@ -250,11 +250,11 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private loadComarcasFallback(): void {
-    console.log('Loading comarcas with fallback method...'); // Debug log
+    // Debug log removed
     // Load comarcas using the regular method
     this.comarcaService.getAllComarcas().subscribe({
       next: (comarcas) => {
-        console.log('Comarcas loaded from regular API:', comarcas); // Debug log
+        // Debug log removed
         this.comarcas = comarcas || [];
         this.processComarcasData();
       },
@@ -272,36 +272,36 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private processComarcasData(): void {
-    console.log('Processing comarcas data...'); // Debug log
-    console.log('Comarcas before filtering:', this.comarcas); // Debug log
+    // Debug log removed
+    // Debug log removed
     
     // Less strict filtering - only remove completely invalid entries
     const validComarcas = this.comarcas.filter(comarca => 
       comarca && comarca.id && comarca.nome
     );
     
-    console.log('Comarcas after filtering:', validComarcas); // Debug log
+    // Debug log removed
     this.comarcas = validComarcas;
     
-    console.log('Final comarcas count:', this.comarcas.length); // Debug log
+    // Debug log removed
     
     // Check if comarcas have the expected structure
     if (this.comarcas.length > 0) {
-      console.log('First comarca:', this.comarcas[0]); // Debug log
+      // Debug log removed
       
       // Check if the first comarca has the expected properties
       const firstComarca = this.comarcas[0];
-      console.log('First comarca id:', firstComarca.id); // Debug log
-      console.log('First comarca nome:', firstComarca.nome); // Debug log
-      console.log('First comarca uf:', firstComarca.uf); // Debug log
+      // Debug log removed
+      // Debug log removed
+      // Debug log removed
       if (firstComarca.uf) {
-        console.log('First comarca uf sigla:', firstComarca.uf?.sigla); // Debug log
+        // Debug log removed
       }
     }
   }
 
   setupFilters(): void {
-    console.log('Setting up filters...'); // Debug log
+    // Debug log removed
     
     // Search filter with shorter debounce time for more responsive search
     this.searchControl.valueChanges
@@ -310,7 +310,7 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
         distinctUntilChanged()
       )
       .subscribe(value => {
-        console.log('Search filter changed:', value); // Debug log
+        // Debug log removed
         this.currentPage = 0;
         if (this.paginator) {
           this.paginator.pageIndex = 0;
@@ -320,7 +320,7 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Comarca filter
     this.comarcaFilterControl.valueChanges.subscribe(() => {
-      console.log('Comarca filter changed:', this.comarcaFilterControl.value); // Debug log
+      // Debug log removed
       this.currentPage = 0;
       if (this.paginator) {
         this.paginator.pageIndex = 0;
@@ -330,7 +330,7 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Orgao filter
     this.orgaoFilterControl.valueChanges.subscribe(() => {
-      console.log('Orgao filter changed:', this.orgaoFilterControl.value); // Debug log
+      // Debug log removed
       this.currentPage = 0;
       if (this.paginator) {
         this.paginator.pageIndex = 0;
@@ -340,7 +340,7 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Status filter
     this.statusFilterControl.valueChanges.subscribe(() => {
-      console.log('Status filter changed:', this.statusFilterControl.value); // Debug log
+      // Debug log removed
       this.currentPage = 0;
       if (this.paginator) {
         this.paginator.pageIndex = 0;
@@ -350,7 +350,7 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   applyFilters(): void {
-    console.log('Applying filters...'); // Debug log
+    // Debug log removed
     this.currentPage = 0;
     if (this.paginator) {
       this.paginator.pageIndex = 0;
@@ -359,7 +359,7 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   clearFilters(): void {
-    console.log('Clearing filters...'); // Debug log
+    // Debug log removed
     // Reset all filter controls
     this.searchControl.setValue('');
     this.comarcaFilterControl.setValue('');
@@ -377,7 +377,7 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Handle paginator page change events
   paginatorPageChanged(event: PageEvent): void {
-    console.log('Paginator page changed:', event); // Debug log
+    // Debug log removed
     this.currentPage = event.pageIndex;
     this.pageSize = event.pageSize;
     this.loadProcesses();
@@ -400,7 +400,7 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getComarcaText(comarca?: Comarca): string {
-    console.log('getComarcaText called with:', comarca); // Debug log
+    // Debug log removed
     if (!comarca) return '-';
     // Added additional safety checks
     if (!comarca.nome) return '-';

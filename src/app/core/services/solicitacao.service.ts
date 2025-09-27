@@ -18,7 +18,6 @@ export class SolicitacaoService {
   private apiUrl = `${environment.apiUrl}/api/solicitacoes`;
 
   constructor(private http: HttpClient) { 
-    console.log('URL da API de solicitações:', this.apiUrl);
   }
 
   /**
@@ -47,15 +46,12 @@ export class SolicitacaoService {
    * @returns Observable containing array of service requests
    */
   getSolicitacoes(): Observable<Solicitacao[]> {
-    console.log('Buscando solicitações na URL:', this.apiUrl);
     return this.http.get<PaginatedResponse<Solicitacao>>(this.apiUrl)
       .pipe(
         catchError(this.handleError),
         // Extract the content array from the paginated response
         map((response: PaginatedResponse<Solicitacao>) => {
-          console.log('Raw data received for all solicitacoes:', response);
           if (response && Array.isArray(response.content)) {
-            console.log(`Returning ${response.content.length} solicitacoes from page ${response.number}`);
             return response.content;
           } else {
             console.warn('getSolicitacoes did not return expected paginated response:', response);
@@ -66,8 +62,7 @@ export class SolicitacaoService {
         tap((solicitacoes) => {
           // Fixed: Added validation to ensure solicitacoes is an array before accessing length
           if (Array.isArray(solicitacoes)) {
-            console.log('Dados das solicitações recebidos do backend:', JSON.stringify(solicitacoes));
-            console.log('Quantidade de solicitações recebidas:', solicitacoes.length);
+            // Debug log removed
           } else {
             console.warn('solicitacoes is not an array:', solicitacoes);
           }
@@ -82,7 +77,6 @@ export class SolicitacaoService {
    * @returns Observable containing the requested service request
    */
   getSolicitacaoById(id: number): Observable<Solicitacao> {
-    console.log('Buscando solicitação por ID:', id);
     return this.http.get<Solicitacao>(`${this.apiUrl}/${id}`)
       .pipe(catchError(this.handleError));
   }
@@ -94,7 +88,6 @@ export class SolicitacaoService {
    * @returns Observable containing the created service request
    */
   createSolicitacao(solicitacao: Solicitacao): Observable<Solicitacao> {
-    console.log(solicitacao);
     return this.http.post<Solicitacao>(this.apiUrl, solicitacao)
       .pipe(catchError(this.handleError));
   }
@@ -107,7 +100,6 @@ export class SolicitacaoService {
    * @returns Observable containing the updated service request
    */
   updateSolicitacao(id: number, solicitacao: Solicitacao): Observable<Solicitacao> {
-        console.log(solicitacao);
     return this.http.put<Solicitacao>(`${this.apiUrl}/${id}`, solicitacao)
       .pipe(catchError(this.handleError));
   }
@@ -135,9 +127,7 @@ export class SolicitacaoService {
         catchError(this.handleError),
         // Extract the content array from the paginated response
         map((response: PaginatedResponse<Solicitacao>) => {
-          console.log(`Raw data received for status ${status}:`, response);
           if (response && Array.isArray(response.content)) {
-            console.log(`Returning ${response.content.length} solicitacoes from page ${response.number}`);
             return response.content;
           } else {
             console.warn(`searchByStatus(${status}) did not return expected paginated response:`, response);
@@ -171,15 +161,12 @@ export class SolicitacaoService {
    * @returns Observable containing array of matching service requests
    */
   searchByCorrespondente(correspondenteId: number): Observable<Solicitacao[]> {
-    console.log(`Fetching solicitacoes for correspondent ID: ${correspondenteId}`);
     return this.http.get<PaginatedResponse<Solicitacao>>(`${this.apiUrl}/buscar/correspondente/${correspondenteId}`)
       .pipe(
         catchError(this.handleError),
         // Extract the content array from the paginated response
         map((response: PaginatedResponse<Solicitacao>) => {
-          console.log(`Raw data received for correspondent ${correspondenteId}:`, response);
           if (response && Array.isArray(response.content)) {
-            console.log(`Returning ${response.content.length} solicitacoes from page ${response.number}`);
             return response.content;
           } else {
             console.warn('searchByCorrespondente did not return expected paginated response:', response);
@@ -213,15 +200,12 @@ export class SolicitacaoService {
    * @returns Observable containing array of matching service requests
    */
   searchByUserCorrespondente(usuarioId: number): Observable<Solicitacao[]> {
-    console.log(`Fetching solicitacoes for user ID: ${usuarioId}`);
     return this.http.get<PaginatedResponse<Solicitacao>>(`${this.apiUrl}/usuario/${usuarioId}/correspondente`)
       .pipe(
         catchError(this.handleError),
         // Extract the content array from the paginated response
         map((response: PaginatedResponse<Solicitacao>) => {
-          console.log(`Raw data received for user ${usuarioId}:`, response);
           if (response && Array.isArray(response.content)) {
-            console.log(`Returning ${response.content.length} solicitacoes from page ${response.number}`);
             return response.content;
           } else {
             console.warn('searchByUserCorrespondente did not return expected paginated response:', response);
@@ -260,9 +244,7 @@ export class SolicitacaoService {
         catchError(this.handleError),
         // Extract the content array from the paginated response
         map((response: PaginatedResponse<Solicitacao>) => {
-          console.log(`Raw data received for processo ${processoId}:`, response);
           if (response && Array.isArray(response.content)) {
-            console.log(`Returning ${response.content.length} solicitacoes from page ${response.number}`);
             return response.content;
           } else {
             console.warn(`searchByProcesso(${processoId}) did not return expected paginated response:`, response);
@@ -302,9 +284,7 @@ export class SolicitacaoService {
         catchError(this.handleError),
         // Extract the content array from the paginated response
         map((response: PaginatedResponse<Solicitacao>) => {
-          console.log(`Raw data received for tipo ${tipo}:`, response);
           if (response && Array.isArray(response.content)) {
-            console.log(`Returning ${response.content.length} solicitacoes from page ${response.number}`);
             return response.content;
           } else {
             console.warn(`searchByTipo(${tipo}) did not return expected paginated response:`, response);
@@ -348,9 +328,7 @@ export class SolicitacaoService {
         catchError(this.handleError),
         // Extract the content array from the paginated response
         map((response: PaginatedResponse<Solicitacao>) => {
-          console.log(`Raw data received for prazo ${dataInicio} to ${dataFim}:`, response);
           if (response && Array.isArray(response.content)) {
-            console.log(`Returning ${response.content.length} solicitacoes from page ${response.number}`);
             return response.content;
           } else {
             console.warn(`searchByPrazo(${dataInicio}, ${dataFim}) did not return expected paginated response:`, response);
@@ -413,9 +391,7 @@ export class SolicitacaoService {
         catchError(this.handleError),
         // Extract the content array from the paginated response
         map((response: PaginatedResponse<Solicitacao>) => {
-          console.log(`Raw data received for overdue requests:`, response);
           if (response && Array.isArray(response.content)) {
-            console.log(`Returning ${response.content.length} solicitacoes from page ${response.number}`);
             return response.content;
           } else {
             console.warn('getOverdueRequests did not return expected paginated response:', response);
@@ -497,9 +473,7 @@ export class SolicitacaoService {
         catchError(this.handleError),
         // Extract the content array from the paginated response
         map((response: PaginatedResponse<Solicitacao>) => {
-          console.log(`Raw data received for comarca ${comarcaId}:`, response);
           if (response && Array.isArray(response.content)) {
-            console.log(`Returning ${response.content.length} solicitacoes from page ${response.number}`);
             return response.content;
           } else {
             console.warn(`searchByComarca(${comarcaId}) did not return expected paginated response:`, response);
@@ -525,8 +499,6 @@ export class SolicitacaoService {
       .set('comarcaId', comarcaId.toString())
       .set('correspondenteId', correspondenteId.toString());
       
-    console.log(`Calling searchByComarcaAndCorrespondentePaginated with comarcaId: ${comarcaId}, correspondenteId: ${correspondenteId}, page: ${page}, size: ${size}`);
-    console.log(`URL: ${this.apiUrl}/buscar with params:`, params);
     return this.http.get<PaginatedResponse<Solicitacao>>(`${this.apiUrl}/buscar/comarca`, { params })
       .pipe(
         catchError((error) => {
@@ -555,12 +527,10 @@ export class SolicitacaoService {
    * @returns Observable containing array of matching service requests
    */
   searchByComarcaAndCorrespondente(comarcaId: number, correspondenteId: number): Observable<Solicitacao[]> {
-    console.log(`Calling searchByComarcaAndCorrespondente with comarcaId: ${comarcaId}, correspondenteId: ${correspondenteId}`);
     const params = new HttpParams()
       .set('comarcaId', comarcaId.toString())
       .set('correspondenteId', correspondenteId.toString());
       
-    console.log(`URL: ${this.apiUrl}/buscar with params:`, params);
     return this.http.get<PaginatedResponse<Solicitacao>>(`${this.apiUrl}/buscar`, { params })
       .pipe(
         catchError((error) => {
@@ -570,13 +540,10 @@ export class SolicitacaoService {
         }),
         // Extract the content array from the paginated response
         map((response: PaginatedResponse<Solicitacao>) => {
-          console.log(`Raw data received for comarca ${comarcaId} and correspondent ${correspondenteId}:`, response);
           if (response && Array.isArray(response.content)) {
-            console.log(`Returning ${response.content.length} solicitacoes from page ${response.number}`);
             return response.content;
           } else if (Array.isArray(response)) {
             // Handle case where backend returns array directly instead of paginated response
-            console.log(`Backend returned array directly with ${response.length} solicitacoes`);
             return response;
           } else {
             console.warn(`searchByComarcaAndCorrespondente(${comarcaId}, ${correspondenteId}) did not return expected paginated response:`, response);

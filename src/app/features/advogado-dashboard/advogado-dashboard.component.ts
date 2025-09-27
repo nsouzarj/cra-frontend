@@ -120,13 +120,10 @@ export class AdvogadoDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('=== ADVOGADO DASHBOARD INIT ===');
     this.currentUser = this.authService.currentUserValue;
-    console.log('Current user:', this.currentUser);
     
     // Additional security check - ensure user is advogado
     if (!this.authService.isAdvogado()) {
-      console.log('Security violation: Non-advogado user attempted to access advogado dashboard');
       // Redirect non-advogado users
       if (this.authService.isAdmin()) {
         this.router.navigate(['/dashboard']);
@@ -138,13 +135,10 @@ export class AdvogadoDashboardComponent implements OnInit {
       return;
     }
     
-    console.log('Loading dashboard data...');
     this.loadDashboardData();
   }
 
   private loadDashboardData(): void {
-    console.log('=== STARTING ADVOGADO DASHBOARD DATA LOADING ===');
-    
     // For advogado users, we should only show their own data or data they have access to
     // Let's load their solicitations and processes
     const userId = this.currentUser?.id;
@@ -162,9 +156,6 @@ export class AdvogadoDashboardComponent implements OnInit {
     }).subscribe({
       next: (results) => {
         const { processos, solicitacoes } = results;
-        
-        console.log('Loaded processos:', processos.length);
-        console.log('Loaded solicitacoes:', solicitacoes.length);
         
         // Filter data to only show what this advogado user should see
         // For now, we'll show all data but in a real implementation, 
@@ -207,7 +198,6 @@ export class AdvogadoDashboardComponent implements OnInit {
         this.loadSolicitacoesPorStatusData(solicitacoes);
         
         this.loading = false;
-        console.log('=== ADVOGADO DASHBOARD LOADING COMPLETE ===');
       },
       error: (error) => {
         console.error('Error loading dashboard data:', error);
@@ -217,9 +207,6 @@ export class AdvogadoDashboardComponent implements OnInit {
   }
   
   private updateChartData(): void {
-    console.log('=== UPDATING CHART DATA ===');
-    console.log('Stats data:', this.stats);
-    
     // Update entity type chart
     this.entityTypeChart.values = [
       this.stats.totalProcessos,
@@ -231,8 +218,6 @@ export class AdvogadoDashboardComponent implements OnInit {
       this.stats.processosEmAndamento,
       this.stats.solicitacoesPendentes
     ];
-    
-    console.log('=== CHART DATA UPDATE COMPLETE ===');
   }
   
   private loadSolicitacoesPorStatusData(solicitacoes: Solicitacao[]): void {
@@ -254,8 +239,6 @@ export class AdvogadoDashboardComponent implements OnInit {
       values: values,
       colors: colors
     };
-    
-    console.log('Updated solicitacoesPorStatusChart:', this.solicitacoesPorStatusChart);
   }
 
   // Helper method to get color for a status

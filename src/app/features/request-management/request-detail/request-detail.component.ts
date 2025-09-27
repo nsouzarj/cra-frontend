@@ -99,7 +99,7 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
       next: (solicitacao) => {
         this.solicitacao = solicitacao;
         this.loading = false;
-        console.log('=== End of loadRequest ===');
+        // Debug log removed
       },
       error: (error) => {
         console.error('Error loading solicitacao:', error);
@@ -114,10 +114,10 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
   private loadAnexos(requestId: number): void {
     this.solicitacaoAnexoService.getAnexosBySolicitacaoId(requestId).subscribe({
       next: (anexos) => {
-        console.log('Attachments loaded in request detail:', anexos);
+        // Debug log removed
         // Add debugging to check origin values
         anexos.forEach(anexo => {
-          console.log(`Attachment ${anexo.nomearquivo} has origin:`, anexo.origem);
+          // Debug log removed
         });
         this.anexos = anexos;
       },
@@ -327,9 +327,9 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
   }
 
   formatDate(date: Date | string | undefined): string {
-    console.log('Formatting date in component:', date);
+    // Debug log removed
     const result = this.dateFormatService.formatDate(date);
-    console.log('Formatted date result:', result);
+    // Debug log removed
     return result;
   }
 
@@ -340,9 +340,9 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
    * @returns Formatted date string in DD/MM/YYYY HH:mm format
    */
   formatDateTime(date: Date | string | undefined): string {
-    console.log('Formatting datetime in component:', date);
+    // Debug log removed
     const result = this.dateFormatService.formatDateTime(date);
-    console.log('Formatted datetime result:', result);
+    // Debug log removed
     return result;
   }
 
@@ -428,13 +428,13 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
 
   // Method to get the CSS class for an attachment based on its origin
   getAttachmentClass(anexo: SolicitacaoAnexo): string {
-    console.log('Getting class for attachment in request detail:', anexo);
-    console.log('Attachment origin:', anexo.origem);
+    // Debug log removed
+    // Debug log removed
     if (anexo.origem === 'correspondente') {
-      console.log('Returning attachment-correspondente class in request detail');
+      // Debug log removed
       return 'attachment-correspondente';
     } else {
-      console.log('Returning attachment-solicitante class in request detail');
+      // Debug log removed
       return 'attachment-solicitante';
     }
   }

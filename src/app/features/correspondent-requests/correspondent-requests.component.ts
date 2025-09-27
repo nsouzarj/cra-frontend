@@ -114,7 +114,7 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
     this.comarcaService.getAllComarcas().subscribe({
       next: (comarcas) => {
         this.comarcas = comarcas;
-        console.log('Loaded', this.comarcas.length, 'comarcas for filter');
+        // Debug log removed
       },
       error: (error) => {
         console.error('Error loading comarcas:', error);
@@ -128,7 +128,7 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
     this.solicitacaoStatusService.getSolicitacaoStatuses().subscribe({
       next: (statuses: SolicitacaoStatus[]) => {
         this.statuses = statuses;
-        console.log('Loaded', this.statuses.length, 'statuses for filter');
+        // Debug log removed
       },
       error: (error: any) => {
         console.error('Error loading statuses:', error);
@@ -138,9 +138,9 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
   }
 
   loadRequests(): void {
-    console.log('loadRequests called with currentUser:', this.currentUser);
-    console.log('currentFilter:', this.currentFilter);
-    console.log('currentUser.correspondente:', this.currentUser?.correspondente);
+    // Debug logs removed
+    // Debug logs removed
+    // Debug logs removed
     
     // Set loading to true when starting to load requests
     this.loading = true;
@@ -156,7 +156,7 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
       
       // For correspondents, always filter by their own requests
       if (this.authService.isCorrespondente() && this.currentUser.correspondente?.id) {
-        console.log('Loading requests for correspondent:', this.currentUser.correspondente.id);
+        // Debug log removed
         filtro.correspondenteId = this.currentUser.correspondente.id;
         
         // Apply other filter criteria for correspondents as well
@@ -174,7 +174,7 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
       } 
       // For admins and lawyers, we can filter by various criteria including correspondent
       else if (this.authService.isAdmin() || this.authService.isAdvogado()) {
-        console.log('Loading requests for admin/lawyer with filter:', this.currentFilter);
+        // Debug log removed
         // Add filter criteria if they exist
         if (this.currentFilter.comarca) filtro.comarcaId = this.currentFilter.comarca;
         if (this.currentFilter.correspondenteId) filtro.correspondenteId = this.currentFilter.correspondenteId;
@@ -194,10 +194,10 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
           // Apply client-side filtering for additional criteria that might not be supported by backend
           const filteredSolicitacoes = this.applyClientSideFilter(response.content || []);
           
-          console.log('Received solicitacoes:', filteredSolicitacoes);
+          // Debug log removed
           this.dataSource.data = filteredSolicitacoes;
           this.loading = false;
-          console.log('Loaded', this.dataSource.data.length, 'requests');
+          // Debug log removed
           
           // Connect paginator and sort after data is loaded
           setTimeout(() => {
@@ -340,7 +340,7 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
 
   // New method to handle filter changes from the RequestFilterComponent
   onFilterChange(filterCriteria: RequestFilterCriteria): void {
-    console.log('Filter changed:', filterCriteria);
+    // Debug log removed
     this.currentFilter = filterCriteria;
     // Always reload requests, the loadRequests method will handle the filtering logic
     this.loadRequests();
