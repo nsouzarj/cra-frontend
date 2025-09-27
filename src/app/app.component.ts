@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, HostListener, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, HostListener, AfterViewInit, inject } from '@angular/core';
 import { AuthService } from './core/services/auth.service';
 import { ThemeService } from './core/services/theme.service';
 import { Router, RouterOutlet } from '@angular/router';
@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
+import { MatSidenav } from '@angular/material/sidenav';
 
 @Component({
   selector: 'app-root',
@@ -27,15 +28,16 @@ import { CommonModule } from '@angular/common';
 export class AppComponent implements OnInit, AfterViewInit {
   title = 'CRA - Sistema de Correspondentes';
   
+  // Using inject() function instead of constructor injection
+  public authService = inject(AuthService);
+  private themeService = inject(ThemeService);
+  private router = inject(Router);
+  
   @ViewChild('sidenav') sidenav!: MatSidenav;
   isMobile = false;
   isSidenavOpen = true;
 
-  constructor(
-    public authService: AuthService,
-    private themeService: ThemeService,
-    private router: Router
-  ) {
+  constructor() {
     this.checkScreenSize();
   }
 
@@ -44,8 +46,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     // Theme is now initialized in the service constructor
     
     // Listen for theme changes
-    window.addEventListener('themeChanged', (event: Event) => {
-      const customEvent = event as CustomEvent;
+    window.addEventListener('themeChanged', () => {
+      // Event listener implementation
     });
     
     // Check if we just returned from external storage authentication
@@ -60,7 +62,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
   
   @HostListener('window:resize', ['$event'])
-  onResize(event: any) {
+  onResize(): void {
     this.checkScreenSize();
   }
   
