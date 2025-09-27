@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'https://cra-frontend-342n.onrender.com/cra-api'  // Development API URL
+  apiUrl: 'https://cra-backend-nnb0.onrender.com/cra-api'  // Development API URL
 };
 
 /*
