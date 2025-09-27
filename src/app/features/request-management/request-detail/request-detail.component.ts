@@ -288,7 +288,7 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         // User confirmed deletion
-        this.solicitacaoAnexoService.deleteAnexo(anexo.id!).subscribe({
+        this.solicitacaoAnexoService.deleteAnexo(anexo.id!,anexo.origem!).subscribe({
           next: () => {
             // Remove the attachment from the list
             this.anexos = this.anexos.filter(a => a.id !== anexo.id);
