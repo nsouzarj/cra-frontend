@@ -1,48 +1,70 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../../shared/models/user.model';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-unauthorized',
   templateUrl: './unauthorized.component.html',
-  styleUrls: ['./unauthorized.component.scss']
+  styleUrls: ['./unauthorized.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule
+  ]
 })
 export class UnauthorizedComponent implements OnInit {
   
   currentUser: User | null = null;
-  
+
   constructor(
-    public authService: AuthService,
+    private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.currentUser = this.authService.currentUserValue;
   }
 
-  getUserRoleText(): string {
-    const user = this.currentUser;
-    
-    // Check if we have a user
-    if (!user) {
-      return 'Usuário não identificado';
+  logout(): void {
+    this.authService.logout();
+  }
+
+  goToDashboard(): void {
+    // Navigate to appropriate dashboard based on user role
+    const user = this.authService.currentUserValue;
+    if (user) {
+      if (user.authorities?.includes('ROLE_CORRESPONDENTE')) {
+        this.router.navigate(['/correspondent-dashboard']);
+      } else {
+        this.router.navigate(['/dashboard']);
+      }
+    } else {
+      this.router.navigate(['/login']);
     }
-    
-    // Check if authorities exist and is not empty
-    if (!user.authorities || user.authorities.length === 0) {
+  }
+
+  goBack(): void {
+    window.history.back();
+  }
+
+  getUserRoleText(): string {
+    const user = this.authService.currentUserValue;
+    if (!user || !user.authorities || user.authorities.length === 0) {
       return 'Sem permissão';
     }
     
-    // Get the first role (primary role)
     const role = user.authorities[0];
-    
-    // Handle null or undefined role
     if (!role) {
       return 'Indefinido';
     }
     
-    // Map role to display text
     switch (role) {
       case 'ROLE_ADMIN':
         return 'Administrador';
@@ -51,16 +73,7 @@ export class UnauthorizedComponent implements OnInit {
       case 'ROLE_CORRESPONDENTE':
         return 'Correspondente';
       default:
-        // Return the role without ROLE_ prefix if it's not a standard role
         return role.startsWith('ROLE_') ? role.substring(5) : role;
     }
-  }
-
-  goToDashboard(): void {
-    this.router.navigate(['/dashboard']);
-  }
-
-  goBack(): void {
-    window.history.back();
   }
 }

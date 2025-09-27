@@ -1,9 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { ExternalStorageService } from '../../../core/services/external-storage.service';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-external-storage-debug',
-  templateUrl: './external-storage-debug.component.html'
+  templateUrl: './external-storage-debug.component.html',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule
+  ]
 })
 export class ExternalStorageDebugComponent implements OnInit {
   debugInfo: any = null;

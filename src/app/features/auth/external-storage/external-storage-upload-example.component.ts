@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { ExternalStorageAuthGuardService } from '../../../core/services/external-storage-auth-guard.service';
 import { ExternalStorageService } from '../../../core/services/external-storage.service';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-external-storage-upload-example',
@@ -88,7 +91,13 @@ import { ExternalStorageService } from '../../../core/services/external-storage.
       background-color: #ffebee;
       color: #c62828;
     }
-  `]
+  `],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatProgressSpinnerModule
+  ]
 })
 export class ExternalStorageUploadExampleComponent {
   selectedFiles: File[] = [];

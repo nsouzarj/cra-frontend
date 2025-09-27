@@ -2,11 +2,22 @@ import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ExternalStorageService } from '../../../core/services/external-storage.service';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-external-storage-auth-dialog',
   templateUrl: './external-storage-auth-dialog.component.html',
-  styleUrls: ['./external-storage-auth-dialog.component.css']
+  styleUrls: ['./external-storage-auth-dialog.component.css'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatIconModule
+  ]
 })
 export class ExternalStorageAuthDialogComponent implements OnInit, OnDestroy {
   isLoading = false;

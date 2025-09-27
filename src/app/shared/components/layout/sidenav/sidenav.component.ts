@@ -2,6 +2,11 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { filter } from 'rxjs/operators';
+import { CommonModule } from '@angular/common';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 interface MenuItem {
   label: string;
@@ -16,7 +21,14 @@ interface MenuItem {
   selector: 'app-sidenav',
   templateUrl: './sidenav.component.html',
   styleUrls: ['./sidenav.component.scss'],
-  standalone: true
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatListModule,
+    MatIconModule,
+    MatButtonModule,
+    MatExpansionModule
+  ]
 })
 export class SidenavComponent implements OnInit {
   isMobile: boolean = false;

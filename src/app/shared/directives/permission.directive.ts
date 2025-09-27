@@ -9,7 +9,8 @@ import { AuthService } from '../../core/services/auth.service';
  * <div *appHasPermission="['ROLE_ADMIN']; requireAll: true">Only for admins</div>
  */
 @Directive({
-  selector: '[appHasPermission]'
+  selector: '[appHasPermission]',
+  standalone: true
 })
 export class HasPermissionDirective {
   private isVisible = false;

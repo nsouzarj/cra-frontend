@@ -5,12 +5,24 @@ import { ThemeService, Theme } from '../../../../core/services/theme.service';
 import { ZoomService } from '../../../../core/services/zoom.service';
 import { User } from '../../../models/user.model';
 import { Subscription } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
-  standalone: true
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatToolbarModule
+  ]
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   @Input() isMobile: boolean = false;

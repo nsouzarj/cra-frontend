@@ -2,12 +2,22 @@ import { Component, OnInit } from '@angular/core';
 import { ThemeService, Theme } from './core/services/theme.service';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-theme-test',
   templateUrl: './theme-test.component.html',
   styleUrls: ['./theme-test.component.scss'],
-  standalone: true
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule
+  ]
 })
 export class ThemeTestComponent implements OnInit {
   currentTheme: Theme;
