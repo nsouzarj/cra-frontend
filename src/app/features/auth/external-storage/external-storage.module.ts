@@ -10,14 +10,12 @@ import { ExternalStorageUploadExampleComponent } from './external-storage-upload
 import { ExternalStorageDebugComponent } from './external-storage-debug.component';
 
 @NgModule({
-  declarations: [
+  imports: [
+    CommonModule,
     ExternalStorageAuthComponent,
     ExternalStorageAuthDialogComponent,
     ExternalStorageUploadExampleComponent,
-    ExternalStorageDebugComponent
-  ],
-  imports: [
-    CommonModule,
+    ExternalStorageDebugComponent,
     MatButtonModule,
     MatProgressSpinnerModule,
     MatIconModule,

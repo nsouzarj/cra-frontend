@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { GoogleDriveService } from '../../../core/services/google-drive.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-google-drive-status',
@@ -8,11 +9,11 @@ import { GoogleDriveService } from '../../../core/services/google-drive.service'
       <h2>Google Drive - Status da Conexão</h2>
       
       <div class="status-section" *ngIf="connectionStatus">
-        <div class="status-indicator" [ngClass]="connectionStatus.connected ? 'connected' : 'disconnected'">
-          <span>{{ connectionStatus.message }}</span>
+        <div class="status-indicator" [ngClass]="connectionStatus!.connected ? 'connected' : 'disconnected'">
+          <span>{{ connectionStatus!.message }}</span>
         </div>
-        <div class="user-info" *ngIf="connectionStatus.connected">
-          ID do Usuário: {{ connectionStatus.userId }}
+        <div class="user-info" *ngIf="connectionStatus!.connected">
+          ID do Usuário: {{ connectionStatus!.userId }}
         </div>
       </div>
       
@@ -100,7 +101,9 @@ import { GoogleDriveService } from '../../../core/services/google-drive.service'
       border-radius: 4px;
       margin: 15px 0;
     }
-  `]
+  `],
+  standalone: true,
+  imports: [CommonModule]
 })
 export class GoogleDriveStatusComponent implements OnInit {
   loading = false;

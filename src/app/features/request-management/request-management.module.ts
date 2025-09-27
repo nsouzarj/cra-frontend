@@ -22,6 +22,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 // Components
 import { RequestListComponent } from './request-list/request-list.component';
@@ -52,16 +53,14 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [
-    RequestListComponent,
-    RequestFormComponent,
-    RequestDetailComponent
-  ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
     RouterModule.forChild(routes),
+    RequestListComponent,
+    RequestFormComponent,
+    RequestDetailComponent,
     MatTableModule,
     MatPaginatorModule,
     MatInputModule,
@@ -80,6 +79,7 @@ const routes: Routes = [
     MatProgressBarModule,
     MatTooltipModule,
     MatRadioModule,
+    MatAutocompleteModule,
     // External Storage Module
     ExternalStorageModule,
     // Shared Module for RequestFilterComponent

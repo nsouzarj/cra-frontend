@@ -59,16 +59,14 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [
-    UserListComponent,
-    UserFormComponent,
-    UserDetailComponent
-  ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
     RouterModule.forChild(routes),
+    UserListComponent,
+    UserFormComponent,
+    UserDetailComponent,
     
     // Angular Material
     MatTableModule,

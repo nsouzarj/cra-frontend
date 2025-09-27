@@ -20,15 +20,13 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 
 @NgModule({
-  declarations: [
-    HasPermissionDirective,
-    PasswordResetDialogComponent,
-    RequestFilterComponent
-  ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    HasPermissionDirective,
+    PasswordResetDialogComponent,
+    RequestFilterComponent,
     MatDialogModule,
     MatButtonModule,
     MatInputModule,

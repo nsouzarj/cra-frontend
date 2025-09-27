@@ -20,13 +20,11 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [
-    CorrespondentDashboardComponent,
-    CorrespondentDashboardSimpleComponent
-  ],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
+    CorrespondentDashboardComponent,
+    CorrespondentDashboardSimpleComponent,
     MatButtonModule,
     MatCardModule,
     MatIconModule,

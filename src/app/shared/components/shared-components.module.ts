@@ -17,8 +17,9 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatTooltip } from "@angular/material/tooltip";
 
-// Components
+// Components - Import standalone components
 import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
@@ -29,10 +30,14 @@ import { ThemeTestComponent } from '../../theme-test.component';
 import { ThemeDebugComponent } from '../../theme-debug.component';
 import { ThemeTroubleshootComponent } from '../../theme-troubleshoot.component';
 import { ThemeQuickTestComponent } from '../../theme-quick-test.component';
-import { MatTooltip } from "@angular/material/tooltip";
 
 @NgModule({
-  declarations: [
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    ReactiveFormsModule,
+    // Import standalone components
     UnauthorizedComponent,
     NotFoundComponent,
     ConfirmationDialogComponent,
@@ -42,13 +47,7 @@ import { MatTooltip } from "@angular/material/tooltip";
     ThemeTestComponent,
     ThemeDebugComponent,
     ThemeTroubleshootComponent,
-    ThemeQuickTestComponent
-  ],
-  imports: [
-    CommonModule,
-    RouterModule,
-    FormsModule,
-    ReactiveFormsModule,
+    ThemeQuickTestComponent,
     // Angular Material Modules
     MatCardModule,
     MatIconModule,
@@ -64,7 +63,7 @@ import { MatTooltip } from "@angular/material/tooltip";
     MatInputModule,
     MatDialogModule,
     MatTooltip
-],
+  ],
   exports: [
     UnauthorizedComponent,
     NotFoundComponent,

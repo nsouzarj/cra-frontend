@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ThemeService, Theme } from './core/services/theme.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-theme-debug',
@@ -25,7 +26,9 @@ import { ThemeService, Theme } from './core/services/theme.service';
         </ul>
       </div>
     </div>
-  `
+  `,
+  standalone: true,
+  imports: [CommonModule]
 })
 export class ThemeDebugComponent implements OnInit {
   currentTheme: Theme = 'light';

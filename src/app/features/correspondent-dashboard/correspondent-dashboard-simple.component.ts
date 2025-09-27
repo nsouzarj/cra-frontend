@@ -25,7 +25,8 @@ interface TipoSolicitacaoCount {
 @Component({
   selector: 'app-correspondent-dashboard-simple',
   templateUrl: './correspondent-dashboard-simple.component.html',
-  styleUrls: ['./correspondent-dashboard.component.scss']
+  styleUrls: ['./correspondent-dashboard.component.scss'],
+  standalone: true
 })
 export class CorrespondentDashboardSimpleComponent implements OnInit {
   currentUser: User | null = null;

@@ -57,16 +57,14 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [
-    CorrespondentListComponent,
-    CorrespondentFormComponent,
-    CorrespondentDetailComponent
-  ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
     RouterModule.forChild(routes),
+    CorrespondentListComponent,
+    CorrespondentFormComponent,
+    CorrespondentDetailComponent,
     
     // Angular Material
     MatTableModule,

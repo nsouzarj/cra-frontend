@@ -45,15 +45,13 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [
-    CorrespondentRequestsComponent,
-    CorrespondentRequestDetailComponent
-  ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
     RouterModule.forChild(routes),
+    CorrespondentRequestsComponent,
+    CorrespondentRequestDetailComponent,
     MatTableModule,
     MatPaginatorModule,
     MatInputModule,

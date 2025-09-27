@@ -25,6 +25,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 // Components
 import { ProcessListComponent } from './process-list/process-list.component';
@@ -58,16 +59,14 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [
-    ProcessListComponent,
-    ProcessFormComponent,
-    ProcessDetailComponent
-  ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
     RouterModule.forChild(routes),
+    ProcessListComponent,
+    ProcessFormComponent,
+    ProcessDetailComponent,
     
     // Angular Material
     MatTableModule,
@@ -90,7 +89,8 @@ const routes: Routes = [
     MatExpansionModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatToolbarModule
+    MatToolbarModule,
+    MatAutocompleteModule
   ]
 })
 export class ProcessManagementModule { }

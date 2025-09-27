@@ -28,7 +28,8 @@ interface TipoSolicitacaoCount {
   styleUrls: [
     '../admin-dashboard/dashboard-common.scss',
     './correspondent-dashboard.component.scss'
-  ]
+  ],
+  standalone: true
 })
 export class CorrespondentDashboardComponent implements OnInit {
   currentUser: User | null = null;

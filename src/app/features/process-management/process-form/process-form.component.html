@@ -72,11 +72,13 @@
         <div class="form-row">
           <mat-form-field class="form-field" appearance="outline">
             <mat-label>Comarca</mat-label>
-            <mat-select formControlName="comarca">
-              <mat-option *ngFor="let comarca of filteredComarcas" [value]="comarca.id">
+            <input matInput [formControl]="comarcaSearchControl" [matAutocomplete]="comarcaAuto" placeholder="Digite para buscar comarca">
+            <mat-autocomplete #comarcaAuto="matAutocomplete" [displayWith]="displayComarca" (optionSelected)="onComarcaSelected($event.option.value)">
+              <mat-option *ngFor="let comarca of comarcaOptions" [value]="comarca">
                 {{ comarca.nome }} - {{ comarca.uf.sigla }}
               </mat-option>
-            </mat-select>
+            </mat-autocomplete>
+            <mat-progress-spinner *ngIf="searchingComarca" mode="indeterminate" diameter="20" class="search-spinner"></mat-progress-spinner>
           </mat-form-field>
         </div>
 

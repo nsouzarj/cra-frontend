@@ -11,7 +11,8 @@ import { Correspondente } from '../../../shared/models/correspondente.model';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss']
+  styleUrls: ['./register.component.scss'],
+  standalone: true
 })
 export class RegisterComponent implements OnInit {
   registerForm: FormGroup;

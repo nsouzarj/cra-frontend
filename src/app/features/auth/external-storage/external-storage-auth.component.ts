@@ -7,7 +7,8 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-external-storage-auth',
   templateUrl: './external-storage-auth.component.html',
-  styleUrls: ['./external-storage-auth.component.css']
+  styleUrls: ['./external-storage-auth.component.css'],
+  standalone: true
 })
 export class ExternalStorageAuthComponent implements OnInit {
   connectionStatus: any = null;

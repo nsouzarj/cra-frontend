@@ -16,11 +16,12 @@
           <div class="form-row">
             <mat-form-field class="form-field" appearance="outline">
               <mat-label>Processo *</mat-label>
-              <mat-select formControlName="processo">
-                <mat-option *ngFor="let processo of filteredProcessos" [value]="processo.id">
+              <input type="text" matInput [matAutocomplete]="processoAuto" [formControl]="processoSearchControl" placeholder="Buscar processo">
+              <mat-autocomplete #processoAuto="matAutocomplete" [displayWith]="displayProcesso" (optionSelected)="onProcessoSelected($event)">
+                <mat-option *ngFor="let processo of filteredProcessos" [value]="processo">
                   {{ processo.numeroprocesso }} - {{ processo.parte }}
                 </mat-option>
-              </mat-select>
+              </mat-autocomplete>
               <mat-error *ngIf="isFieldInvalid('processo')">
                 {{ getFieldErrorMessage('processo') }}
               </mat-error>
@@ -28,11 +29,12 @@
 
             <mat-form-field class="form-field" appearance="outline">
               <mat-label>Correspondente *</mat-label>
-              <mat-select formControlName="correspondente">
-                <mat-option *ngFor="let correspondente of filteredCorrespondentes" [value]="correspondente.id">
+              <input type="text" matInput [matAutocomplete]="correspondenteAuto" [formControl]="correspondenteSearchControl" placeholder="Buscar correspondente">
+              <mat-autocomplete #correspondenteAuto="matAutocomplete" [displayWith]="displayCorrespondente" (optionSelected)="onCorrespondenteSelected($event)">
+                <mat-option *ngFor="let correspondente of filteredCorrespondentes" [value]="correspondente">
                   {{ correspondente.nome }} - {{ correspondente.oab }}
                 </mat-option>
-              </mat-select>
+              </mat-autocomplete>
               <mat-error *ngIf="isFieldInvalid('correspondente')">
                 {{ getFieldErrorMessage('correspondente') }}
               </mat-error>

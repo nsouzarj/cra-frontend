@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ThemeService, Theme } from './core/services/theme.service';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-theme-quick-test',
@@ -94,7 +96,9 @@ import { Router } from '@angular/router';
         <button mat-raised-button (click)="goBack()" style="margin-left: 10px;">Back to App</button>
       </div>
     </div>
-  `
+  `,
+  standalone: true,
+  imports: [CommonModule, MatButtonModule]
 })
 export class ThemeQuickTestComponent implements OnInit {
   currentTheme: Theme = 'light';

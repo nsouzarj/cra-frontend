@@ -28,7 +28,8 @@ interface TipoSolicitacaoCount {
 @Component({
   selector: 'app-advogado-dashboard',
   templateUrl: './advogado-dashboard.component.html',
-  styleUrls: ['../admin-dashboard/dashboard-common.scss']
+  styleUrls: ['../admin-dashboard/dashboard-common.scss'],
+  standalone: true
 })
 export class AdvogadoDashboardComponent implements OnInit {
   currentUser: User | null = null;

@@ -8,7 +8,8 @@ import { LoginRequest } from '../../../shared/models/user.model';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
+  standalone: true
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;

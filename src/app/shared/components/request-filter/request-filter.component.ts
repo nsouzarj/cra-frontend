@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TipoSolicitacaoService } from '../../../core/services/tiposolicitacao.service';
 import { ComarcaService } from '../../../core/services/comarca.service';
 import { CorrespondenteService } from '../../../core/services/correspondente.service';
@@ -8,6 +8,13 @@ import { TipoSolicitacao } from '../../models/tiposolicitacao.model';
 import { Comarca } from '../../models/comarca.model';
 import { Correspondente } from '../../models/correspondente.model';
 import { SolicitacaoStatus } from '../../models/solicitacao.model'; // Add this import
+import { CommonModule } from '@angular/common';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatButtonModule } from '@angular/material/button';
 
 export interface RequestFilterCriteria {
   status: string;
@@ -26,7 +33,18 @@ export interface RequestFilterCriteria {
 @Component({
   selector: 'app-request-filter',
   templateUrl: './request-filter.component.html',
-  styleUrls: ['./request-filter.component.scss']
+  styleUrls: ['./request-filter.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatButtonModule
+  ]
 })
 export class RequestFilterComponent implements OnInit {
   @Input() showCorrespondentFilter: boolean = false;

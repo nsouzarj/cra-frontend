@@ -10,12 +10,10 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [
-    GoogleDriveStatusComponent
-  ],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
+    GoogleDriveStatusComponent,
     MatButtonModule
   ]
 })

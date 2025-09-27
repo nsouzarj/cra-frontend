@@ -50,7 +50,7 @@ import { GoogleDriveInterceptor } from './core/interceptors/google-drive-interce
 // Services
 import { PaginatorI18nService } from './shared/services/paginator-i18n.service';
 
-// Components
+// Components - Import standalone components instead of declaring them
 import { AppComponent } from './app.component';
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
@@ -65,14 +65,8 @@ registerLocaleData(localePt);
 
 @NgModule({
   declarations: [
-    AppComponent,
-    LoginComponent,
-    RegisterComponent,
-    ProfileComponent,
-    AdminDashboardComponent
-    // Removed CorrespondentDashboardSimpleComponent as it is declared in its own module
-    // Removed ThemeTestComponent, ThemeDebugComponent, and ThemeTroubleshootComponent
-    // as they are declared in SharedComponentsModule
+    // Removed standalone components from declarations
+    // They should be imported instead
   ],
   imports: [
     BrowserModule,
@@ -84,6 +78,13 @@ registerLocaleData(localePt);
     AppRoutingModule,
     SharedModule,
     SharedComponentsModule,
+    
+    // Import standalone components
+    AppComponent,
+    LoginComponent,
+    RegisterComponent,
+    ProfileComponent,
+    AdminDashboardComponent,
     
     // Angular Material Modules
     MatToolbarModule,
@@ -142,7 +143,6 @@ registerLocaleData(localePt);
       useValue: 'pt-BR'
     }
   ],
-  bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AppModule { }

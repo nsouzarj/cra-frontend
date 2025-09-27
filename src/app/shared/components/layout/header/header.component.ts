@@ -9,7 +9,8 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+  styleUrls: ['./header.component.scss'],
+  standalone: true
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   @Input() isMobile: boolean = false;

@@ -5,7 +5,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpEventType } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { finalize, debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { FormControl } from '@angular/forms';
 
 // Models
 import { Solicitacao } from '../../../shared/models/solicitacao.model';
@@ -75,6 +76,10 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   
   // Storage location selection
   storageLocation: 'local' | 'google_drive' = 'google_drive';
+  
+  // Search controls for dropdowns
+  processoSearchControl = new FormControl('');
+  correspondenteSearchControl = new FormControl('');
 
   constructor(
     private formBuilder: FormBuilder,
@@ -102,6 +107,32 @@ export class RequestFormComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadDropdownData();
+    
+    // Set up processo search
+    this.processoSearchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(searchTerm => {
+      if (typeof searchTerm === 'string') {
+        this.filterProcessos(searchTerm || '');
+      } else if (searchTerm && typeof searchTerm === 'object') {
+        // If it's a Processo object, set the form control to the ID
+        this.requestForm.get('processo')?.setValue((searchTerm as Processo).id);
+      }
+    });
+    
+    // Set up correspondente search
+    this.correspondenteSearchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(searchTerm => {
+      if (typeof searchTerm === 'string' && searchTerm.length > 2) {
+        this.searchCorrespondentes(searchTerm);
+      } else if (!searchTerm) {
+        // If no search term, show filtered correspondentes (active only)
+        this.filteredCorrespondentes = this.correspondentes.filter(c => c.ativo === true);
+      }
+    });
     
     // Check if we're in edit mode
     this.route.params.subscribe(params => {
@@ -143,7 +174,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     const form = this.formBuilder.group({
       tipoSolicitacao: [null, Validators.required],
       status: [''], // Will be set to "Aguardando Confirmação" in onSubmit for new solicitations
-      processo: [null, Validators.required],
+      processo: [null, Validators.required], // This will be set by the autocomplete selection
       correspondente: [null, Validators.required],
       usuario: [null, Validators.required],
       dataSolicitacao: [this.getCurrentDate()], // Pre-filled with current date but editable by user
@@ -179,8 +210,8 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   }
 
   private loadDropdownData(): void {
-    // Load processos using paginated method to ensure we get all processes
-    this.processoService.getProcessosPaginated(0, 1000, 'numeroprocesso', 'ASC').subscribe({
+    // Load all processos initially (for search functionality)
+    this.processoService.getProcessosPaginated(0, 10000, 'numeroprocesso', 'ASC').subscribe({
       next: (response) => {
         const processos = response.content || [];
         this.processos = processos;
@@ -249,6 +280,35 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Method to filter processos based on search term
+  private filterProcessos(searchTerm: string): void {
+    if (!searchTerm) {
+      // If no search term, show filtered processos (EM_ANDAMENTO or all)
+      this.filteredProcessos = this.processos.filter(p => p.status === 'EM_ANDAMENTO');
+      if (this.filteredProcessos.length === 0) {
+        this.filteredProcessos = this.processos;
+      }
+      return;
+    }
+    
+    // Filter processos based on search term (number or part name)
+    this.filteredProcessos = this.processos.filter(p => 
+      p.numeroprocesso.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.parte && p.parte.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }
+
+  // Method to handle processo selection from autocomplete
+  onProcessoSelected(event: any): void {
+    const selectedProcesso: Processo = event.option.value;
+    this.requestForm.get('processo')?.setValue(selectedProcesso.id);
+  }
+
+  // Method to display processo in autocomplete
+  displayProcesso(processo: Processo): string {
+    return processo && processo.numeroprocesso ? `${processo.numeroprocesso} - ${processo.parte || ''}` : '';
+  }
+
   private loadRequest(): void {
     if (!this.requestId) return;
     
@@ -267,6 +327,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
           formattedValor = solicitacao.valor;
         }
         
+        // Set form values
         this.requestForm.patchValue({
           tipoSolicitacao: solicitacao.tipoSolicitacao?.idtiposolicitacao || null,
           status: solicitacao.statusSolicitacao?.idstatus || (this.statuses && this.statuses.length > 0 ? this.statuses[0].idstatus : 1),
@@ -282,6 +343,16 @@ export class RequestFormComponent implements OnInit, OnDestroy {
           horaAudiencia: solicitacao.horaudiencia || '',
           valor: formattedValor
         });
+        
+        // Set the processo search control to the selected processo for display
+        if (solicitacao.processo) {
+          this.processoSearchControl.setValue(this.displayProcesso(solicitacao.processo));
+        }
+        
+        // Set the correspondente search control to the selected correspondente for display
+        if (solicitacao.correspondente) {
+          this.correspondenteSearchControl.setValue(this.displayCorrespondente(solicitacao.correspondente));
+        }
         
         // Check if we need to show conditional fields based on the loaded tipoSolicitacao
         if (solicitacao.tipoSolicitacao?.idtiposolicitacao) {
@@ -618,10 +689,10 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     // For Audiência, always include horaAudiencia when it exists in the form (especially in edit mode)
     if (this.showAudienciaFields || (this.isEditMode && formValue.horaAudiencia !== undefined)) {
       solicitacao.dataagendamento = formValue.dataAgendamento || null;
-      solicitacao.horaaudiencia = formValue.horaAudiencia || null; // Fixed property name
+      solicitacao.horaudiencia = formValue.horaAudiencia || null; // Fixed property name
       console.log('Setting audiencia fields:', {
         dataagendamento: solicitacao.dataagendamento,
-        horaudiencia: solicitacao.horaaudiencia
+        horaudiencia: solicitacao.horaudiencia
       });
     }
     
@@ -681,7 +752,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       finalize(() => this.loading = false)
     ).subscribe({
       next: (result: any) => {
-        // Get the ID of the created/updated solicitation
+        // Get the ID of the created/updated solicitacao
         const solicitacaoId = this.isEditMode ? this.requestId : (result?.id || result?.idsolicitacao);
         
         const message = this.isEditMode 
@@ -849,5 +920,29 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         this.snackBar.open('Erro ao baixar anexo', 'Fechar', { duration: 5000 });
       }
     });
+  }
+
+  // Method to search correspondentes based on search term
+  private searchCorrespondentes(searchTerm: string): void {
+    this.correspondenteService.searchByNome(searchTerm).subscribe({
+      next: (correspondentes) => {
+        this.filteredCorrespondentes = correspondentes.filter(c => c.ativo === true);
+      },
+      error: (error) => {
+        console.error('Error searching correspondentes:', error);
+        this.snackBar.open('Erro ao buscar correspondentes', 'Fechar', { duration: 5000 });
+      }
+    });
+  }
+
+  // Method to handle correspondente selection from autocomplete
+  onCorrespondenteSelected(event: any): void {
+    const selectedCorrespondente: Correspondente = event.option.value;
+    this.requestForm.get('correspondente')?.setValue(selectedCorrespondente.id);
+  }
+
+  // Method to display correspondente in autocomplete
+  displayCorrespondente(correspondente: Correspondente): string {
+    return correspondente && correspondente.nome ? `${correspondente.nome} - ${correspondente.oab || ''}` : '';
   }
 }

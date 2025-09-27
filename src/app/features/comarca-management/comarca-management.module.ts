@@ -58,16 +58,14 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [
-    ComarcaListComponent,
-    ComarcaFormComponent,
-    ComarcaDetailComponent
-  ],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
     ReactiveFormsModule,
     HttpClientModule,
+    ComarcaListComponent,
+    ComarcaFormComponent,
+    ComarcaDetailComponent,
     // Angular Material Modules
     MatButtonModule,
     MatCardModule,

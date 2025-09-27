@@ -6,7 +6,8 @@ import { Location } from '@angular/common';
 @Component({
   selector: 'app-theme-test',
   templateUrl: './theme-test.component.html',
-  styleUrls: ['./theme-test.component.scss']
+  styleUrls: ['./theme-test.component.scss'],
+  standalone: true
 })
 export class ThemeTestComponent implements OnInit {
   currentTheme: Theme;

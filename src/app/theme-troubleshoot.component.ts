@@ -5,7 +5,8 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-theme-troubleshoot',
   templateUrl: './theme-troubleshoot.component.html',
-  styleUrls: ['./theme-troubleshoot.component.scss']
+  styleUrls: ['./theme-troubleshoot.component.scss'],
+  standalone: true
 })
 export class ThemeTroubleshootComponent implements OnInit, OnDestroy {
   currentTheme: Theme = 'light';

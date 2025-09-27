@@ -12,7 +12,8 @@ export interface ObservationDialogData {
 @Component({
   selector: 'app-observation-dialog',
   templateUrl: './observation-dialog.component.html',
-  styleUrls: ['./observation-dialog.component.scss']
+  styleUrls: ['./observation-dialog.component.scss'],
+  standalone: true
 })
 export class ObservationDialogComponent {
   observation: string = '';

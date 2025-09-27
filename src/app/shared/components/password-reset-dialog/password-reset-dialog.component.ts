@@ -9,7 +9,8 @@ export interface PasswordResetDialogData {
 @Component({
   selector: 'app-password-reset-dialog',
   templateUrl: './password-reset-dialog.component.html',
-  styleUrls: ['./password-reset-dialog.component.scss']
+  styleUrls: ['./password-reset-dialog.component.scss'],
+  standalone: true
 })
 export class PasswordResetDialogComponent {
   newPassword: string = '';

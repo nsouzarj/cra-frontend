@@ -20,12 +20,10 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [
-    AdvogadoDashboardComponent
-  ],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
+    AdvogadoDashboardComponent,
     MatButtonModule,
     MatCardModule,
     MatIconModule,

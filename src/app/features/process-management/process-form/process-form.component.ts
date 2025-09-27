@@ -1,9 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { Subscription } from 'rxjs';
+import { Subscription, BehaviorSubject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { ProcessoService } from '../../../core/services/processo.service';
 import { ComarcaService } from '../../../core/services/comarca.service';
 import { OrgaoService } from '../../../core/services/orgao.service';
@@ -25,6 +26,12 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
   orgaos: Orgao[] = [];
   comarcas: Comarca[] = [];
   filteredComarcas: Comarca[] = [];
+  
+  // Autocomplete functionality for comarca
+  comarcaSearchControl = new FormControl('');
+  comarcaOptions: Comarca[] = [];
+  searchingComarca = false;
+  selectedComarca: Comarca | null = null;
 
   private themeSubscription: Subscription | null = null;
 
@@ -56,7 +63,7 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadOrgaos();
-    this.loadComarcas();
+    this.loadInitialComarcas();
     
     this.route.params.subscribe(params => {
       if (params['id']) {
@@ -70,6 +77,9 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
     this.processForm.get('orgao')?.valueChanges.subscribe(orgaoId => {
       this.filterComarcasByOrgao(orgaoId);
     });
+    
+    // Setup comarca autocomplete
+    this.setupComarcaAutocomplete();
     
     this.setupThemeListener();
   }
@@ -108,16 +118,44 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadComarcas(): void {
-    // For form components, we load all comarcas (first page with large size)
-    this.comarcaService.getComarcas(0, 1000, 'nome', 'ASC').subscribe({
+  loadInitialComarcas(): void {
+    // Load initial comarcas for the dropdown (first page with reasonable size)
+    this.comarcaService.getComarcas(0, 50, 'nome', 'ASC').subscribe({
       next: (response) => {
         this.comarcas = response.content;
         this.filteredComarcas = response.content;
+        this.comarcaOptions = response.content;
       },
       error: (error) => {
         console.error('Error loading comarcas:', error);
         this.snackBar.open('Erro ao carregar comarcas', 'Fechar', { duration: 5000 });
+      }
+    });
+  }
+
+  setupComarcaAutocomplete(): void {
+    this.comarcaSearchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(searchTerm => {
+        if (!searchTerm || searchTerm.length < 2) {
+          // If search term is too short, return initial comarcas
+          return this.comarcaService.getComarcas(0, 50, 'nome', 'ASC');
+        }
+        
+        this.searchingComarca = true;
+        // Search for comarcas by name
+        return this.comarcaService.searchByName(searchTerm, 0, 20, 'nome', 'ASC');
+      })
+    ).subscribe({
+      next: (response) => {
+        this.searchingComarca = false;
+        this.comarcaOptions = response.content || [];
+      },
+      error: (error) => {
+        this.searchingComarca = false;
+        console.error('Error searching comarcas:', error);
+        this.snackBar.open('Erro ao buscar comarcas', 'Fechar', { duration: 5000 });
       }
     });
   }
@@ -131,6 +169,15 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
     // In a real implementation, you would filter comarcas based on the selected orgao
     // For now, we'll just show all comarcas
     this.filteredComarcas = this.comarcas;
+  }
+
+  displayComarca(comarca: Comarca): string {
+    return comarca && comarca.nome ? `${comarca.nome} - ${comarca.uf.sigla}` : '';
+  }
+
+  onComarcaSelected(comarca: Comarca): void {
+    this.selectedComarca = comarca;
+    this.processForm.get('comarca')?.setValue(comarca.id);
   }
 
   loadProcess(): void {
@@ -152,6 +199,20 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
           orgao: processo.orgao?.id || null,
           comarca: processo.comarca?.id || null
         });
+        
+        // If there's a comarca selected, load its details
+        if (processo.comarca?.id) {
+          this.comarcaService.getComarcaById(processo.comarca.id).subscribe({
+            next: (comarca) => {
+              this.selectedComarca = comarca;
+              // Set the display value for the autocomplete
+              this.comarcaSearchControl.setValue(this.displayComarca(comarca));
+            },
+            error: (error) => {
+              console.error('Error loading comarca:', error);
+            }
+          });
+        }
       },
       error: (error) => {
         this.snackBar.open('Erro ao carregar processo', 'Fechar', { duration: 5000 });
@@ -188,7 +249,7 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
     // Prepare the processo data with proper orgao and comarca objects
     const formValue = this.processForm.value;
     const orgao = this.orgaos.find(o => o.id === formValue.orgao) || null;
-    const comarca = this.comarcas.find(c => c.id === formValue.comarca) || null;
+    const comarca = this.comarcas.find(c => c.id === formValue.comarca) || this.selectedComarca;
     
     const processData: any = {
       numeroprocesso: formValue.numeroprocesso,
