@@ -6,11 +6,24 @@ import { Subscription } from 'rxjs';
 import { ComarcaService } from '../../../core/services/comarca.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Comarca } from '../../../shared/models/comarca.model';
+import { CommonModule } from '@angular/common';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-comarca-detail',
   templateUrl: './comarca-detail.component.html',
-  styleUrls: ['./comarca-detail.component.scss']
+  styleUrls: ['./comarca-detail.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule
+  ]
 })
 export class ComarcaDetailComponent implements OnInit, OnDestroy {
   comarca: Comarca | null = null;

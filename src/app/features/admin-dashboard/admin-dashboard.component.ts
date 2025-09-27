@@ -18,6 +18,9 @@ import { PaginatedResponse } from '../../shared/models/api-response.model';
 import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCardModule } from '@angular/material/card';
 
 interface DashboardStats {
   totalUsers: number;
@@ -50,7 +53,12 @@ interface TipoSolicitacaoCount {
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./dashboard-common.scss'], // Use common dashboard SCSS
-  standalone: true
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatProgressSpinnerModule,
+    MatCardModule
+  ]
 })
 export class AdminDashboardComponent implements OnInit {
   currentUser: User | null = null;

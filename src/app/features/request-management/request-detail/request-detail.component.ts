@@ -20,11 +20,26 @@ import { HttpEventType } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 // Add import for external storage authentication
 import { ExternalStorageAuthGuardService } from '../../../core/services/external-storage-auth-guard.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-request-detail',
   templateUrl: './request-detail.component.html',
-  styleUrls: ['./request-detail.component.scss']
+  styleUrls: ['./request-detail.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatRadioModule,
+    MatProgressSpinnerModule,
+    MatButtonModule,
+    MatIconModule
+  ]
 })
 export class RequestDetailComponent implements OnInit, OnDestroy {
   solicitacao: Solicitacao | null = null;

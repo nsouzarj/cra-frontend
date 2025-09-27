@@ -30,6 +30,16 @@ import { TipoSolicitacaoService } from '../../../core/services/tiposolicitacao.s
 import { SolicitacaoAnexoService } from '../../../core/services/solicitacao-anexo.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ExternalStorageAuthGuardService } from '../../../core/services/external-storage-auth-guard.service';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 interface ProgressInfo {
   value: number;
@@ -39,7 +49,20 @@ interface ProgressInfo {
 @Component({
   selector: 'app-request-form',
   templateUrl: './request-form.component.html',
-  styleUrls: ['./request-form.component.scss']
+  styleUrls: ['./request-form.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatCardModule,
+    MatRadioModule,
+    MatProgressSpinnerModule,
+    MatIconModule,
+    MatAutocompleteModule
+  ]
 })
 export class RequestFormComponent implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef;

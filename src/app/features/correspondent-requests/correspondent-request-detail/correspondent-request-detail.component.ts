@@ -18,11 +18,26 @@ import { ConfirmationDialogComponent } from '../../../shared/components/confirma
 import { ObservationDialogComponent } from '../../../shared/components/observation-dialog/observation-dialog.component';
 // Add imports for external storage authentication
 import { ExternalStorageAuthGuardService } from '../../../core/services/external-storage-auth-guard.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-correspondent-request-detail',
   templateUrl: './correspondent-request-detail.component.html',
-  styleUrls: ['./correspondent-request-detail.component.scss']
+  styleUrls: ['./correspondent-request-detail.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatRadioModule,
+    MatProgressSpinnerModule,
+    MatButtonModule,
+    MatIconModule
+  ]
 })
 export class CorrespondentRequestDetailComponent implements OnInit {
   solicitacao: Solicitacao | null = null;
