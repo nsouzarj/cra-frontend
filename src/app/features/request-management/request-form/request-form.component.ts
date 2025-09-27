@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, ViewChild, ElementRef, ChangeDetectorRef, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpEventType } from '@angular/common/http';
@@ -43,6 +43,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTimepickerModule, NativeDateTimeModule } from '@dhutaryan/ngx-mat-timepicker';
 
 interface ProgressInfo {
   value: number;
@@ -68,7 +69,9 @@ interface ProgressInfo {
     MatAutocompleteModule,
     MatDatepickerModule,
     MatProgressBarModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatTimepickerModule,
+    NativeDateTimeModule
   ]
 })
 export class RequestFormComponent implements OnInit, OnDestroy {
@@ -176,6 +179,12 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       }
     });
     
+    // Add listener to revalidate prazo date when dataSolicitacao changes
+    this.requestForm.get('dataSolicitacao')?.valueChanges.subscribe(() => {
+      const prazoControl = this.requestForm.get('dataPrazo');
+      prazoControl?.updateValueAndValidity();
+    });
+    
     this.setupThemeListener();
   }
 
@@ -200,6 +209,44 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Custom validator to ensure prazo date is not earlier than solicitation date for audiência and diligência types
+  validatePrazoDate() {
+    return (control: AbstractControl) => {
+      const formGroup = control.parent as FormGroup;
+      
+      // Only validate if we have access to the form group
+      if (!formGroup) {
+        return null;
+      }
+      
+      const tipoSolicitacaoId = formGroup.get('tipoSolicitacao')?.value;
+      const dataSolicitacao = formGroup.get('dataSolicitacao')?.value;
+      const dataPrazo = control.value;
+      
+      // Only validate for audiência and diligência types
+      if (tipoSolicitacaoId) {
+        const selectedTipo = this.tiposSolicitacao.find(tipo => tipo.idtiposolicitacao === tipoSolicitacaoId);
+        if (selectedTipo && (this.isTipoAudiencia(selectedTipo) || this.isTipoDiligencia(selectedTipo))) {
+          // Validate that prazo date is not earlier than solicitation date
+          if (dataSolicitacao && dataPrazo) {
+            const solicitacaoDate = new Date(dataSolicitacao);
+            const prazoDate = new Date(dataPrazo);
+            
+            // Reset time parts to compare only dates
+            solicitacaoDate.setHours(0, 0, 0, 0);
+            prazoDate.setHours(0, 0, 0, 0);
+            
+            if (prazoDate < solicitacaoDate) {
+              return { prazoBeforeSolicitacao: true };
+            }
+          }
+        }
+      }
+      
+      return null;
+    };
+  }
+
   private createForm(): FormGroup {
     const form = this.formBuilder.group({
       tipoSolicitacao: [null, Validators.required],
@@ -208,11 +255,11 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       correspondente: [null, Validators.required],
       usuario: [null, Validators.required],
       dataSolicitacao: [this.getCurrentDate()], // Pre-filled with current date but editable by user
-      dataPrazo: [''],
+      dataPrazo: ['', this.validatePrazoDate()],
       instrucoes: [''],
       // Conditional fields
       dataAgendamento: [''],
-      horaAudiencia: [''], // Changed from horaAudiencia to match model property
+      horaAudiencia: ['09:00 AM'], // Set default time in HH:mm AM/PM format
       valor: [''], // Remove initial validator, let onTipoSolicitacaoChange handle it
       storageLocation: ['google_drive'] // Add storage location control
     });
@@ -238,6 +285,54 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
     return `${day}/${month}/${year}`;
+  }
+
+  // Helper method to ensure time is in HH:mm AM/PM format for database storage
+  private ensureTimeFormat(time: string | number | Date | null | undefined): string {
+    // Handle null, undefined, or non-string values
+    if (!time) return '09:00 AM';
+    
+    // Convert to string if it's not already
+    let timeStr: string;
+    if (typeof time === 'string') {
+      timeStr = time;
+    } else if (time instanceof Date) {
+      // Format date as HH:mm AM/PM
+      let hours = time.getHours();
+      const minutes = time.getMinutes().toString().padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12; // the hour '0' should be '12'
+      timeStr = `${hours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+    } else {
+      timeStr = time.toString();
+    }
+    
+    // If time is already in HH:mm format, convert to HH:mm AM/PM
+    if (timeStr.includes(':') && !timeStr.includes('AM') && !timeStr.includes('PM')) {
+      const [hours, minutes] = timeStr.split(':').map(Number);
+      if (hours !== undefined && minutes !== undefined) {
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const displayHours = hours % 12 || 12;
+        return `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+      }
+    }
+    
+    // If we have a simple number, format as HH:00 AM/PM
+    if (!isNaN(Number(timeStr)) && !timeStr.includes(':')) {
+      const hours = Number(timeStr);
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const displayHours = hours % 12 || 12;
+      return `${displayHours.toString().padStart(2, '0')}:00 ${ampm}`;
+    }
+    
+    // If time already has AM/PM, return as is
+    if (timeStr.includes('AM') || timeStr.includes('PM')) {
+      return timeStr;
+    }
+    
+    // Default fallback
+    return timeStr;
   }
 
   private loadDropdownData(): void {
@@ -376,7 +471,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
           observacao: solicitacao.observacao || '',
           // Conditional fields
           dataAgendamento: solicitacao.dataagendamento || '',
-          horaAudiencia: solicitacao.horaudiencia || '',
+          horaAudiencia: solicitacao.horaudiencia || '09:00 AM',
           valor: formattedValor
         });
         
@@ -522,6 +617,10 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       valorControl?.clearValidators();
     }
     valorControl?.updateValueAndValidity();
+    
+    // Revalidate prazo date when tipoSolicitacao changes
+    const prazoControl = this.requestForm.get('dataPrazo');
+    prazoControl?.updateValueAndValidity();
     
     // Force change detection to ensure the template updates
     this.changeDetectorRef.detectChanges();
@@ -741,6 +840,8 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     // Map form values to solicitacao object
     solicitacao.tipoSolicitacao = { idtiposolicitacao: formValue.tipoSolicitacao };
     solicitacao.processo = { id: formValue.processo } as Processo;
+    solicitacao.usuario = { id: formValue.usuario } as User;
+    solicitacao.correspondente = { id: formValue.correspondente } as Correspondente;
     
     // Set status based on edit mode
     if (this.isEditMode && formValue.status) {
@@ -754,7 +855,8 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     // Handle conditional fields
     if (this.showAudienciaFields) {
       solicitacao.dataagendamento = formValue.dataAgendamento;
-      solicitacao.horaudiencia = formValue.horaAudiencia;
+      // Ensure horaAudiencia has correct format with AM/PM
+      solicitacao.horaudiencia = this.ensureTimeFormat(formValue.horaAudiencia);
     }
     
     if (this.showValorField) {
@@ -764,11 +866,6 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     solicitacao.dataprazo = formValue.dataPrazo;
     solicitacao.complemento = formValue.complemento;
     solicitacao.instrucoes = formValue.instrucoes;
-    
-    // Set correspondent if available
-    if (this.authService.currentUserValue?.correspondente?.id) {
-      solicitacao.correspondente = { id: this.authService.currentUserValue.correspondente.id } as Correspondente;
-    }
     
     return solicitacao as Solicitacao;
   }
@@ -814,7 +911,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     return '';
   }
   
-  private getErrorMessage(fieldName: string): string {
+  getErrorMessage(fieldName: string): string {
     const field = this.requestForm.get(fieldName);
     if (!field || !field.errors) return '';
     
@@ -837,6 +934,10 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     
     if (field.hasError('min')) {
       return `${label} deve ser maior que zero`;
+    }
+    
+    if (field.hasError('prazoBeforeSolicitacao')) {
+      return 'Data do Prazo não pode ser anterior à Data da Solicitação para tipos Audiência e Diligência';
     }
     
     return 'Campo inválido';

@@ -85,6 +85,9 @@
               <input matInput [matDatepicker]="prazoPicker" formControlName="dataPrazo">
               <mat-datepicker-toggle matSuffix [for]="prazoPicker"></mat-datepicker-toggle>
               <mat-datepicker #prazoPicker></mat-datepicker>
+              <mat-error *ngIf="isFieldInvalid('dataPrazo')">
+                {{ getErrorMessage('dataPrazo') }}
+              </mat-error>
             </mat-form-field>
           </div>
 
@@ -100,7 +103,9 @@
 
               <mat-form-field class="form-field" appearance="outline">
                 <mat-label>Hora da Audiência</mat-label>
-                <input matInput type="time" formControlName="horaAudiencia">
+                <input matInput [matTimepicker]="timepicker" formControlName="horaAudiencia" placeholder="HH:mm">
+                <mat-timepicker #timepicker [touchUi]="true" [mode]="'input'" [minuteInterval]="5" [format]="'12h'" panelClass="compact-timepicker"></mat-timepicker>
+                <mat-timepicker-toggle matSuffix [for]="timepicker"></mat-timepicker-toggle>
               </mat-form-field>
             </div>
           </div>

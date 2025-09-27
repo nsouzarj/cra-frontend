@@ -1,6 +1,6 @@
-# CRA Frontend - Angular 18
+# CRA Frontend - Angular 20
 
-Frontend web application for the CRA (Correspondente Responsável por Atos) system built with Angular 18 and Angular Material.
+Frontend web application for the CRA (Correspondente Responsável por Atos) system built with Angular 20 and Angular Material.
 
 ## 🏢 Visão Geral
 
@@ -21,7 +21,7 @@ Para mais informações sobre o projeto completo, consulte o [README.md](../READ
 
 ## 🛠️ Tecnologias
 
-- **Angular 18**: Framework mais recente com componentes standalone
+- **Angular 20**: Framework mais recente com componentes standalone
 - **Angular Material**: Componentes de UI modernos
 - **TypeScript**: Desenvolvimento com segurança de tipos
 - **RxJS**: Programação reativa
@@ -33,7 +33,7 @@ Antes de executar esta aplicação, certifique-se de ter:
 
 - **Node.js** (versão 18 ou superior)
 - **npm** (vem com Node.js)
-- **Angular CLI** (versão 18)
+- **Angular CLI** (versão 20)
 - **CRA Backend** em execução em `http://localhost:8081`
 
 ## 🔧 Instalação
@@ -50,7 +50,7 @@ Antes de executar esta aplicação, certifique-se de ter:
 
 3. **Instale o Angular CLI globalmente (se ainda não estiver instalado):**
    ```bash
-   npm install -g @angular/cli@18
+   npm install -g @angular/cli@20
    ```
 
 ## 🏃‍♂️ Executando a Aplicação
@@ -87,15 +87,22 @@ src/
 │   │   ├── interceptors/         # Interceptadores HTTP
 │   │   └── services/             # Serviços principais
 │   ├── features/                 # Módulos de funcionalidades
+│   │   ├── admin-dashboard/      # Dashboard administrativo
+│   │   ├── advogado-dashboard/   # Dashboard de advogado
 │   │   ├── auth/                 # Autenticação
-│   │   ├── dashboard/            # Dashboard
-│   │   ├── user-management/      # Gerenciamento de usuários
+│   │   ├── comarca-management/   # Gerenciamento de comarcas
+│   │   ├── correspondent-dashboard/ # Dashboard de correspondente
 │   │   ├── correspondent-management/  # Gerenciamento de correspondentes
+│   │   ├── correspondent-requests/ # Solicitações de correspondente
 │   │   ├── process-management/   # Gerenciamento de processos
 │   │   └── request-management/   # Gerenciamento de solicitações
+│   │   └── user-management/      # Gerenciamento de usuários
+│   ├── main-nav/                 # Componentes de navegação principal
 │   ├── shared/                   # Componentes e utilitários compartilhados
 │   │   ├── components/           # Componentes reutilizáveis
-│   │   └── models/               # Interfaces TypeScript
+│   │   ├── directives/           # Diretivas personalizadas
+│   │   ├── models/               # Interfaces TypeScript
+│   │   └── services/             # Serviços compartilhados
 │   ├── app-routing.module.ts     # Roteamento principal
 │   ├── app.component.ts          # Componente raiz
 │   └── app.module.ts             # Módulo raiz
@@ -185,7 +192,7 @@ A URL da API backend é configurada nos arquivos de ambiente:
 
 Crie arquivos de ambiente para diferentes configurações:
 
-```typescript
+```
 // src/environments/environment.ts (desenvolvimento)
 export const environment = {
   production: false,
@@ -223,12 +230,12 @@ export const environment = {
    - Banco de Dados: localhost:5432 (PostgreSQL)
 
 ### Parando a Aplicação
-```bash
+```
 docker-compose down
 ```
 
 ### Visualizando Logs
-```bash
+```
 docker-compose logs -f
 ```
 
@@ -302,11 +309,11 @@ npm run test:coverage
 ## 📦 Dependências
 
 Principais dependências incluem:
-- **@angular/core**: ^18.0.0
-- **@angular/material**: ^18.0.0
-- **@angular/cdk**: ^18.0.0
+- **@angular/core**: ~20.2.2
+- **@angular/material**: ~20.2.2
+- **@angular/cdk**: ~20.2.2
 - **rxjs**: ~7.8.0
-- **typescript**: ~5.4.0
+- **typescript**: ~5.9.2
 
 ## 🤝 Contribuição
 
@@ -342,3 +349,27 @@ ng update @angular/material
 # Atualizar todas as dependências
 npm update
 ```
+
+## 🚀 Migração para Angular 20
+
+O projeto foi atualizado da versão Angular 18 para Angular 20, aproveitando os recursos mais recentes do framework:
+
+### Principais Atualizações
+
+- **Angular 20.2.2**: Atualização para a versão mais recente do framework
+- **Angular Material 20.2.2**: Componentes atualizados com melhorias de desempenho
+- **TypeScript 5.9.2**: Suporte para recursos mais recentes da linguagem
+- **Compatibilidade**: Total compatibilidade com as APIs existentes
+
+### Benefícios da Migração
+
+- **Melhor desempenho**: Otimizações do Angular 20 para renderização e change detection
+- **Novos recursos**: Aproveitamento dos recursos mais recentes do framework
+- **Segurança**: Atualizações de segurança e correções de bugs
+- **Suporte**: Compatibilidade com as versões mais recentes das ferramentas de desenvolvimento
+
+### Considerações Técnicas
+
+- **Componentes Standalone**: Continuação do uso de componentes standalone introduzidos no Angular 18
+- **Compatibilidade**: Todos os componentes e serviços foram atualizados para manter compatibilidade
+- **Testes**: Todos os testes foram verificados e atualizados conforme necessário
