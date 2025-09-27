@@ -9,11 +9,28 @@ import { UfService } from '../../../core/services/uf.service';
 import { Correspondente, Endereco } from '../../../shared/models/correspondente.model';
 import { Uf } from '../../../shared/models/uf.model';
 import { ConfirmationDialogComponent, ConfirmationDialogData } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-correspondent-form',
   templateUrl: './correspondent-form.component.html',
-  styleUrls: ['./correspondent-form.component.scss']
+  styleUrls: ['./correspondent-form.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatCardModule,
+    MatCheckboxModule
+  ]
 })
 export class CorrespondentFormComponent implements OnInit, OnDestroy {
   correspondentForm: FormGroup;
