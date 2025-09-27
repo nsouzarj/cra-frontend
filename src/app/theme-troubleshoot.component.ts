@@ -1,22 +1,25 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ThemeService, Theme } from './core/services/theme.service';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-theme-troubleshoot',
   templateUrl: './theme-troubleshoot.component.html',
   styleUrls: ['./theme-troubleshoot.component.scss'],
-  standalone: true
+  standalone: true,
+  imports: [
+    CommonModule
+  ]
 })
 export class ThemeTroubleshootComponent implements OnInit, OnDestroy {
   currentTheme: Theme = 'light';
-  bodyClasses: string = '';
-  menuTestResult: string = '';
+  bodyClasses = '';
+  menuTestResult = '';
   
-  constructor(
-    private themeService: ThemeService,
-    private router: Router
-  ) {}
+  // Using inject() function instead of constructor injection
+  private themeService = inject(ThemeService);
+  private router = inject(Router);
 
   ngOnInit(): void {
     console.log('ThemeTroubleshootComponent: Initialized');

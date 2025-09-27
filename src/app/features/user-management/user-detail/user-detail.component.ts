@@ -1,15 +1,13 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 
 import { UserService } from '../../../core/services/user.service';
-import { CorrespondenteService } from '../../../core/services/correspondente.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { PermissionService } from '../../../core/services/permission.service';
 import { User, UserType } from '../../../shared/models/user.model';
-import { Correspondente } from '../../../shared/models/correspondente.model';
 import { ConfirmationDialogComponent, ConfirmationDialogData } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { PasswordResetDialogComponent, PasswordResetDialogData } from '../../../shared/components/password-reset-dialog/password-reset-dialog.component';
 import { DateFormatService } from '../../../shared/services/date-format.service';
@@ -19,6 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-user-detail',
@@ -32,6 +31,7 @@ import { MatDividerModule } from '@angular/material/divider';
     MatCardModule,
     MatChipsModule,
     MatDividerModule,
+    MatProgressSpinnerModule,
     ConfirmationDialogComponent,
     PasswordResetDialogComponent
   ]
@@ -44,17 +44,15 @@ export class UserDetailComponent implements OnInit, OnDestroy {
 
   private themeSubscription: Subscription | null = null;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private userService: UserService,
-    private correspondenteService: CorrespondenteService,
-    public authService: AuthService,
-    public permissionService: PermissionService,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog,
-    private dateFormatService: DateFormatService
-  ) {}
+  // Using inject() function instead of constructor injection
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private userService = inject(UserService);
+  private authService = inject(AuthService);
+  public permissionService = inject(PermissionService);
+  private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
+  private dateFormatService = inject(DateFormatService);
 
   ngOnInit(): void {
     this.currentUserId = this.authService.currentUserValue?.id;
@@ -78,8 +76,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
   setupThemeListener(): void {
     // Listen for theme changes to trigger change detection
     this.themeSubscription = new Subscription();
-    const themeHandler = (event: Event) => {
-      const customEvent = event as CustomEvent;
+    const themeHandler = () => {
       // Force change detection when theme changes
       // This will cause the component to re-render with the new theme styles
     };
@@ -178,13 +175,13 @@ export class UserDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  getUserPermissions(): any[] {
+  getUserPermissions(): {icon: string; title: string; description: string; allowed: boolean; restrictedForCorrespondent: boolean}[] {
     const userType = this.user?.tipo;
     
     // For correspondents, only allow "Gerenciar Solicitações"
     const isCorrespondent = userType === UserType.CORRESPONDENTE;
     
-    const permissions = [
+    const permissions: {icon: string; title: string; description: string; allowed: boolean; restrictedForCorrespondent: boolean}[] = [
       {
         icon: 'people',
         title: 'Gerenciar Usuários',
@@ -210,7 +207,8 @@ export class UserDetailComponent implements OnInit, OnDestroy {
         icon: 'assignment',
         title: 'Gerenciar Solicitações',
         description: 'Criar e acompanhar solicitações',
-        allowed: true
+        allowed: true,
+        restrictedForCorrespondent: isCorrespondent
       },
       {
         icon: 'analytics',
@@ -278,7 +276,6 @@ export class UserDetailComponent implements OnInit, OnDestroy {
 
     // Store the correspondent data before updating
     const correspondentData = this.user.correspondente;
-    const correspondentId = this.user.correspondente?.id;
 
     // Open password reset dialog directly without initial confirmation
     const passwordDialogRef = this.dialog.open(PasswordResetDialogComponent, {
@@ -376,7 +373,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
     this.router.navigate(['/usuarios']);
   }
 
-  getCorrespondentInfo(): any[] {
+  getCorrespondentInfo(): {label: string; value: string}[] {
     if (!this.user || this.user.tipo !== UserType.CORRESPONDENTE || !this.user.correspondente?.id) {
       return [];
     }
@@ -392,7 +389,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
     const correspondente = this.user.correspondente;
     const endereco = correspondente.endereco;
     
-    const info = [
+    const info: {label: string; value: string}[] = [
       {
         label: 'Nome',
         value: correspondente.nome

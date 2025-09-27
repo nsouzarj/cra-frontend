@@ -1,5 +1,5 @@
-import { Component, OnInit, Output, EventEmitter, HostListener, OnDestroy, ChangeDetectorRef, Input } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, Output, EventEmitter, HostListener, OnDestroy, ChangeDetectorRef, Input, inject } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ThemeService, Theme } from '../../../../core/services/theme.service';
 import { ZoomService } from '../../../../core/services/zoom.service';
@@ -10,6 +10,18 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatDividerModule } from '@angular/material/divider';
+
+interface UserWithAlternativeFields extends User {
+  emailPrincipal?: string;
+  nomeCompleto?: string;
+}
+
+interface MenuButtonElement extends HTMLElement {
+  _menuTrigger?: {
+    closeMenu: () => void;
+  };
+}
 
 @Component({
   selector: 'app-header',
@@ -21,29 +33,27 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
-    MatToolbarModule
+    MatToolbarModule,
+    MatDividerModule,
+    RouterModule
   ]
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-  @Input() isMobile: boolean = false;
+  @Input() isMobile = false;
   currentUser: User | null = null;
   private currentUserSubscription: Subscription | null = null;
   private themeSubscription: Subscription | null = null;
   
   @Output() toggleSidenav = new EventEmitter<void>();
 
-  constructor(
-    public router: Router,
-    private authService: AuthService,
-    private themeService: ThemeService,
-    private zoomService: ZoomService,
-    private cdr: ChangeDetectorRef
-  ) {}
+  // Using inject() function instead of constructor injection
+  public router = inject(Router);
+  private authService = inject(AuthService);
+  private themeService = inject(ThemeService);
+  private zoomService = inject(ZoomService);
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
-    // Debug log removed
-    // Debug log removed
-    
     // Listen for theme changes
     this.setupThemeListener();
     
@@ -66,9 +76,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   setupThemeListener(): void {
     // Listen for theme changes to trigger change detection
     this.themeSubscription = new Subscription();
-    const themeHandler = (event: Event) => {
-      const customEvent = event as CustomEvent;
-      // Debug log removed
+    const themeHandler = () => {
       // Force change detection when theme changes
       this.cdr.detectChanges();
     };
@@ -89,12 +97,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Handle potential case sensitivity or naming differences
     const normalizedUser = { ...user };
     
-    if (!normalizedUser.emailprincipal && (user as any).emailPrincipal) {
-      normalizedUser.emailprincipal = (user as any).emailPrincipal;
+    const userWithAltFields = user as UserWithAlternativeFields;
+    if (!normalizedUser.emailprincipal && userWithAltFields.emailPrincipal) {
+      normalizedUser.emailprincipal = userWithAltFields.emailPrincipal;
     }
     
-    if (!normalizedUser.nomecompleto && (user as any).nomeCompleto) {
-      normalizedUser.nomecompleto = (user as any).nomeCompleto;
+    if (!normalizedUser.nomecompleto && userWithAltFields.nomeCompleto) {
+      normalizedUser.nomecompleto = userWithAltFields.nomeCompleto;
     }
     
     // Fallback: if nomecompleto is still missing, use login as the name
@@ -106,18 +115,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   onToggleSidenav(): void {
-    // Debug log removed
     this.toggleSidenav.emit();
   }
 
   onThemeMenuClick(event: Event): void {
-    // Debug log removed
     event.preventDefault();
     event.stopPropagation();
   }
 
   onThemeSelect(theme: Theme, event: Event): void {
-    // Debug log removed
     event.preventDefault();
     event.stopPropagation();
     
@@ -127,12 +133,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Close the menu explicitly
     const menuButton = document.getElementById('theme-menu-button');
     if (menuButton) {
-      (menuButton as any)._menuTrigger?.closeMenu();
+      const menuButtonElement = menuButton as MenuButtonElement;
+      if (menuButtonElement._menuTrigger && typeof menuButtonElement._menuTrigger.closeMenu === 'function') {
+        menuButtonElement._menuTrigger.closeMenu();
+      }
     }
   }
 
   setTheme(theme: Theme): void {
-    // Debug log removed
     // Simple approach - just call the theme service directly
     this.themeService.setTheme(theme);
     // Force change detection
@@ -141,13 +149,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   getCurrentTheme(): Theme {
     const theme = this.themeService.getCurrentTheme();
-    // Debug log removed
     return theme;
   }
 
   getAvailableThemes(): { value: Theme; label: string }[] {
     const themes = this.themeService.getAvailableThemes();
-    // Debug log removed
     return themes;
   }
 
@@ -198,16 +204,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   testTheme(): void {
-    // Debug log removed
-    // Debug log removed
-    // Debug log removed
-    // Debug log removed
     // Try setting a specific theme
     this.setTheme('green');
   }
 
   refreshTheme(): void {
-    // Debug log removed
     this.themeService.setTheme(this.themeService.getCurrentTheme());
   }
 

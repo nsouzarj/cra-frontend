@@ -1,15 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
-import { UserService } from '../../core/services/user.service'; // Added UserService import
+import { UserService } from '../../core/services/user.service';
 import { SolicitacaoService } from '../../core/services/solicitacao.service';
 import { SolicitacaoStatusService } from '../../core/services/solicitacao-status.service';
 import { TipoSolicitacaoService } from '../../core/services/tiposolicitacao.service';
 import { DashboardService, DashboardData } from '../../core/services/dashboard.service';
 import { User } from '../../shared/models/user.model';
-import { Solicitacao, SolicitacaoStatus } from '../../shared/models/solicitacao.model';
-import { TipoSolicitacao } from '../../shared/models/tiposolicitacao.model';
-import { Observable, of } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators'; // Added switchMap
+import { of, switchMap } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { RouterModule } from '@angular/router';
 
 interface ChartData {
   labels: string[];
@@ -26,7 +29,15 @@ interface TipoSolicitacaoCount {
   selector: 'app-correspondent-dashboard-simple',
   templateUrl: './correspondent-dashboard-simple.component.html',
   styleUrls: ['./correspondent-dashboard.component.scss'],
-  standalone: true
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
+    MatIconModule,
+    MatButtonModule,
+    RouterModule
+  ]
 })
 export class CorrespondentDashboardSimpleComponent implements OnInit {
   currentUser: User | null = null;
@@ -43,7 +54,7 @@ export class CorrespondentDashboardSimpleComponent implements OnInit {
     diligencia: 0
   };
 
-  private statusColors: { [key: string]: string } = {
+  private statusColors: Record<string, string> = {
     // Process and general statuses
     'EM_ANDAMENTO': '#4facfe',
     'PENDENTE': '#ffcc00',
@@ -89,14 +100,13 @@ export class CorrespondentDashboardSimpleComponent implements OnInit {
     'Recebido': '#cddc39'
   };
 
-  constructor(
-    public authService: AuthService,
-    private userService: UserService, // Added UserService
-    private solicitacaoService: SolicitacaoService,
-    private solicitacaoStatusService: SolicitacaoStatusService,
-    private tipoSolicitacaoService: TipoSolicitacaoService,
-    private dashboardService: DashboardService
-  ) {}
+  // Using inject() function instead of constructor injection
+  private authService = inject(AuthService);
+  private userService = inject(UserService);
+  private solicitacaoService = inject(SolicitacaoService);
+  private solicitacaoStatusService = inject(SolicitacaoStatusService);
+  private tipoSolicitacaoService = inject(TipoSolicitacaoService);
+  private dashboardService = inject(DashboardService);
 
   ngOnInit(): void {
     // Try to get fresh user data from the server
@@ -105,7 +115,7 @@ export class CorrespondentDashboardSimpleComponent implements OnInit {
         this.currentUser = user;
         this.loadDashboardData();
       },
-      error: (error) => {
+      error: () => {
         // Fallback to cached data
         this.currentUser = this.authService.currentUserValue;
         this.loadDashboardData();
@@ -115,7 +125,7 @@ export class CorrespondentDashboardSimpleComponent implements OnInit {
 
   private loadDashboardData(): void {
     // Get correspondent ID from current user
-    let correspondentId = this.currentUser?.correspondente?.id;
+    const correspondentId = this.currentUser?.correspondente?.id;
     
     if (correspondentId) {
       this.loadDashboardDataWithId(correspondentId);
@@ -158,7 +168,7 @@ export class CorrespondentDashboardSimpleComponent implements OnInit {
             this.loading = false;
           }
         },
-        error: (error) => {
+        error: () => {
           this.loading = false;
         }
       });
@@ -179,7 +189,7 @@ export class CorrespondentDashboardSimpleComponent implements OnInit {
         
         this.loading = false;
       },
-      error: (error: any) => {
+      error: () => {
         this.loading = false;
       }
     });

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
@@ -9,11 +9,28 @@ import { PermissionService } from '../../../core/services/permission.service';
 import { ConfirmationDialogComponent, ConfirmationDialogData } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { Correspondente } from '../../../shared/models/correspondente.model';
 import { DateFormatService } from '../../../shared/services/date-format.service';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 
 @Component({
   selector: 'app-correspondent-detail',
   templateUrl: './correspondent-detail.component.html',
-  styleUrls: ['./correspondent-detail.component.scss']
+  styleUrls: ['./correspondent-detail.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatButtonModule,
+    MatCardModule,
+    MatChipsModule,
+    MatProgressSpinnerModule,
+    ConfirmationDialogComponent
+  ]
 })
 export class CorrespondentDetailComponent implements OnInit, OnDestroy {
   correspondent: Correspondente | null = null;
@@ -21,16 +38,15 @@ export class CorrespondentDetailComponent implements OnInit, OnDestroy {
 
   private themeSubscription: Subscription | null = null;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private correspondenteService: CorrespondenteService,
-    private authService: AuthService,
-    public permissionService: PermissionService,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog,
-    private dateFormatService: DateFormatService
-  ) {}
+  // Using inject() function instead of constructor injection
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private correspondenteService = inject(CorrespondenteService);
+  private authService = inject(AuthService);
+  public permissionService = inject(PermissionService);
+  private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
+  private dateFormatService = inject(DateFormatService);
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -52,8 +68,7 @@ export class CorrespondentDetailComponent implements OnInit, OnDestroy {
   setupThemeListener(): void {
     // Listen for theme changes to trigger change detection
     this.themeSubscription = new Subscription();
-    const themeHandler = (event: Event) => {
-      const customEvent = event as CustomEvent;
+    const themeHandler = () => {
       // Force change detection when theme changes
       // This will cause the component to re-render with the new theme styles
     };

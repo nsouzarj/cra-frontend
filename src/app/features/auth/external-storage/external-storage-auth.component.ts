@@ -1,32 +1,46 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ExternalStorageService } from '../../../core/services/external-storage.service';
 import { MatDialog } from '@angular/material/dialog';
-import { ExternalStorageAuthDialogComponent } from './external-storage-auth-dialog.component';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
+
+interface ConnectionStatus {
+  status: string;
+  message?: string;
+  [key: string]: string | number | boolean | object | null | undefined;
+}
 
 @Component({
   selector: 'app-external-storage-auth',
   templateUrl: './external-storage-auth.component.html',
   styleUrls: ['./external-storage-auth.component.css'],
-  standalone: true
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatIconModule
+  ]
 })
 export class ExternalStorageAuthComponent implements OnInit {
-  connectionStatus: any = null;
-  debugInfo: string = '';
-  isCheckingStatus: boolean = false;
-  isLoading: boolean = false;
+  connectionStatus: ConnectionStatus | null = null;
+  debugInfo = '';
+  isCheckingStatus = false;
+  isLoading = false;
   error: string | null = null;
-  isConnected: boolean = false;
-  showAuthSuccessMessage: boolean = false;
-  showDebugInfo: boolean = false;
-  isRedirectedFromAuth: boolean = false;
+  isConnected = false;
+  showAuthSuccessMessage = false;
+  showDebugInfo = false;
+  isRedirectedFromAuth = false;
   returnUrl: string | null = null;
 
-  constructor(
-    private externalStorageService: ExternalStorageService,
-    private dialog: MatDialog,
-    private router: Router
-  ) {}
+  // Using inject() function instead of constructor injection
+  private externalStorageService = inject(ExternalStorageService);
+  private dialog = inject(MatDialog);
+  private router = inject(Router);
 
   ngOnInit(): void {
     // Check if we're returning from Google Drive auth (URL contains code parameter)

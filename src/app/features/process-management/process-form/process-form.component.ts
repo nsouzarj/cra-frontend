@@ -1,14 +1,13 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { Subscription, BehaviorSubject } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { ProcessoService } from '../../../core/services/processo.service';
 import { ComarcaService } from '../../../core/services/comarca.service';
 import { OrgaoService } from '../../../core/services/orgao.service';
-import { Processo } from '../../../shared/models/processo.model';
 import { Comarca } from '../../../shared/models/comarca.model';
 import { Orgao } from '../../../shared/models/orgao.model';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
@@ -19,6 +18,22 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+interface ProcessData {
+  numeroprocesso: string;
+  parte: string;
+  adverso: string;
+  cartorio: string;
+  localizacao: string;
+  assunto: string;
+  proceletronico: string;
+  status: string;
+  observacao: string;
+  ativo: boolean;
+  orgao: Orgao | undefined;
+  comarca: Comarca | undefined;
+}
 
 @Component({
   selector: 'app-process-form',
@@ -32,7 +47,8 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
     MatSelectModule,
     MatButtonModule,
     MatCardModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatProgressSpinnerModule
   ]
 })
 export class ProcessFormComponent implements OnInit, OnDestroy {
@@ -52,16 +68,17 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
 
   private themeSubscription: Subscription | null = null;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private processoService: ProcessoService,
-    private comarcaService: ComarcaService,
-    private orgaoService: OrgaoService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog
-  ) {
+  // Using inject() function instead of constructor injection
+  private formBuilder = inject(FormBuilder);
+  private processoService = inject(ProcessoService);
+  private comarcaService = inject(ComarcaService);
+  private orgaoService = inject(OrgaoService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
+
+  constructor() {
     this.processForm = this.formBuilder.group({
       numeroprocesso: ['', [Validators.required]],
       parte: [''],
@@ -110,8 +127,7 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
   setupThemeListener(): void {
     // Listen for theme changes to trigger change detection
     this.themeSubscription = new Subscription();
-    const themeHandler = (event: Event) => {
-      const customEvent = event as CustomEvent;
+    const themeHandler = () => {
       // Force change detection when theme changes
       // This will cause the component to re-render with the new theme styles
     };
@@ -128,8 +144,7 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
       next: (orgaos) => {
         this.orgaos = orgaos;
       },
-      error: (error) => {
-        console.error('Error loading orgaos:', error);
+      error: () => {
         this.snackBar.open('Erro ao carregar órgãos', 'Fechar', { duration: 5000 });
       }
     });
@@ -143,8 +158,7 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
         this.filteredComarcas = response.content;
         this.comarcaOptions = response.content;
       },
-      error: (error) => {
-        console.error('Error loading comarcas:', error);
+      error: () => {
         this.snackBar.open('Erro ao carregar comarcas', 'Fechar', { duration: 5000 });
       }
     });
@@ -169,9 +183,8 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
         this.searchingComarca = false;
         this.comarcaOptions = response.content || [];
       },
-      error: (error) => {
+      error: () => {
         this.searchingComarca = false;
-        console.error('Error searching comarcas:', error);
         this.snackBar.open('Erro ao buscar comarcas', 'Fechar', { duration: 5000 });
       }
     });
@@ -225,13 +238,13 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
               // Set the display value for the autocomplete
               this.comarcaSearchControl.setValue(this.displayComarca(comarca));
             },
-            error: (error) => {
-              console.error('Error loading comarca:', error);
+            error: () => {
+              // Error already handled by service
             }
           });
         }
       },
-      error: (error) => {
+      error: () => {
         this.snackBar.open('Erro ao carregar processo', 'Fechar', { duration: 5000 });
         this.router.navigate(['/processos']);
       }
@@ -265,10 +278,10 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
     
     // Prepare the processo data with proper orgao and comarca objects
     const formValue = this.processForm.value;
-    const orgao = this.orgaos.find(o => o.id === formValue.orgao) || null;
-    const comarca = this.comarcas.find(c => c.id === formValue.comarca) || this.selectedComarca;
+    const orgao = this.orgaos.find(o => o.id === formValue.orgao) || undefined;
+    const comarca = this.comarcas.find(c => c.id === formValue.comarca) || this.selectedComarca || undefined;
     
-    const processData: any = {
+    const processData: ProcessData = {
       numeroprocesso: formValue.numeroprocesso,
       parte: formValue.parte,
       adverso: formValue.adverso,
@@ -298,7 +311,7 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
         // Navigate to process detail page instead of list
         this.router.navigate(['/processos', processo.id]);
       },
-      error: (error) => {
+      error: () => {
         this.loading = false;
         this.snackBar.open('Erro ao salvar processo', 'Fechar', { 
           duration: 5000,

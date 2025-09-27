@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy, inject } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -27,6 +27,11 @@ import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { HasPermissionDirective } from '../../../shared/directives/permission.directive';
 
 @Component({
   selector: 'app-comarca-list',
@@ -43,7 +48,12 @@ import { MatMenuModule } from '@angular/material/menu';
     MatTableModule,
     MatIconModule,
     MatPaginatorModule,
-    MatMenuModule
+    MatMenuModule,
+    MatToolbarModule,
+    MatChipsModule,
+    MatTooltipModule,
+    MatProgressSpinnerModule,
+    HasPermissionDirective
   ]
 })
 export class ComarcaListComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -70,15 +80,14 @@ export class ComarcaListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private themeSubscription: Subscription | null = null;
 
-  constructor(
-    private comarcaService: ComarcaService,
-    private ufService: UfService,
-    public authService: AuthService,
-    public permissionService: PermissionService,
-    private dialog: MatDialog,
-    private router: Router,
-    private snackBar: MatSnackBar
-  ) {}
+  // Using inject() function instead of constructor injection
+  private comarcaService = inject(ComarcaService);
+  private ufService = inject(UfService);
+  public authService = inject(AuthService);
+  public permissionService = inject(PermissionService);
+  private dialog = inject(MatDialog);
+  private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
 
   ngOnInit(): void {
     this.loadUfs();
@@ -110,8 +119,7 @@ export class ComarcaListComponent implements OnInit, AfterViewInit, OnDestroy {
   setupThemeListener(): void {
     // Listen for theme changes to trigger change detection
     this.themeSubscription = new Subscription();
-    const themeHandler = (event: Event) => {
-      const customEvent = event as CustomEvent;
+    const themeHandler = () => {
       // Force change detection when theme changes
       // This will cause the component to re-render with the new theme styles
     };
@@ -211,7 +219,7 @@ export class ComarcaListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loading = false;
   }
 
-  private handleLoadError(error: any): void {
+  private handleLoadError(error: unknown): void {
     console.error('Error loading comarcas:', error);
     this.loading = false;
     this.snackBar.open('Erro ao carregar comarcas', 'Fechar', {
@@ -239,7 +247,7 @@ export class ComarcaListComponent implements OnInit, AfterViewInit, OnDestroy {
     // Search filter
     this.searchControl.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe(value => {
+      .subscribe(() => {
         this.currentPage = 0;
         if (this.paginator) {
           this.paginator.pageIndex = 0;
@@ -248,7 +256,7 @@ export class ComarcaListComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
     // UF filter
-    this.ufFilterControl.valueChanges.subscribe((ufId) => {
+    this.ufFilterControl.valueChanges.subscribe(() => {
       this.currentPage = 0;
       if (this.paginator) {
         this.paginator.pageIndex = 0;

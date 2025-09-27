@@ -161,7 +161,7 @@
           <div class="file-upload-section">
             <!-- Storage location selection -->
             <div class="storage-selection">
-              <mat-radio-group [(ngModel)]="storageLocation" [ngModelOptions]="{standalone: true}" class="storage-radio-group">
+              <mat-radio-group formControlName="storageLocation" class="storage-radio-group">
                 <mat-radio-button value="local" class="storage-option">
                   <mat-icon>computer</mat-icon>
                   <span>Armazenamento Local</span>

@@ -1,11 +1,11 @@
-import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatSort, Sort } from '@angular/material/sort';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { FormControl } from '@angular/forms';
+import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy, inject } from '@angular/core';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginator, PageEvent, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, Sort, MatSortModule } from '@angular/material/sort';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ProcessoService } from '../../../core/services/processo.service';
 import { ComarcaService } from '../../../core/services/comarca.service';
 import { OrgaoService } from '../../../core/services/orgao.service';
@@ -15,11 +15,46 @@ import { Comarca } from '../../../shared/models/comarca.model';
 import { Orgao } from '../../../shared/models/orgao.model';
 import { Subscription } from 'rxjs';
 import { PaginatedResponse } from '../../../shared/models/api-response.model';
+import { CommonModule } from '@angular/common';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+interface ProcessFilter {
+  comarcaId?: number;
+  orgaoId?: number;
+  status?: string;
+}
 
 @Component({
   selector: 'app-process-list',
   templateUrl: './process-list.component.html',
-  styleUrls: ['./process-list.component.scss']
+  styleUrls: ['./process-list.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatSnackBarModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatToolbarModule,
+    RouterModule,
+    MatChipsModule,
+    MatTooltipModule,
+    MatProgressSpinnerModule
+  ]
 })
 export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -55,26 +90,21 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private themeSubscription: Subscription | null = null;
 
-  constructor(
-    private processoService: ProcessoService,
-    private comarcaService: ComarcaService,
-    private orgaoService: OrgaoService,
-    public permissionService: PermissionService,
-    private router: Router,
-    private snackBar: MatSnackBar
-  ) {
-    // Debug log removed
-  }
+  // Using inject() function instead of constructor injection
+  private processoService = inject(ProcessoService);
+  private comarcaService = inject(ComarcaService);
+  private orgaoService = inject(OrgaoService);
+  public permissionService = inject(PermissionService);
+  private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
 
   ngOnInit(): void {
-    // Debug log removed
     this.loadFilterOptions();
     this.setupFilters();
     this.setupThemeListener();
   }
 
   ngAfterViewInit(): void {
-    // Debug log removed
     // Set up sort
     if (this.sort) {
       this.sort.sortChange.subscribe((sortState: Sort) => {
@@ -90,18 +120,15 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Debug log removed
     if (this.themeSubscription) {
       this.themeSubscription.unsubscribe();
     }
   }
 
   setupThemeListener(): void {
-    // Debug log removed
     // Listen for theme changes to trigger change detection
     this.themeSubscription = new Subscription();
-    const themeHandler = (event: Event) => {
-      const customEvent = event as CustomEvent;
+    const themeHandler = () => {
       // Force change detection when theme changes
       // This will cause the component to re-render with the new theme styles
     };
@@ -114,7 +141,6 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadProcesses(): void {
-    // Debug log removed
     this.loading = true;
     
     // Check filter values
@@ -122,11 +148,9 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
     const comarcaFilter = this.comarcaFilterControl.value;
     const orgaoFilter = this.orgaoFilterControl.value;
     const statusFilter = this.statusFilterControl.value;
-    
-    // Debug log removed
 
     // Create filter object
-    const filtro: any = {};
+    const filtro: ProcessFilter = {};
     if (comarcaFilter) filtro.comarcaId = Number(comarcaFilter);
     if (orgaoFilter) filtro.orgaoId = Number(orgaoFilter);
     if (statusFilter) filtro.status = statusFilter;
@@ -182,7 +206,6 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private handlePaginatedResponse(response: PaginatedResponse<Processo>): void {
-    // Debug log removed
     this.dataSource.data = response.content;
     // USE totalTableElements for correct pagination - this is the total count across all pages
     this.totalElements = response.totalTableElements ?? response.totalElements;
@@ -197,7 +220,7 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loading = false;
   }
 
-  private handleLoadError(error: any): void {
+  private handleLoadError(error: unknown): void {
     console.error('Error loading processes:', error);
     this.loading = false;
     this.snackBar.open('Erro ao carregar processos', 'Fechar', { 
@@ -207,12 +230,9 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadFilterOptions(): void {
-    // Debug log removed
-    
     // Try to load comarcas using the DTO method first
     this.comarcaService.getAllComarcasDto().subscribe({
       next: (comarcas) => {
-        // Debug log removed
         if (comarcas && comarcas.length > 0) {
           this.comarcas = comarcas;
           this.processComarcasData();
@@ -231,37 +251,27 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
     // Load orgaos
     this.orgaoService.getOrgaos().subscribe({
       next: (orgaos) => {
-        // Debug log removed
         this.orgaos = orgaos;
-        // Debug log removed
-        
-        // Check if orgaos have the expected structure
-        if (this.orgaos.length > 0) {
-          // Debug log removed
-          // Debug log removed
-        }
       },
       error: (error) => {
         console.error('Error loading orgaos:', error);
-        console.error('Error details:', error.message); // Debug log
-        console.error('Error status:', error.status); // Debug log
+        console.error('Error details:', error.message);
+        console.error('Error status:', error.status);
       }
     });
   }
 
   private loadComarcasFallback(): void {
-    // Debug log removed
     // Load comarcas using the regular method
     this.comarcaService.getAllComarcas().subscribe({
       next: (comarcas) => {
-        // Debug log removed
         this.comarcas = comarcas || [];
         this.processComarcasData();
       },
       error: (error) => {
         console.error('Error loading comarcas with fallback method:', error);
-        console.error('Error details:', error.message); // Debug log
-        console.error('Error status:', error.status); // Debug log
+        console.error('Error details:', error.message);
+        console.error('Error status:', error.status);
         // Show error to user
         this.snackBar.open('Erro ao carregar comarcas', 'Fechar', { 
           duration: 5000,
@@ -272,45 +282,22 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private processComarcasData(): void {
-    // Debug log removed
-    // Debug log removed
-    
     // Less strict filtering - only remove completely invalid entries
     const validComarcas = this.comarcas.filter(comarca => 
       comarca && comarca.id && comarca.nome
     );
     
-    // Debug log removed
     this.comarcas = validComarcas;
-    
-    // Debug log removed
-    
-    // Check if comarcas have the expected structure
-    if (this.comarcas.length > 0) {
-      // Debug log removed
-      
-      // Check if the first comarca has the expected properties
-      const firstComarca = this.comarcas[0];
-      // Debug log removed
-      // Debug log removed
-      // Debug log removed
-      if (firstComarca.uf) {
-        // Debug log removed
-      }
-    }
   }
 
   setupFilters(): void {
-    // Debug log removed
-    
     // Search filter with shorter debounce time for more responsive search
     this.searchControl.valueChanges
       .pipe(
         debounceTime(200), // Reduced from 300ms for more responsive feeling
         distinctUntilChanged()
       )
-      .subscribe(value => {
-        // Debug log removed
+      .subscribe(() => {
         this.currentPage = 0;
         if (this.paginator) {
           this.paginator.pageIndex = 0;
@@ -320,7 +307,6 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Comarca filter
     this.comarcaFilterControl.valueChanges.subscribe(() => {
-      // Debug log removed
       this.currentPage = 0;
       if (this.paginator) {
         this.paginator.pageIndex = 0;
@@ -330,7 +316,6 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Orgao filter
     this.orgaoFilterControl.valueChanges.subscribe(() => {
-      // Debug log removed
       this.currentPage = 0;
       if (this.paginator) {
         this.paginator.pageIndex = 0;
@@ -340,7 +325,6 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Status filter
     this.statusFilterControl.valueChanges.subscribe(() => {
-      // Debug log removed
       this.currentPage = 0;
       if (this.paginator) {
         this.paginator.pageIndex = 0;
@@ -350,7 +334,6 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   applyFilters(): void {
-    // Debug log removed
     this.currentPage = 0;
     if (this.paginator) {
       this.paginator.pageIndex = 0;
@@ -359,7 +342,6 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   clearFilters(): void {
-    // Debug log removed
     // Reset all filter controls
     this.searchControl.setValue('');
     this.comarcaFilterControl.setValue('');
@@ -377,7 +359,6 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Handle paginator page change events
   paginatorPageChanged(event: PageEvent): void {
-    // Debug log removed
     this.currentPage = event.pageIndex;
     this.pageSize = event.pageSize;
     this.loadProcesses();
@@ -400,7 +381,6 @@ export class ProcessListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getComarcaText(comarca?: Comarca): string {
-    // Debug log removed
     if (!comarca) return '-';
     // Added additional safety checks
     if (!comarca.nome) return '-';

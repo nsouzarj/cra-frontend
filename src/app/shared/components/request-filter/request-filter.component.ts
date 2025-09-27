@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TipoSolicitacaoService } from '../../../core/services/tiposolicitacao.service';
 import { ComarcaService } from '../../../core/services/comarca.service';
@@ -15,6 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 export interface RequestFilterCriteria {
   status: string;
@@ -43,11 +44,12 @@ export interface RequestFilterCriteria {
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatButtonModule
+    MatButtonModule,
+    MatIconModule
   ]
 })
 export class RequestFilterComponent implements OnInit {
-  @Input() showCorrespondentFilter: boolean = false;
+  @Input() showCorrespondentFilter = false;
   @Output() filterChange = new EventEmitter<RequestFilterCriteria>();
   @Output() clearFilters = new EventEmitter<void>();
 
@@ -57,15 +59,14 @@ export class RequestFilterComponent implements OnInit {
   correspondentes: Correspondente[] = [];
   statuses: SolicitacaoStatus[] = []; // Add this property for actual statuses
   
-  // Remove the hardcoded statusOptions
+  // Using inject() function instead of constructor injection
+  private fb = inject(FormBuilder);
+  private tipoSolicitacaoService = inject(TipoSolicitacaoService);
+  private comarcaService = inject(ComarcaService);
+  private correspondenteService = inject(CorrespondenteService);
+  private solicitacaoStatusService = inject(SolicitacaoStatusService); // Add this service
 
-  constructor(
-    private fb: FormBuilder,
-    private tipoSolicitacaoService: TipoSolicitacaoService,
-    private comarcaService: ComarcaService,
-    private correspondenteService: CorrespondenteService,
-    private solicitacaoStatusService: SolicitacaoStatusService // Add this service
-  ) {
+  constructor() {
     this.filterForm = this.fb.group({
       status: [''],
       search: [''],

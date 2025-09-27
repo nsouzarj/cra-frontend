@@ -1,5 +1,5 @@
-import { Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
@@ -24,16 +24,18 @@ export interface ObservationDialogData {
     FormsModule,
     MatInputModule,
     MatButtonModule,
-    MatCardModule
+    MatCardModule,
+    MatDialogModule
   ]
 })
 export class ObservationDialogComponent {
-  observation: string = '';
+  observation = '';
 
-  constructor(
-    public dialogRef: MatDialogRef<ObservationDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ObservationDialogData
-  ) {
+  // Using inject() function instead of constructor injection
+  public dialogRef = inject(MatDialogRef<ObservationDialogComponent>);
+  public data = inject<ObservationDialogData>(MAT_DIALOG_DATA);
+
+  constructor() {
     // Set default values if not provided
     this.data.observationLabel = this.data.observationLabel || 'Observação:';
     this.data.confirmText = this.data.confirmText || 'OK';

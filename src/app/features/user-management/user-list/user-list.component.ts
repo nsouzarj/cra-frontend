@@ -1,13 +1,13 @@
-import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy, inject } from '@angular/core';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { Router, RouterModule } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, forkJoin, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 
 import { UserService } from '../../../core/services/user.service';
@@ -16,17 +16,16 @@ import { AuthService } from '../../../core/services/auth.service';
 import { PermissionService } from '../../../core/services/permission.service';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { User, UserType } from '../../../shared/models/user.model';
-import { Correspondente } from '../../../shared/models/correspondente.model';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSortModule } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-user-list',
@@ -45,6 +44,12 @@ import { MatMenuModule } from '@angular/material/menu';
     MatSelectModule,
     MatChipsModule,
     MatMenuModule,
+    MatSnackBarModule,
+    MatDialogModule,
+    RouterModule,
+    MatToolbarModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
     ConfirmationDialogComponent
   ]
 })
@@ -65,15 +70,14 @@ export class UserListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private themeSubscription: Subscription | null = null;
 
-  constructor(
-    private userService: UserService,
-    private correspondenteService: CorrespondenteService,
-    public authService: AuthService,
-    public permissionService: PermissionService,
-    private dialog: MatDialog,
-    private router: Router,
-    private snackBar: MatSnackBar
-  ) {}
+  // Using inject() function instead of constructor injection
+  private userService = inject(UserService);
+  private correspondenteService = inject(CorrespondenteService);
+  public authService = inject(AuthService);
+  public permissionService = inject(PermissionService);
+  private dialog = inject(MatDialog);
+  private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
 
   ngOnInit(): void {
     this.currentUserId = this.authService.currentUserValue?.id;
@@ -97,8 +101,7 @@ export class UserListComponent implements OnInit, AfterViewInit, OnDestroy {
   setupThemeListener(): void {
     // Listen for theme changes to trigger change detection
     this.themeSubscription = new Subscription();
-    const themeHandler = (event: Event) => {
-      const customEvent = event as CustomEvent;
+    const themeHandler = () => {
       // Force change detection when theme changes
       // This will cause the component to re-render with the new theme styles
     };
@@ -201,7 +204,7 @@ export class UserListComponent implements OnInit, AfterViewInit, OnDestroy {
     // Search filter
     this.searchControl.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe(value => {
+      .subscribe(() => {
         this.applyFilters();
       });
 
@@ -217,7 +220,7 @@ export class UserListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   applyFilters(): void {
-    this.dataSource.filterPredicate = (user: User, filter: string): boolean => {
+    this.dataSource.filterPredicate = (user: User): boolean => {
       const searchTerm = this.searchControl.value?.toLowerCase() || '';
       const typeFilter = this.typeFilterControl.value;
       const statusFilter = this.statusFilterControl.value;

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-login',
@@ -22,7 +23,8 @@ import { MatIconModule } from '@angular/material/icon';
     MatInputModule,
     MatButtonModule,
     MatCardModule,
-    MatIconModule
+    MatIconModule,
+    MatProgressSpinnerModule
   ]
 })
 export class LoginComponent implements OnInit {
@@ -31,13 +33,14 @@ export class LoginComponent implements OnInit {
   returnUrl: string;
   hidePassword = true;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private authService: AuthService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar
-  ) {
+  // Using inject() function instead of constructor injection
+  private formBuilder = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
+
+  constructor() {
     this.loginForm = this.formBuilder.group({
       login: ['', [Validators.required, Validators.minLength(3)]],
       senha: ['', [Validators.required, Validators.minLength(6)]]
@@ -66,7 +69,7 @@ export class LoginComponent implements OnInit {
     const credentials: LoginRequest = this.loginForm.value;
 
     this.authService.login(credentials).subscribe({
-      next: (response) => {
+      next: () => {
         this.loading = false;
         this.snackBar.open('Login realizado com sucesso!', 'Fechar', {
           duration: 3000,
@@ -95,7 +98,7 @@ export class LoginComponent implements OnInit {
   private redirectUser(): void {
     // Refresh user data to ensure we have the latest information
     this.authService.getCurrentUser().subscribe({
-      next: (user) => {
+      next: () => {
         // Check user role and redirect accordingly
         if (this.authService.isCorrespondente()) {
           this.router.navigate(['/correspondent-dashboard']);
@@ -103,7 +106,7 @@ export class LoginComponent implements OnInit {
           this.router.navigate([this.returnUrl]);
         }
       },
-      error: (error) => {
+      error: () => {
         // Fallback: check role directly from auth service
         if (this.authService.isCorrespondente()) {
           this.router.navigate(['/correspondent-dashboard']);

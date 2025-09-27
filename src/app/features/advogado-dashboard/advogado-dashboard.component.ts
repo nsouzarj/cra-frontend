@@ -1,17 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
-import { CorrespondenteService } from '../../core/services/correspondente.service';
 import { ProcessoService } from '../../core/services/processo.service';
 import { SolicitacaoService } from '../../core/services/solicitacao.service';
-import { DashboardService, DashboardData, MappedDashboardData, ChartData } from '../../core/services/dashboard.service';
+import { DashboardService, ChartData } from '../../core/services/dashboard.service';
 import { User } from '../../shared/models/user.model';
-import { Correspondente } from '../../shared/models/correspondente.model';
 import { Processo } from '../../shared/models/processo.model';
 import { Solicitacao } from '../../shared/models/solicitacao.model';
-import { forkJoin, Observable, of } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { RouterModule } from '@angular/router';
 
 interface DashboardStats {
   totalProcessos: number;
@@ -29,7 +33,15 @@ interface TipoSolicitacaoCount {
   selector: 'app-advogado-dashboard',
   templateUrl: './advogado-dashboard.component.html',
   styleUrls: ['../admin-dashboard/dashboard-common.scss'],
-  standalone: true
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
+    MatIconModule,
+    MatButtonModule,
+    RouterModule
+  ]
 })
 export class AdvogadoDashboardComponent implements OnInit {
   currentUser: User | null = null;
@@ -65,7 +77,7 @@ export class AdvogadoDashboardComponent implements OnInit {
     colors: []
   };
 
-  private statusColors: { [key: string]: string } = {
+  private statusColors: Record<string, string> = {
     // Process and general statuses
     'EM_ANDAMENTO': '#4facfe',
     'PENDENTE': '#ffcc00',
@@ -111,14 +123,13 @@ export class AdvogadoDashboardComponent implements OnInit {
     'Recebido': '#cddc39'
   };
 
-  constructor(
-    public authService: AuthService,
-    private userService: UserService,
-    private processoService: ProcessoService,
-    private solicitacaoService: SolicitacaoService,
-    private dashboardService: DashboardService,
-    private router: Router
-  ) {}
+  // Using inject() function instead of constructor injection
+  private authService = inject(AuthService);
+  private userService = inject(UserService);
+  private processoService = inject(ProcessoService);
+  private solicitacaoService = inject(SolicitacaoService);
+  private dashboardService = inject(DashboardService);
+  private router = inject(Router);
 
   ngOnInit(): void {
     this.currentUser = this.authService.currentUserValue;
@@ -223,7 +234,7 @@ export class AdvogadoDashboardComponent implements OnInit {
   
   private loadSolicitacoesPorStatusData(solicitacoes: Solicitacao[]): void {
     // Group solicitations by status
-    const statusMap: { [key: string]: number } = {};
+    const statusMap: Record<string, number> = {};
     
     solicitacoes.forEach(solicitacao => {
       const status = solicitacao.statusSolicitacao?.status || 'Sem Status';

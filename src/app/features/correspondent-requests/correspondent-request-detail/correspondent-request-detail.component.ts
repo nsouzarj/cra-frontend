@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
@@ -24,6 +24,16 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatToolbarModule } from '@angular/material/toolbar';
+
+interface ProgressInfo {
+  value: number;
+  fileName: string;
+}
 
 @Component({
   selector: 'app-correspondent-request-detail',
@@ -36,7 +46,12 @@ import { MatIconModule } from '@angular/material/icon';
     MatRadioModule,
     MatProgressSpinnerModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatCardModule,
+    MatChipsModule,
+    MatTooltipModule,
+    MatProgressBarModule,
+    MatToolbarModule
   ]
 })
 export class CorrespondentRequestDetailComponent implements OnInit {
@@ -46,28 +61,26 @@ export class CorrespondentRequestDetailComponent implements OnInit {
   // File attachment properties
   anexos: SolicitacaoAnexo[] = [];
   selectedFiles: File[] = [];
-  progressInfos: any[] = [];
+  progressInfos: ProgressInfo[] = [];
   message = '';
   
   // Storage location selection
   storageLocation: 'local' | 'google_drive' = 'google_drive';
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private solicitacaoService: SolicitacaoService,
-    public permissionService: PermissionService,
-    public authService: AuthService,
-    private snackBar: MatSnackBar,
-    private dateFormatService: DateFormatService,
-    // Add the new attachment service to the constructor
-    private solicitacaoAnexoService: SolicitacaoAnexoService,
-    // Add MatDialog to the constructor
-    private dialog: MatDialog,
-    // Add external storage auth guard service
-    private externalStorageAuthGuard: ExternalStorageAuthGuardService
-  ) {
-  }
+  // Using inject() function instead of constructor injection
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private solicitacaoService = inject(SolicitacaoService);
+  public permissionService = inject(PermissionService);
+  public authService = inject(AuthService);
+  private snackBar = inject(MatSnackBar);
+  private dateFormatService = inject(DateFormatService);
+  // Add the new attachment service
+  private solicitacaoAnexoService = inject(SolicitacaoAnexoService);
+  // Add MatDialog
+  private dialog = inject(MatDialog);
+  // Add external storage auth guard service
+  private externalStorageAuthGuard = inject(ExternalStorageAuthGuardService);
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -112,8 +125,9 @@ export class CorrespondentRequestDetailComponent implements OnInit {
   }
 
   // Method to handle file selection
-  selectFiles(event: any): void {
-    this.selectedFiles = Array.from(event.target.files);
+  selectFiles(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.selectedFiles = Array.from(target.files || []);
     this.progressInfos = [];
     this.message = '';
   }
@@ -127,8 +141,8 @@ export class CorrespondentRequestDetailComponent implements OnInit {
       return;
     }
 
-    for (let i = 0; i < this.selectedFiles.length; i++) {
-      this.progressInfos.push({ value: 0, fileName: this.selectedFiles[i].name });
+    for (const file of this.selectedFiles) {
+      this.progressInfos.push({ value: 0, fileName: file.name });
     }
 
     for (let i = 0; i < this.selectedFiles.length; i++) {
@@ -139,11 +153,13 @@ export class CorrespondentRequestDetailComponent implements OnInit {
   // Method to upload a single file
   private uploadAnexo(solicitacaoId: number, file: File, index: number): void {
     this.solicitacaoAnexoService.uploadAnexo(file, solicitacaoId, this.storageLocation).subscribe({
-      next: (event: any) => {
+      next: (event) => {
         if (event.type === HttpEventType.UploadProgress) {
           // Upload progress
-          const progress = Math.round(100 * event.loaded / event.total);
-          this.progressInfos[index].value = progress;
+          if (event.total) {
+            const progress = Math.round(100 * event.loaded / event.total);
+            this.progressInfos[index].value = progress;
+          }
         } else if (event.type === HttpEventType.Response) {
           // Upload complete
           this.message = 'Arquivo(s) carregado(s) com sucesso!';
@@ -154,7 +170,7 @@ export class CorrespondentRequestDetailComponent implements OnInit {
           this.progressInfos = [];
         }
       },
-      error: (err: any) => {
+      error: (err) => {
         this.progressInfos[index].value = 0;
         this.message = 'Erro ao carregar arquivo: ' + file.name;
         console.error('Error uploading file:', err);
@@ -582,6 +598,7 @@ export class CorrespondentRequestDetailComponent implements OnInit {
 
   // Test method to verify date formatting
   testDateFormat(): void {
+    // This method was empty but kept for compatibility
   }
 
   // Helper method to check if the solicitation is of type Audiência

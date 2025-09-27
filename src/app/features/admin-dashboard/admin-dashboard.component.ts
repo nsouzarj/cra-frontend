@@ -21,6 +21,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 
 interface DashboardStats {
   totalUsers: number;
@@ -57,7 +58,8 @@ interface TipoSolicitacaoCount {
   imports: [
     CommonModule,
     MatProgressSpinnerModule,
-    MatCardModule
+    MatCardModule,
+    MatIconModule
   ]
 })
 export class AdminDashboardComponent implements OnInit {

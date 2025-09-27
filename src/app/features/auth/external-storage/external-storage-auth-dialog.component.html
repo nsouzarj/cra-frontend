@@ -57,9 +57,6 @@
       </div>
       
       <div *ngIf="isLoading || isCheckingStatus" class="loading-section">
-      </div>
-      
-      <div *ngIf="isLoading || isCheckingStatus" class="loading-section">
         <mat-spinner diameter="50"></mat-spinner>
         <p *ngIf="isLoading">Gerando URL de autorização...</p>
         <p *ngIf="isCheckingStatus">Verificando status da conexão...</p>

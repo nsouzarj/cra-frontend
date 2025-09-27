@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef, OnDestroy, inject } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -27,6 +27,11 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatChipsModule } from '@angular/material/chips';
+import { RouterModule } from '@angular/router';
+import { RequestFilterComponent } from '@/app/shared/components/request-filter/request-filter.component';
 
 @Component({
   selector: 'app-request-list',
@@ -40,7 +45,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatSortModule,
     MatIconModule,
     MatButtonModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatCardModule,
+    MatToolbarModule,
+    MatChipsModule,
+    RouterModule,
+    RequestFilterComponent
   ]
 })
 export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -83,18 +93,17 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private themeSubscription: Subscription | null = null;
 
-  constructor(
-    private solicitacaoService: SolicitacaoService,
-    private solicitacaoStatusService: SolicitacaoStatusService,
-    private processoService: ProcessoService,
-    private comarcaService: ComarcaService,
-    private orgaoService: OrgaoService,
-    public authService: AuthService,
-    public permissionService: PermissionService,
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar,
-    private cdr: ChangeDetectorRef
-  ) {}
+  // Using inject() function instead of constructor injection
+  private solicitacaoService = inject(SolicitacaoService);
+  private solicitacaoStatusService = inject(SolicitacaoStatusService);
+  private processoService = inject(ProcessoService);
+  private comarcaService = inject(ComarcaService);
+  private orgaoService = inject(OrgaoService);
+  public authService = inject(AuthService);
+  public permissionService = inject(PermissionService);
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.loadStatuses();
@@ -126,8 +135,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
   setupThemeListener(): void {
     // Listen for theme changes to trigger change detection
     this.themeSubscription = new Subscription();
-    const themeHandler = (event: Event) => {
-      const customEvent = event as CustomEvent;
+    const themeHandler = () => {
       // Force change detection when theme changes
       // This will cause the component to re-render with the new theme styles
       this.cdr.detectChanges();
@@ -191,7 +199,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loading = false;
   }
 
-  private handleLoadError(error: any): void {
+  private handleLoadError(error: unknown): void {
     console.error('Error loading requests:', error);
     this.loading = false;
     this.snackBar.open('Erro ao carregar solicitações', 'Fechar', {
@@ -303,11 +311,11 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadRequests();
   }
 
-  viewRequest(solicitacao: Solicitacao): void {
+  viewRequest(): void {
     // Implementation for viewing a request
   }
 
-  editRequest(solicitacao: Solicitacao): void {
+  editRequest(): void {
     // Implementation for editing a request
   }
 

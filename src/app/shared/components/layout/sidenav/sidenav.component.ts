@@ -1,5 +1,5 @@
-import { Component, OnInit, HostListener } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { Component, OnInit, HostListener, inject } from '@angular/core';
+import { Router, NavigationEnd, RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { filter } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
@@ -27,11 +27,16 @@ interface MenuItem {
     MatListModule,
     MatIconModule,
     MatButtonModule,
-    MatExpansionModule
+    MatExpansionModule,
+    RouterModule
   ]
 })
 export class SidenavComponent implements OnInit {
-  isMobile: boolean = false;
+  // Using inject() function instead of constructor injection
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
+  isMobile = false;
   currentRoute = '';
   
   menuItems: MenuItem[] = [
@@ -153,11 +158,6 @@ export class SidenavComponent implements OnInit {
     }
   ];
 
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
-
   ngOnInit(): void {
     // Check screen size on init
     this.checkScreenSize();
@@ -175,18 +175,17 @@ export class SidenavComponent implements OnInit {
     this.setInitialExpansion();
     
     // Listen for theme changes
-    window.addEventListener('themeChanged', (event: Event) => {
-      const customEvent = event as CustomEvent;
+    window.addEventListener('themeChanged', () => {
       // The theme styles are applied to the body, so the sidenav will automatically update
     });
   }
 
-  @HostListener('window:resize', ['$event'])
-  onResize(event: any) {
+  @HostListener('window:resize')
+  onResize(): void {
     this.checkScreenSize();
   }
   
-  checkScreenSize() {
+  checkScreenSize(): void {
     this.isMobile = window.innerWidth <= 768;
   }
 

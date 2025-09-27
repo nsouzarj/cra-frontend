@@ -1,19 +1,35 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../../shared/models/user.model';
 import { CorrespondenteService } from '../../../core/services/correspondente.service';
-import { Correspondente } from '../../../shared/models/correspondente.model';
 import { UserService } from '@/app/core/services/user.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PasswordResetDialogComponent, PasswordResetDialogData } from '../../../shared/components/password-reset-dialog/password-reset-dialog.component';
+import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+interface UserWithExtraFields extends User {
+  emailPrincipal?: string;
+  nomeCompleto?: string;
+}
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
-  standalone: true
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatProgressSpinnerModule
+  ]
 })
 export class ProfileComponent implements OnInit {
   currentUser: User | null = null;
@@ -21,14 +37,13 @@ export class ProfileComponent implements OnInit {
   loading = true;
   idusuario: number | null = null;
 
-  constructor(
-    private authService: AuthService,
-    private correspondenteService: CorrespondenteService,
-    private userService: UserService,
-    private router: Router,
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar
-  ) {}
+  // Using inject() function instead of constructor injection
+  private authService = inject(AuthService);
+  private correspondenteService = inject(CorrespondenteService);
+  private userService = inject(UserService);
+  private router = inject(Router);
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
 
   ngOnInit(): void {
     // Try to get fresh user data from the server
@@ -53,8 +68,6 @@ export class ProfileComponent implements OnInit {
         this.loadCachedUserData();
       }
     });
-
-  
   }
 
   findUser(id: number): void {
@@ -140,20 +153,22 @@ export class ProfileComponent implements OnInit {
    * Handles potential case sensitivity or naming differences from backend
    */
   private normalizeUser(user: User): User {
+    const userWithExtra = user as UserWithExtraFields;
+    
     // If emailprincipal is not set but emailPrincipal is, use that
-    if (!user.emailprincipal && (user as any).emailPrincipal) {
+    if (!user.emailprincipal && userWithExtra.emailPrincipal) {
       const normalized = {
         ...user,
-        emailprincipal: (user as any).emailPrincipal
+        emailprincipal: userWithExtra.emailPrincipal
       };
       return normalized;
     }
     
     // If nomecompleto is not set but nomeCompleto is, use that
-    if (!user.nomecompleto && (user as any).nomeCompleto) {
+    if (!user.nomecompleto && userWithExtra.nomeCompleto) {
       const normalized = {
         ...user,
-        nomecompleto: (user as any).nomeCompleto
+        nomecompleto: userWithExtra.nomeCompleto
       };
       return normalized;
     }
@@ -254,9 +269,6 @@ export class ProfileComponent implements OnInit {
   
   // Add this method for debugging
   debugUserData(): void {
-    // Check auth service current user
-    const authServiceUser = this.authService.currentUserValue;
-    
     // Try to get user data directly from localStorage with more detailed inspection
     const directStoredUser = localStorage.getItem('currentUser');
     if (directStoredUser) {
@@ -271,13 +283,13 @@ export class ProfileComponent implements OnInit {
   }
   
   // Helper method to recursively inspect an object
-  private inspectObjectRecursively(obj: any, name: string, depth: number, currentDepth: number = 0): void {
+  private inspectObjectRecursively(obj: unknown, name: string, depth: number, currentDepth = 0): void {
     if (currentDepth >= depth) return;
     
     if (obj && typeof obj === 'object') {
       for (const key in obj) {
-        if (obj.hasOwnProperty(key)) {
-          const value = obj[key];
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          const value = (obj as Record<string, unknown>)[key];
           if (value && typeof value === 'object' && !Array.isArray(value)) {
             this.inspectObjectRecursively(value, `${name}.${key}`, depth, currentDepth + 1);
           }

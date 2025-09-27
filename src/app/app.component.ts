@@ -9,6 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
 import { MatSidenav } from '@angular/material/sidenav';
+import { HeaderComponent } from './shared/components/layout/header/header.component';
+import { SidenavComponent } from './shared/components/layout/sidenav/sidenav.component';
 
 @Component({
   selector: 'app-root',
@@ -22,7 +24,9 @@ import { MatSidenav } from '@angular/material/sidenav';
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
-    MatListModule
+    MatListModule,
+    HeaderComponent,
+    SidenavComponent
   ]
 })
 export class AppComponent implements OnInit, AfterViewInit {

@@ -11,6 +11,10 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
+import { HasPermissionDirective } from '../../../shared/directives/permission.directive';
 
 @Component({
   selector: 'app-comarca-detail',
@@ -22,7 +26,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatCardModule,
+    MatChipsModule,
+    MatDividerModule,
+    HasPermissionDirective
   ]
 })
 export class ComarcaDetailComponent implements OnInit, OnDestroy {

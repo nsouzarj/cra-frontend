@@ -17,6 +17,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-comarca-form',
@@ -30,7 +32,9 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatSelectModule,
     MatButtonModule,
     MatCardModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatToolbarModule,
+    MatProgressSpinnerModule
   ]
 })
 export class ComarcaFormComponent implements OnInit {

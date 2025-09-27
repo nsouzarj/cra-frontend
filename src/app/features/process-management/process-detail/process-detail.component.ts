@@ -1,16 +1,30 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ProcessoService } from '../../../core/services/processo.service';
-import { AuthService } from '../../../core/services/auth.service';
 import { PermissionService } from '../../../core/services/permission.service';
 import { Processo } from '../../../shared/models/processo.model';
 import { DateFormatService } from '../../../shared/services/date-format.service';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-process-detail',
   templateUrl: './process-detail.component.html',
-  styleUrls: ['./process-detail.component.scss']
+  styleUrls: ['./process-detail.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatButtonModule,
+    MatCardModule,
+    MatChipsModule,
+    MatProgressSpinnerModule
+  ]
 })
 export class ProcessDetailComponent implements OnInit, OnDestroy {
   processo: Processo | null = null;
@@ -18,13 +32,12 @@ export class ProcessDetailComponent implements OnInit, OnDestroy {
 
   private themeSubscription: Subscription | null = null;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private processoService: ProcessoService,
-    public permissionService: PermissionService,
-    private dateFormatService: DateFormatService
-  ) {}
+  // Using inject() function instead of constructor injection
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private processoService = inject(ProcessoService);
+  public permissionService = inject(PermissionService);
+  private dateFormatService = inject(DateFormatService);
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -46,8 +59,7 @@ export class ProcessDetailComponent implements OnInit, OnDestroy {
   setupThemeListener(): void {
     // Listen for theme changes to trigger change detection
     this.themeSubscription = new Subscription();
-    const themeHandler = (event: Event) => {
-      const customEvent = event as CustomEvent;
+    const themeHandler = () => {
       // Force change detection when theme changes
       // This will cause the component to re-render with the new theme styles
     };

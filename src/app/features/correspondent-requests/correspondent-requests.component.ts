@@ -1,11 +1,20 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, OnInit, ViewChild, AfterViewInit, inject } from '@angular/core';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { SolicitacaoService } from '../../core/services/solicitacao.service';
-import { SolicitacaoStatusService } from '../../core/services/solicitacao-status.service'; // Add this import
+import { SolicitacaoStatusService } from '../../core/services/solicitacao-status.service';
 import { AuthService } from '../../core/services/auth.service';
 import { TipoSolicitacaoService } from '../../core/services/tiposolicitacao.service';
 import { ComarcaService } from '../../core/services/comarca.service';
@@ -14,6 +23,7 @@ import { TipoSolicitacao } from '../../shared/models/tiposolicitacao.model';
 import { Comarca } from '../../shared/models/comarca.model';
 import { User } from '../../shared/models/user.model';
 import { ConfirmationDialogComponent } from '../../shared/components/confirmation-dialog/confirmation-dialog.component';
+import { RequestFilterComponent } from '../../shared/components/request-filter/request-filter.component';
 import { RequestFilterCriteria } from '../../shared/components/request-filter/request-filter.component';
 import { PaginatedResponse } from '../../shared/models/api-response.model';
 import { SolicitacaoFiltro } from '../../shared/models/solicitacao-filtro.model';
@@ -21,7 +31,26 @@ import { SolicitacaoFiltro } from '../../shared/models/solicitacao-filtro.model'
 @Component({
   selector: 'app-correspondent-requests',
   templateUrl: './correspondent-requests.component.html',
-  styleUrls: ['./correspondent-requests.component.scss']
+  styleUrls: ['./correspondent-requests.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatSnackBarModule,
+    MatDialogModule,
+    MatChipsModule,
+    MatIconModule,
+    MatButtonModule,
+    MatCardModule,
+    MatTooltipModule,
+    MatToolbarModule,
+    MatProgressSpinnerModule,
+    RouterModule,
+    ConfirmationDialogComponent,
+    RequestFilterComponent
+  ]
 })
 export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -48,26 +77,26 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
   
   // Available tipos de solicitação for the dropdown
   tiposSolicitacao: TipoSolicitacao[] = [];
-  comarcas: Comarca[] = []; // Add comarcas array for filter options
-  statuses: SolicitacaoStatus[] = []; // Add statuses array for filter options
+  comarcas: Comarca[] = [];
+  statuses: SolicitacaoStatus[] = [];
   
   currentUser: User | null = null;
 
-  constructor(
-    private solicitacaoService: SolicitacaoService,
-    private solicitacaoStatusService: SolicitacaoStatusService,
-    private authService: AuthService,
-    private tipoSolicitacaoService: TipoSolicitacaoService,
-    private comarcaService: ComarcaService,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog
-  ) {}
+  // Using inject() function instead of constructor injection
+  private solicitacaoService = inject(SolicitacaoService);
+  private solicitacaoStatusService = inject(SolicitacaoStatusService);
+  private authService = inject(AuthService);
+  private tipoSolicitacaoService = inject(TipoSolicitacaoService);
+  private comarcaService = inject(ComarcaService);
+  private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
+  private router = inject(Router);
 
   ngOnInit(): void {
     this.loadCurrentUserAndRequests();
     this.loadTiposSolicitacao();
-    this.loadComarcas(); // Add this to load comarcas for filter
-    this.loadStatuses(); // Add this to load statuses for filter
+    this.loadComarcas();
+    this.loadStatuses();
   }
 
   ngAfterViewInit(): void {
@@ -114,7 +143,6 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
     this.comarcaService.getAllComarcas().subscribe({
       next: (comarcas) => {
         this.comarcas = comarcas;
-        // Debug log removed
       },
       error: (error) => {
         console.error('Error loading comarcas:', error);
@@ -128,9 +156,8 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
     this.solicitacaoStatusService.getSolicitacaoStatuses().subscribe({
       next: (statuses: SolicitacaoStatus[]) => {
         this.statuses = statuses;
-        // Debug log removed
       },
-      error: (error: any) => {
+      error: (error) => {
         console.error('Error loading statuses:', error);
         this.snackBar.open('Erro ao carregar statuses', 'Fechar', { duration: 5000 });
       }
@@ -138,10 +165,6 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
   }
 
   loadRequests(): void {
-    // Debug logs removed
-    // Debug logs removed
-    // Debug logs removed
-    
     // Set loading to true when starting to load requests
     this.loading = true;
     
@@ -156,7 +179,6 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
       
       // For correspondents, always filter by their own requests
       if (this.authService.isCorrespondente() && this.currentUser.correspondente?.id) {
-        // Debug log removed
         filtro.correspondenteId = this.currentUser.correspondente.id;
         
         // Apply other filter criteria for correspondents as well
@@ -174,7 +196,6 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
       } 
       // For admins and lawyers, we can filter by various criteria including correspondent
       else if (this.authService.isAdmin() || this.authService.isAdvogado()) {
-        // Debug log removed
         // Add filter criteria if they exist
         if (this.currentFilter.comarca) filtro.comarcaId = this.currentFilter.comarca;
         if (this.currentFilter.correspondenteId) filtro.correspondenteId = this.currentFilter.correspondenteId;
@@ -194,10 +215,8 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
           // Apply client-side filtering for additional criteria that might not be supported by backend
           const filteredSolicitacoes = this.applyClientSideFilter(response.content || []);
           
-          // Debug log removed
           this.dataSource.data = filteredSolicitacoes;
           this.loading = false;
-          // Debug log removed
           
           // Connect paginator and sort after data is loaded
           setTimeout(() => {
@@ -209,7 +228,7 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
             }
           }, 0);
         },
-        error: (error: any) => {
+        error: (error) => {
           console.error('Error loading requests:', error);
           this.dataSource.data = [];
           this.loading = false;
@@ -340,7 +359,6 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
 
   // New method to handle filter changes from the RequestFilterComponent
   onFilterChange(filterCriteria: RequestFilterCriteria): void {
-    // Debug log removed
     this.currentFilter = filterCriteria;
     // Always reload requests, the loadRequests method will handle the filtering logic
     this.loadRequests();
@@ -473,7 +491,6 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
       updatedSolicitacao.dataconclusao = undefined;
     }
     
- 
     // Show user-friendly status name in confirmation dialog
     const userFriendlyStatus = newStatus === 'Finalizada' ? 'Concluída' : newStatus;
     
