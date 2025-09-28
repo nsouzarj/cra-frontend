@@ -103,7 +103,7 @@
 
               <mat-form-field class="form-field" appearance="outline">
                 <mat-label>Hora da Audiência</mat-label>
-                <input matInput [matTimepicker]="timepicker" formControlName="horaAudiencia" placeholder="HH:mm">
+                <input matInput [matTimepicker]="timepicker" formControlName="horaAudiencia" placeholder="HH:mm AM/PM">
                 <mat-timepicker #timepicker [touchUi]="true" [mode]="'input'" [minuteInterval]="5" [format]="'12h'" panelClass="compact-timepicker"></mat-timepicker>
                 <mat-timepicker-toggle matSuffix [for]="timepicker"></mat-timepicker-toggle>
               </mat-form-field>

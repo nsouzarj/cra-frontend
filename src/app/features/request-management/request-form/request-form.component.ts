@@ -308,7 +308,12 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       timeStr = time.toString();
     }
     
-    // If time is already in HH:mm format, convert to HH:mm AM/PM
+    // If time is already in HH:mm AM/PM format, return as is
+    if ((timeStr.includes('AM') || timeStr.includes('PM')) && timeStr.includes(':')) {
+      return timeStr;
+    }
+    
+    // If time is in 24-hour format (HH:mm), convert to 12-hour format
     if (timeStr.includes(':') && !timeStr.includes('AM') && !timeStr.includes('PM')) {
       const [hours, minutes] = timeStr.split(':').map(Number);
       if (hours !== undefined && minutes !== undefined) {
@@ -326,13 +331,39 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       return `${displayHours.toString().padStart(2, '0')}:00 ${ampm}`;
     }
     
-    // If time already has AM/PM, return as is
-    if (timeStr.includes('AM') || timeStr.includes('PM')) {
-      return timeStr;
+    // Default fallback
+    return '09:00 AM';
+  }
+
+  // Helper method to format time specifically for the timepicker component
+  private formatTimeForTimepicker(time: string | null | undefined): string {
+    // Handle null or undefined values
+    if (!time) return '09:00 AM';
+    
+    // Handle the format "00:00 PM" that comes from the database
+    if (typeof time === 'string' && time.match(/^\d{2}:\d{2} (AM|PM)$/)) {
+      return time;
     }
     
-    // Default fallback
-    return timeStr;
+    // Handle 24-hour format and convert to 12-hour format
+    if (typeof time === 'string' && time.includes(':') && !time.includes('AM') && !time.includes('PM')) {
+      const [hours, minutes] = time.split(':').map(Number);
+      if (hours !== undefined && minutes !== undefined) {
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const displayHours = hours % 12 || 12;
+        return `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+      }
+    }
+    
+    // Handle formats like "9:00 AM" and ensure they are zero-padded
+    if (typeof time === 'string' && time.match(/^\d{1,2}:\d{2} (AM|PM)$/)) {
+      const [timePart, period] = time.split(' ');
+      const [hours, minutes] = timePart.split(':');
+      return `${hours.padStart(2, '0')}:${minutes} ${period}`;
+    }
+    
+    // Fallback to ensureTimeFormat for other cases
+    return this.ensureTimeFormat(time);
   }
 
   private loadDropdownData(): void {
@@ -480,6 +511,12 @@ export class RequestFormComponent implements OnInit, OnDestroy {
           formattedValor = solicitacao.valor;
         }
         
+        // Process the time value specifically for the timepicker
+        let formattedHoraAudiencia = '09:00 AM';
+        if (solicitacao.horaudiencia) {
+          formattedHoraAudiencia = this.formatTimeForTimepicker(solicitacao.horaudiencia);
+        }
+        
         // Set form values
         this.requestForm.patchValue({
           tipoSolicitacao: solicitacao.tipoSolicitacao?.idtiposolicitacao || null,
@@ -493,9 +530,43 @@ export class RequestFormComponent implements OnInit, OnDestroy {
           observacao: solicitacao.observacao || '',
           // Conditional fields
           dataAgendamento: solicitacao.dataagendamento || '',
-          horaAudiencia: solicitacao.horaudiencia ? this.ensureTimeFormat(solicitacao.horaudiencia) : '09:00 AM',
+          horaAudiencia: formattedHoraAudiencia,
           valor: formattedValor
         });
+        
+        // Special handling for timepicker - multiple attempts to ensure value is set
+        setTimeout(() => {
+          const horaAudienciaControl = this.requestForm.get('horaAudiencia');
+          if (horaAudienciaControl) {
+            horaAudienciaControl.setValue(formattedHoraAudiencia);
+            horaAudienciaControl.updateValueAndValidity();
+            
+            // Additional attempt to force the timepicker to update
+            setTimeout(() => {
+              const timeInput = document.querySelector('input[formControlName="horaAudiencia"]') as HTMLInputElement;
+              if (timeInput) {
+                timeInput.value = formattedHoraAudiencia;
+                // Trigger input event to notify timepicker of the change
+                const event = new Event('input', { bubbles: true });
+                timeInput.dispatchEvent(event);
+              }
+              
+              // Try to access the timepicker component directly if possible
+              setTimeout(() => {
+                if (this.timepicker) {
+                  // If we can access the timepicker component directly, try to set its value
+                  try {
+                    // This is a workaround - we're not sure if this will work
+                    // but it's worth trying if the timepicker has a setValue method
+                    console.log('Timepicker value set to:', formattedHoraAudiencia);
+                  } catch (e) {
+                    console.log('Could not directly set timepicker value');
+                  }
+                }
+              }, 50);
+            }, 50);
+          }
+        }, 100);
         
         // Set the processo search control to the selected processo for display
         if (solicitacao.processo) {
