@@ -111,6 +111,8 @@ export class CorrespondentDashboardComponent implements OnInit {
   private tipoSolicitacaoService = inject(TipoSolicitacaoService);
   private dashboardService = inject(DashboardService);
 
+  constructor() {}
+
   ngOnInit(): void {
     // Try to get fresh user data from the server
     this.authService.getCurrentUser().subscribe({

@@ -1,11 +1,11 @@
-import { Component, OnDestroy, OnInit, ViewChild, ElementRef, ChangeDetectorRef, inject } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, OnDestroy, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpEventType } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { finalize, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
 
 // Models
@@ -31,7 +31,7 @@ import { SolicitacaoAnexoService } from '../../../core/services/solicitacao-anex
 import { AuthService } from '../../../core/services/auth.service';
 import { ExternalStorageAuthGuardService } from '../../../core/services/external-storage-auth-guard.service';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
@@ -40,10 +40,6 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatTimepickerModule, NativeDateTimeModule } from '@dhutaryan/ngx-mat-timepicker';
 
 interface ProgressInfo {
   value: number;
@@ -58,7 +54,6 @@ interface ProgressInfo {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    FormsModule,
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
@@ -66,17 +61,11 @@ interface ProgressInfo {
     MatRadioModule,
     MatProgressSpinnerModule,
     MatIconModule,
-    MatAutocompleteModule,
-    MatDatepickerModule,
-    MatProgressBarModule,
-    MatTooltipModule,
-    MatTimepickerModule,
-    NativeDateTimeModule
+    MatAutocompleteModule
   ]
 })
 export class RequestFormComponent implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef;
-  @ViewChild('timepicker') timepicker!: any; // Add ViewChild for timepicker
   
   requestForm: FormGroup;
   requestId: number | null = null;
@@ -112,31 +101,30 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   storageLocation: 'local' | 'google_drive' = 'google_drive';
   
   // Search controls for dropdowns
-  processoSearchControl = new FormControl<string | Processo>('');
-  correspondenteSearchControl = new FormControl<string | Correspondente>('');
+  processoSearchControl = new FormControl('');
+  correspondenteSearchControl = new FormControl('');
 
-  // Using inject() function instead of constructor injection
-  private formBuilder = inject(FormBuilder);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private snackBar = inject(MatSnackBar);
-  private dialog = inject(MatDialog);
-  private solicitacaoService = inject(SolicitacaoService);
-  private solicitacaoStatusService = inject(SolicitacaoStatusService);
-  private processoService = inject(ProcessoService);
-  private correspondenteService = inject(CorrespondenteService);
-  private userService = inject(UserService);
-  private tipoSolicitacaoService = inject(TipoSolicitacaoService);
-  // Add the new attachment service
-  private solicitacaoAnexoService = inject(SolicitacaoAnexoService);
-  // Inject AuthService to determine user role
-  private authService = inject(AuthService);
-  // Add external storage auth guard service
-  private externalStorageAuthGuard = inject(ExternalStorageAuthGuardService);
-  // Inject ChangeDetectorRef
-  private changeDetectorRef = inject(ChangeDetectorRef);
-
-  constructor() {
+  constructor(
+    private formBuilder: FormBuilder,
+    private router: Router,
+    private route: ActivatedRoute,
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog,
+    private solicitacaoService: SolicitacaoService,
+    private solicitacaoStatusService: SolicitacaoStatusService,
+    private processoService: ProcessoService,
+    private correspondenteService: CorrespondenteService,
+    private userService: UserService,
+    private tipoSolicitacaoService: TipoSolicitacaoService,
+    // Add the new attachment service to the constructor
+    private solicitacaoAnexoService: SolicitacaoAnexoService,
+    // Inject AuthService to determine user role
+    private authService: AuthService,
+    // Add external storage auth guard service
+    private externalStorageAuthGuard: ExternalStorageAuthGuardService,
+    // Inject ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef
+  ) {
     this.requestForm = this.createForm();
   }
 
@@ -174,15 +162,10 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       if (params['id']) {
         this.isEditMode = true;
         this.requestId = +params['id'];
+        this.loadRequest();
         // Load existing attachments for this request
         this.loadAnexos();
       }
-    });
-    
-    // Add listener to revalidate prazo date when dataSolicitacao changes
-    this.requestForm.get('dataSolicitacao')?.valueChanges.subscribe(() => {
-      const prazoControl = this.requestForm.get('dataPrazo');
-      prazoControl?.updateValueAndValidity();
     });
     
     this.setupThemeListener();
@@ -197,7 +180,8 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   setupThemeListener(): void {
     // Listen for theme changes to trigger change detection
     this.themeSubscription = new Subscription();
-    const themeHandler = () => {
+    const themeHandler = (event: Event) => {
+      const customEvent = event as CustomEvent;
       // Force change detection when theme changes
       // This will cause the component to re-render with the new theme styles
     };
@@ -209,44 +193,6 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Custom validator to ensure prazo date is not earlier than solicitation date for audiência and diligência types
-  validatePrazoDate() {
-    return (control: AbstractControl) => {
-      const formGroup = control.parent as FormGroup;
-      
-      // Only validate if we have access to the form group
-      if (!formGroup) {
-        return null;
-      }
-      
-      const tipoSolicitacaoId = formGroup.get('tipoSolicitacao')?.value;
-      const dataSolicitacao = formGroup.get('dataSolicitacao')?.value;
-      const dataPrazo = control.value;
-      
-      // Only validate for audiência and diligência types
-      if (tipoSolicitacaoId) {
-        const selectedTipo = this.tiposSolicitacao.find(tipo => tipo.idtiposolicitacao === tipoSolicitacaoId);
-        if (selectedTipo && (this.isTipoAudiencia(selectedTipo) || this.isTipoDiligencia(selectedTipo))) {
-          // Validate that prazo date is not earlier than solicitation date
-          if (dataSolicitacao && dataPrazo) {
-            const solicitacaoDate = new Date(dataSolicitacao);
-            const prazoDate = new Date(dataPrazo);
-            
-            // Reset time parts to compare only dates
-            solicitacaoDate.setHours(0, 0, 0, 0);
-            prazoDate.setHours(0, 0, 0, 0);
-            
-            if (prazoDate < solicitacaoDate) {
-              return { prazoBeforeSolicitacao: true };
-            }
-          }
-        }
-      }
-      
-      return null;
-    };
-  }
-
   private createForm(): FormGroup {
     const form = this.formBuilder.group({
       tipoSolicitacao: [null, Validators.required],
@@ -255,13 +201,12 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       correspondente: [null, Validators.required],
       usuario: [null, Validators.required],
       dataSolicitacao: [this.getCurrentDate()], // Pre-filled with current date but editable by user
-      dataPrazo: ['', this.validatePrazoDate()],
+      dataPrazo: [''],
       instrucoes: [''],
       // Conditional fields
       dataAgendamento: [''],
-      horaAudiencia: ['09:00 AM'], // Set default time in HH:mm AM/PM format
-      valor: [''], // Remove initial validator, let onTipoSolicitacaoChange handle it
-      storageLocation: ['google_drive'] // Add storage location control
+      horaAudiencia: [''], // Changed from horaAudiencia to match model property
+      valor: [''] // Remove initial validator, let onTipoSolicitacaoChange handle it
     });
     
     // Debug log removed
@@ -287,98 +232,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     return `${day}/${month}/${year}`;
   }
 
-  // Helper method to ensure time is in HH:mm AM/PM format for database storage
-  private ensureTimeFormat(time: string | number | Date | null | undefined): string {
-    // Handle null, undefined, or non-string values
-    if (!time) return '09:00 AM';
-    
-    // Convert to string if it's not already
-    let timeStr: string;
-    if (typeof time === 'string') {
-      timeStr = time;
-    } else if (time instanceof Date) {
-      // Format date as HH:mm AM/PM
-      let hours = time.getHours();
-      const minutes = time.getMinutes().toString().padStart(2, '0');
-      const ampm = hours >= 12 ? 'PM' : 'AM';
-      hours = hours % 12;
-      hours = hours ? hours : 12; // the hour '0' should be '12'
-      timeStr = `${hours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
-    } else {
-      timeStr = time.toString();
-    }
-    
-    // If time is already in HH:mm AM/PM format, return as is
-    if ((timeStr.includes('AM') || timeStr.includes('PM')) && timeStr.includes(':')) {
-      return timeStr;
-    }
-    
-    // If time is in 24-hour format (HH:mm), convert to 12-hour format
-    if (timeStr.includes(':') && !timeStr.includes('AM') && !timeStr.includes('PM')) {
-      const [hours, minutes] = timeStr.split(':').map(Number);
-      if (hours !== undefined && minutes !== undefined) {
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        const displayHours = hours % 12 || 12;
-        return `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${ampm}`;
-      }
-    }
-    
-    // If we have a simple number, format as HH:00 AM/PM
-    if (!isNaN(Number(timeStr)) && !timeStr.includes(':')) {
-      const hours = Number(timeStr);
-      const ampm = hours >= 12 ? 'PM' : 'AM';
-      const displayHours = hours % 12 || 12;
-      return `${displayHours.toString().padStart(2, '0')}:00 ${ampm}`;
-    }
-    
-    // Default fallback
-    return '09:00 AM';
-  }
-
-  // Helper method to format time specifically for the timepicker component
-  private formatTimeForTimepicker(time: string | null | undefined): string {
-    // Handle null or undefined values
-    if (!time) return '09:00 AM';
-    
-    // Handle the format "00:00 PM" that comes from the database
-    if (typeof time === 'string' && time.match(/^\d{2}:\d{2} (AM|PM)$/)) {
-      return time;
-    }
-    
-    // Handle 24-hour format and convert to 12-hour format
-    if (typeof time === 'string' && time.includes(':') && !time.includes('AM') && !time.includes('PM')) {
-      const [hours, minutes] = time.split(':').map(Number);
-      if (hours !== undefined && minutes !== undefined) {
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        const displayHours = hours % 12 || 12;
-        return `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${ampm}`;
-      }
-    }
-    
-    // Handle formats like "9:00 AM" and ensure they are zero-padded
-    if (typeof time === 'string' && time.match(/^\d{1,2}:\d{2} (AM|PM)$/)) {
-      const [timePart, period] = time.split(' ');
-      const [hours, minutes] = timePart.split(':');
-      return `${hours.padStart(2, '0')}:${minutes} ${period}`;
-    }
-    
-    // Fallback to ensureTimeFormat for other cases
-    return this.ensureTimeFormat(time);
-  }
-
   private loadDropdownData(): void {
-    // Counter to track how many requests have completed
-    let completedRequests = 0;
-    const totalRequests = 5; // We have 5 async requests
-    
-    const checkIfAllLoaded = () => {
-      completedRequests++;
-      if (completedRequests === totalRequests && this.isEditMode && this.requestId) {
-        // All dropdown data loaded and we're in edit mode, now load the request
-        this.loadRequest();
-      }
-    };
-    
     // Load all processos initially (for search functionality)
     this.processoService.getProcessosPaginated(0, 10000, 'numeroprocesso', 'ASC').subscribe({
       next: (response) => {
@@ -395,12 +249,10 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         
         // Force change detection to ensure the template updates
         this.changeDetectorRef.detectChanges();
-        checkIfAllLoaded();
       },
       error: (error) => {
         console.error('Error loading processos:', error);
         this.snackBar.open('Erro ao carregar processos', 'Fechar', { duration: 5000 });
-        checkIfAllLoaded();
       }
     });
 
@@ -410,12 +262,10 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         this.correspondentes = correspondentes;
         // Filter to only show active correspondentes
         this.filteredCorrespondentes = correspondentes.filter(c => c.ativo === true);
-        checkIfAllLoaded();
       },
       error: (error) => {
         console.error('Error loading correspondentes:', error);
         this.snackBar.open('Erro ao carregar correspondentes', 'Fechar', { duration: 5000 });
-        checkIfAllLoaded();
       }
     });
 
@@ -423,12 +273,10 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     this.userService.getUsers().subscribe({
       next: (usuarios) => {
         this.usuarios = usuarios;
-        checkIfAllLoaded();
       },
       error: (error) => {
         console.error('Error loading usuarios:', error);
         this.snackBar.open('Erro ao carregar usuários', 'Fechar', { duration: 5000 });
-        checkIfAllLoaded();
       }
     });
 
@@ -436,12 +284,10 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     this.tipoSolicitacaoService.getTiposSolicitacao().subscribe({
       next: (tipos) => {
         this.tiposSolicitacao = tipos;
-        checkIfAllLoaded();
       },
       error: (error) => {
         console.error('Error loading tipos de solicitacao:', error);
         this.snackBar.open('Erro ao carregar tipos de solicitação', 'Fechar', { duration: 5000 });
-        checkIfAllLoaded();
       }
     });
 
@@ -449,12 +295,10 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     this.solicitacaoStatusService.getSolicitacaoStatuses().subscribe({
       next: (statuses) => {
         this.statuses = statuses;
-        checkIfAllLoaded();
       },
       error: (error) => {
         console.error('Error loading statuses:', error);
         this.snackBar.open('Erro ao carregar status', 'Fechar', { duration: 5000 });
-        checkIfAllLoaded();
       }
     });
   }
@@ -478,14 +322,9 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   }
 
   // Method to handle processo selection from autocomplete
-  onProcessoSelected(event: { option: { value: Processo } }): void {
-    const selectedProcesso = event.option.value;
+  onProcessoSelected(event: any): void {
+    const selectedProcesso: Processo = event.option.value;
     this.requestForm.get('processo')?.setValue(selectedProcesso.id);
-    
-    // Update the form control with the selected processo ID
-    this.requestForm.patchValue({
-      processo: selectedProcesso.id
-    });
   }
 
   // Method to display processo in autocomplete
@@ -511,12 +350,6 @@ export class RequestFormComponent implements OnInit, OnDestroy {
           formattedValor = solicitacao.valor;
         }
         
-        // Process the time value specifically for the timepicker
-        let formattedHoraAudiencia = '09:00 AM';
-        if (solicitacao.horaudiencia) {
-          formattedHoraAudiencia = this.formatTimeForTimepicker(solicitacao.horaudiencia);
-        }
-        
         // Set form values
         this.requestForm.patchValue({
           tipoSolicitacao: solicitacao.tipoSolicitacao?.idtiposolicitacao || null,
@@ -530,72 +363,19 @@ export class RequestFormComponent implements OnInit, OnDestroy {
           observacao: solicitacao.observacao || '',
           // Conditional fields
           dataAgendamento: solicitacao.dataagendamento || '',
-          horaAudiencia: formattedHoraAudiencia,
+          horaAudiencia: solicitacao.horaudiencia || '',
           valor: formattedValor
         });
         
-        // Special handling for timepicker - multiple attempts to ensure value is set
-        setTimeout(() => {
-          const horaAudienciaControl = this.requestForm.get('horaAudiencia');
-          if (horaAudienciaControl) {
-            horaAudienciaControl.setValue(formattedHoraAudiencia);
-            horaAudienciaControl.updateValueAndValidity();
-            
-            // Additional attempt to force the timepicker to update
-            setTimeout(() => {
-              const timeInput = document.querySelector('input[formControlName="horaAudiencia"]') as HTMLInputElement;
-              if (timeInput) {
-                timeInput.value = formattedHoraAudiencia;
-                // Trigger input event to notify timepicker of the change
-                const event = new Event('input', { bubbles: true });
-                timeInput.dispatchEvent(event);
-              }
-              
-              // Try to access the timepicker component directly if possible
-              setTimeout(() => {
-                if (this.timepicker) {
-                  // If we can access the timepicker component directly, try to set its value
-                  try {
-                    // This is a workaround - we're not sure if this will work
-                    // but it's worth trying if the timepicker has a setValue method
-                    console.log('Timepicker value set to:', formattedHoraAudiencia);
-                  } catch (e) {
-                    console.log('Could not directly set timepicker value');
-                  }
-                }
-              }, 50);
-            }, 50);
-          }
-        }, 100);
-        
         // Set the processo search control to the selected processo for display
         if (solicitacao.processo) {
-          // Find the processo object in our processos array
-          const processoObj = this.processos.find(p => p.id === solicitacao.processo?.id);
-          if (processoObj) {
-            this.processoSearchControl.setValue(processoObj);
-          } else {
-            // Fallback to display string if object not found
-            this.processoSearchControl.setValue(this.displayProcesso(solicitacao.processo));
-          }
+          this.processoSearchControl.setValue(this.displayProcesso(solicitacao.processo));
         }
         
         // Set the correspondente search control to the selected correspondente for display
         if (solicitacao.correspondente) {
-          // Find the correspondente object in our correspondentes array
-          const correspondenteObj = this.correspondentes.find(c => c.id === solicitacao.correspondente?.id);
-          if (correspondenteObj) {
-            this.correspondenteSearchControl.setValue(correspondenteObj);
-          } else {
-            // Fallback to display string if object not found
-            this.correspondenteSearchControl.setValue(this.displayCorrespondente(solicitacao.correspondente));
-          }
+          this.correspondenteSearchControl.setValue(this.displayCorrespondente(solicitacao.correspondente));
         }
-        
-        // Ensure the autocomplete controls are properly updated
-        setTimeout(() => {
-          this.changeDetectorRef.detectChanges();
-        }, 0);
         
         // Check if we need to show conditional fields based on the loaded tipoSolicitacao
         if (solicitacao.tipoSolicitacao?.idtiposolicitacao) {
@@ -606,9 +386,6 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         if (solicitacao.dataagendamento || solicitacao.horaudiencia) {
           this.showAudienciaFields = true;
         }
-        
-        // Force change detection to ensure the template updates
-        this.changeDetectorRef.detectChanges();
         
         this.loading = false;
       },
@@ -637,30 +414,40 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   }
 
   // Method to handle file selection
-  selectFiles(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    this.selectedFiles = Array.from(target.files || []);
+  selectFiles(event: any): void {
+    this.selectedFiles = Array.from(event.target.files);
     this.progressInfos = [];
     this.message = '';
   }
 
   // Method to format currency input for Brazilian format
-  formatCurrency(event: Event): void {
-    const input = event.target as HTMLInputElement;
+  formatCurrency(event: any): void {
+    const input = event.target;
     let value = input.value.replace(/\D/g, ''); // Remove all non-digit characters
-    value = (Number(value) / 100).toFixed(2); // Convert to decimal format
     
-    // Format with Brazilian currency format
-    const formattedValue = new Intl.NumberFormat('pt-BR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(Number(value));
+    // Handle empty value
+    if (value === '') {
+      this.requestForm.get('valor')?.setValue(null, { emitEvent: false });
+      return;
+    }
     
-    input.value = formattedValue;
+    // Convert to number by inserting decimal point in the correct position
+    // For Brazilian format, last 2 digits are decimal places
+    let formattedValue: string;
+    if (value.length <= 2) {
+      formattedValue = '0.' + value.padStart(2, '0');
+    } else {
+      const integerPart = value.slice(0, -2);
+      const decimalPart = value.slice(-2);
+      formattedValue = integerPart + '.' + decimalPart;
+    }
     
-    // Update the form control value
-    const numericValue = Number(value);
-    this.requestForm.get('valor')?.setValue(numericValue);
+    // Convert to number
+    const numberValue = parseFloat(formattedValue);
+    if (!isNaN(numberValue)) {
+      // Update the form control with the numeric value
+      this.requestForm.get('valor')?.setValue(numberValue, { emitEvent: false });
+    }
   }
 
   // Method to format a number as Brazilian currency for display
@@ -733,10 +520,6 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     }
     valorControl?.updateValueAndValidity();
     
-    // Revalidate prazo date when tipoSolicitacao changes
-    const prazoControl = this.requestForm.get('dataPrazo');
-    prazoControl?.updateValueAndValidity();
-    
     // Force change detection to ensure the template updates
     this.changeDetectorRef.detectChanges();
   }
@@ -807,20 +590,31 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     this.changeDetectorRef.detectChanges();
   }
 
+  // Method to upload all selected files
   private uploadAnexos(solicitacaoId: number): void {
-    this.message = '';
-    this.progressInfos = [];
-
-    if (this.selectedFiles.length === 0) {
-      return;
-    }
-
-    for (const file of this.selectedFiles) {
-      this.progressInfos.push({ value: 0, fileName: file.name });
-    }
-
-    for (const [index, file] of this.selectedFiles.entries()) {
-      this.uploadAnexo(solicitacaoId, file, index);
+    // Check storage location and proceed accordingly
+    if (this.storageLocation === 'local') {
+      // For local storage, proceed directly without authentication
+      this.performUpload(solicitacaoId);
+    } else {
+      // For Google Drive, check external storage authentication before uploading
+      this.externalStorageAuthGuard.checkAuthentication().subscribe({
+        next: (isAuthenticated) => {
+          if (isAuthenticated) {
+            // Proceed with upload if authenticated
+            this.performUpload(solicitacaoId);
+          } else {
+            // Show message if not authenticated
+            this.message = 'Upload cancelado. Por favor, autentique-se com o armazenamento externo primeiro.';
+            this.snackBar.open('Upload cancelado. Por favor, autentique-se com o armazenamento externo primeiro.', 'Fechar', { duration: 5000 });
+          }
+        },
+        error: (error) => {
+          console.error('Error checking authentication:', error);
+          this.message = 'Erro ao verificar autenticação. Por favor, tente novamente.';
+          this.snackBar.open('Erro ao verificar autenticação. Por favor, tente novamente.', 'Fechar', { duration: 5000 });
+        }
+      });
     }
   }
 
@@ -833,36 +627,31 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       return;
     }
 
-    for (const file of this.selectedFiles) {
-      this.progressInfos.push({ value: 0, fileName: file.name });
+    for (let i = 0; i < this.selectedFiles.length; i++) {
+      this.progressInfos.push({ value: 0, fileName: this.selectedFiles[i].name });
     }
 
-    for (const [index, file] of this.selectedFiles.entries()) {
-      this.uploadAnexo(solicitacaoId, file, index);
+    for (let i = 0; i < this.selectedFiles.length; i++) {
+      this.uploadAnexo(solicitacaoId, this.selectedFiles[i], i);
     }
   }
 
   // Method to upload a single file
   private uploadAnexo(solicitacaoId: number, file: File, index: number): void {
     this.solicitacaoAnexoService.uploadAnexo(file, solicitacaoId, this.storageLocation).subscribe({
-      next: (event) => {
+      next: (event: any) => {
         if (event.type === HttpEventType.UploadProgress) {
           // Upload progress
-          if (event.total) {
-            const progress = Math.round(100 * event.loaded / event.total);
-            this.progressInfos[index].value = progress;
-          }
+          const progress = Math.round(100 * event.loaded / event.total);
+          this.progressInfos[index].value = progress;
         } else if (event.type === HttpEventType.Response) {
           // Upload complete
           this.message = 'Arquivo(s) carregado(s) com sucesso!';
           // Reload the current attachments
           this.loadAnexos();
-          // Clear selected files
-          this.selectedFiles = [];
-          this.progressInfos = [];
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         this.progressInfos[index].value = 0;
         this.message = 'Erro ao carregar arquivo: ' + file.name;
         console.error('Error uploading file:', err);
@@ -885,17 +674,13 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.loading = true;
-    
-    // Prepare solicitacao data
-    const solicitacao = this.prepareSolicitacaoData();
-    
     // Show confirmation dialog
+    const action = this.isEditMode ? 'atualizar' : 'criar';
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: '400px',
       data: {
         title: 'Confirmar operação',
-        message: `Tem certeza que deseja ${this.isEditMode ? 'atualizar' : 'criar'} esta solicitação?`,
+        message: `Tem certeza que deseja ${action} esta solicitação?`,
         confirmText: 'SIM',
         cancelText: 'NÃO'
       }
@@ -903,86 +688,133 @@ export class RequestFormComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        if (this.isEditMode && this.requestId) {
-          this.solicitacaoService.updateSolicitacao(this.requestId, solicitacao).subscribe({
-            next: (updated) => {
-              this.loading = false;
-              this.snackBar.open('Solicitação atualizada com sucesso!', 'Fechar', {
-                duration: 3000,
-                panelClass: ['success-snackbar']
-              });
-              this.router.navigate(['/solicitacoes', updated.id]);
-            },
-            error: (error) => {
-              this.loading = false;
-              console.error('Error updating solicitacao:', error);
-              this.snackBar.open('Erro ao atualizar solicitação', 'Fechar', {
-                duration: 5000,
-                panelClass: ['error-snackbar']
-              });
-            }
-          });
-        } else {
-          this.solicitacaoService.createSolicitacao(solicitacao).subscribe({
-            next: (created) => {
-              this.loading = false;
-              this.snackBar.open('Solicitação criada com sucesso!', 'Fechar', {
-                duration: 3000,
-                panelClass: ['success-snackbar']
-              });
-              this.router.navigate(['/solicitacoes', created.id]);
-            },
-            error: (error) => {
-              this.loading = false;
-              console.error('Error creating solicitacao:', error);
-              this.snackBar.open('Erro ao criar solicitação', 'Fechar', {
-                duration: 5000,
-                panelClass: ['error-snackbar']
-              });
-            }
-          });
-        }
-      } else {
-        this.loading = false;
+        this.proceedWithSave();
       }
     });
   }
 
-  private prepareSolicitacaoData(): Solicitacao {
-    const formValue = this.requestForm.value;
-    const solicitacao: Partial<Solicitacao> = this.loadedSolicitacao ? { ...this.loadedSolicitacao } : {};
+  private proceedWithSave(): void {
+    this.loading = true;
     
-    // Map form values to solicitacao object
-    solicitacao.tipoSolicitacao = { idtiposolicitacao: formValue.tipoSolicitacao };
-    solicitacao.processo = { id: formValue.processo } as Processo;
-    solicitacao.usuario = { id: formValue.usuario } as User;
-    solicitacao.correspondente = { id: formValue.correspondente } as Correspondente;
+    // Prepare the solicitacao object
+    const formValue = this.requestForm.getRawValue(); // Use getRawValue to include disabled fields
     
-    // Set status based on edit mode
-    if (this.isEditMode && formValue.status) {
-      solicitacao.statusSolicitacao = this.statuses.find(s => s.idstatus === formValue.status) || 
-        { idstatus: formValue.status, status: 'Aguardando Confirmação' };
-    } else if (!this.isEditMode) {
-      // For new solicitations, set default status
-      solicitacao.statusSolicitacao = { idstatus: 1, status: 'Aguardando Confirmação' };
+    // Start with the loaded solicitacao to preserve fields not in the form
+    const solicitacao: any = this.loadedSolicitacao ? { ...this.loadedSolicitacao } : {};
+    
+    // Update fields that are in the form
+    solicitacao.datasolicitacao = formValue.dataSolicitacao || this.getCurrentDate(); // Ensure we always have a value
+    solicitacao.dataprazo = formValue.dataPrazo || null;
+    solicitacao.instrucoes = formValue.instrucoes || null;
+    solicitacao.ativo = true;
+
+    // Add conditional fields if they should be included
+    // For Audiência, always include horaAudiencia when it exists in the form (especially in edit mode)
+    if (this.showAudienciaFields || (this.isEditMode && formValue.horaAudiencia !== undefined)) {
+      solicitacao.dataagendamento = formValue.dataAgendamento || null;
+      solicitacao.horaudiencia = formValue.horaAudiencia || null; // Fixed property name
+      console.log('Setting audiencia fields:', {
+        dataagendamento: solicitacao.dataagendamento,
+        horaudiencia: solicitacao.horaudiencia
+      });
     }
     
-    // Handle conditional fields
-    if (this.showAudienciaFields) {
-      solicitacao.dataagendamento = formValue.dataAgendamento;
-      // Ensure horaAudiencia has correct format with AM/PM
-      solicitacao.horaudiencia = this.ensureTimeFormat(formValue.horaAudiencia);
-    }
-    
+    // Always include valor field for diligência and audiência types
     if (this.showValorField) {
-      solicitacao.valor = formValue.valor;
+      // The valor is already stored as a number in the form control
+      solicitacao.valor = formValue.valor || null;
+    }
+
+    // Add relationships if selected
+    // Set default status for new solicitations
+    if (!this.isEditMode) {
+      // Find "Aguardando Confirmação" status
+      const aguardandoConfirmacaoStatus = this.statuses.find(s => s.status === 'Aguardando Confirmação' || s.status === 'Aguardando Confirmacao');
+      if (aguardandoConfirmacaoStatus) {
+        solicitacao.statusSolicitacao = { idstatus: aguardandoConfirmacaoStatus.idstatus };
+      } else {
+        // Fallback to first status if "Aguardando Confirmação" is not found
+        solicitacao.statusSolicitacao = { idstatus: this.statuses.length > 0 ? this.statuses[0].idstatus : 1 };
+      }
+      
+      // When creating a new solicitation with "Aguardando Confirmação" status, clear dataconclusao
+      solicitacao.dataconclusao = undefined;
+    } else if(formValue.status){
+      // Use selected status for editing
+      solicitacao.statusSolicitacao = { idstatus: formValue.status };
+      
+      // When editing, check if status is "Aguardando Confirmação" and clear dataconclusao if so
+      const selectedStatus = this.statuses.find(s => s.idstatus === formValue.status);
+      if (selectedStatus && (selectedStatus.status === 'Aguardando Confirmação' || selectedStatus.status === 'Aguardando Confirmacao')) {
+        solicitacao.dataconclusao = undefined;
+      }
+    }
+
+    if (formValue.tipoSolicitacao) {
+      solicitacao.tipoSolicitacao = { idtiposolicitacao: formValue.tipoSolicitacao };
     }
     
-    solicitacao.dataprazo = formValue.dataPrazo;
-    solicitacao.complemento = formValue.complemento;
-    solicitacao.instrucoes = formValue.instrucoes;
+    if (formValue.processo) {
+      solicitacao.processo = { id: formValue.processo };
+    }
     
-    return solicitacao as Solicitacao;
+    if (formValue.correspondente) {
+      solicitacao.correspondente = { id: formValue.correspondente };
+    }
+    
+    if (formValue.usuario) {
+      solicitacao.usuario = { id: formValue.usuario };
+    }
+
+    // Determine if we're creating or updating
+    const operation = this.isEditMode && this.requestId
+      ? this.solicitacaoService.updateSolicitacao(this.requestId, solicitacao)
+      : this.solicitacaoService.createSolicitacao(solicitacao);
+
+    operation.pipe(
+      finalize(() => this.loading = false)
+    ).subscribe({
+      next: (result: any) => {
+        // Get the ID of the created/updated solicitacao
+        const solicitacaoId = this.isEditMode ? this.requestId : (result?.id || result?.idsolicitacao);
+        
+        const message = this.isEditMode 
+          ? 'Solicitação atualizada com sucesso!' 
+          : 'Solicitação criada com sucesso!';
+        this.snackBar.open(message, 'Fechar', { 
+          duration: 3000,
+          panelClass: ['success-snackbar']
+        });
+        
+        // Upload attachments if any were selected
+        if (this.selectedFiles.length > 0 && solicitacaoId) {
+          this.uploadAnexos(solicitacaoId);
+        }
+        
+        // Navigate to request detail page instead of list
+        // Debug log removed
+        if (solicitacaoId) {
+          // Ensure navigation happens after any file uploads complete
+          setTimeout(() => {
+            this.router.navigate(['/solicitacoes', solicitacaoId]);
+          }, 100);
+        } else {
+          console.error('Could not navigate to solicitation details page: solicitacaoId is null or undefined');
+          // Debug log removed
+          this.router.navigate(['/solicitacoes']);
+        }
+      },
+      error: (error) => {
+        console.error('Error saving solicitacao:', error);
+        const message = this.isEditMode
+          ? 'Erro ao atualizar solicitação'
+          : 'Erro ao criar solicitação';
+        this.snackBar.open(message, 'Fechar', { 
+          duration: 5000,
+          panelClass: ['error-snackbar']
+        });
+      }
+    });
   }
 
   onCancel(): void {
@@ -1013,7 +845,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     const field = this.requestForm.get(fieldName);
     if (field && field.errors) {
       if (field.errors['required']) {
-        const fieldLabels: Record<string, string> = {
+        const fieldLabels: { [key: string]: string } = {
           'processo': 'Processo',
           'correspondente': 'Correspondente',
           'tipoSolicitacao': 'Tipo de Solicitação',
@@ -1024,38 +856,6 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       }
     }
     return '';
-  }
-  
-  getErrorMessage(fieldName: string): string {
-    const field = this.requestForm.get(fieldName);
-    if (!field || !field.errors) return '';
-    
-    const fieldLabels: Record<string, string> = {
-      tipoSolicitacao: 'Tipo de Solicitação',
-      processo: 'Processo',
-      valor: 'Valor',
-      dataPrazo: 'Data do Prazo',
-      dataAgendamento: 'Data do Agendamento',
-      horaAudiencia: 'Hora da Audiência',
-      complemento: 'Complemento',
-      instrucoes: 'Instruções'
-    };
-    
-    const label = fieldLabels[fieldName] || fieldName;
-    
-    if (field.hasError('required')) {
-      return `${label} é obrigatório`;
-    }
-    
-    if (field.hasError('min')) {
-      return `${label} deve ser maior que zero`;
-    }
-    
-    if (field.hasError('prazoBeforeSolicitacao')) {
-      return 'Data do Prazo não pode ser anterior à Data da Solicitação para tipos Audiência e Diligência';
-    }
-    
-    return 'Campo inválido';
   }
   
   // Method to get the CSS class for an attachment based on its origin
@@ -1159,14 +959,9 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   }
 
   // Method to handle correspondente selection from autocomplete
-  onCorrespondenteSelected(event: { option: { value: Correspondente } }): void {
-    const selectedCorrespondente = event.option.value;
+  onCorrespondenteSelected(event: any): void {
+    const selectedCorrespondente: Correspondente = event.option.value;
     this.requestForm.get('correspondente')?.setValue(selectedCorrespondente.id);
-    
-    // Update the form control with the selected correspondente ID
-    this.requestForm.patchValue({
-      correspondente: selectedCorrespondente.id
-    });
   }
 
   // Method to display correspondente in autocomplete

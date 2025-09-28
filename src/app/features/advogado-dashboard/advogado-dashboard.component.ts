@@ -3,7 +3,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { ProcessoService } from '../../core/services/processo.service';
 import { SolicitacaoService } from '../../core/services/solicitacao.service';
-import { DashboardService, ChartData } from '../../core/services/dashboard.service';
+import { DashboardService, DashboardData, MappedDashboardData, ChartData } from '../../core/services/dashboard.service';
 import { User } from '../../shared/models/user.model';
 import { Processo } from '../../shared/models/processo.model';
 import { Solicitacao } from '../../shared/models/solicitacao.model';

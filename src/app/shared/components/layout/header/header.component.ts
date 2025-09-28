@@ -17,12 +17,6 @@ interface UserWithAlternativeFields extends User {
   nomeCompleto?: string;
 }
 
-interface MenuButtonElement extends HTMLElement {
-  _menuTrigger?: {
-    closeMenu: () => void;
-  };
-}
-
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
@@ -50,7 +44,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   public router = inject(Router);
   private authService = inject(AuthService);
   private themeService = inject(ThemeService);
-  private zoomService = inject(ZoomService);
+  private zoomService = inject(ZoomoomService);
   private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
@@ -133,9 +127,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Close the menu explicitly
     const menuButton = document.getElementById('theme-menu-button');
     if (menuButton) {
-      const menuButtonElement = menuButton as MenuButtonElement;
-      if (menuButtonElement._menuTrigger && typeof menuButtonElement._menuTrigger.closeMenu === 'function') {
-        menuButtonElement._menuTrigger.closeMenu();
+      const menuTrigger = (menuButton as any)._menuTrigger;
+      if (menuTrigger && typeof menuTrigger.closeMenu === 'function') {
+        menuTrigger.closeMenu();
       }
     }
   }

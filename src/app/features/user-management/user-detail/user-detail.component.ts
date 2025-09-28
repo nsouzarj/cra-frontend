@@ -175,13 +175,13 @@ export class UserDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  getUserPermissions(): {icon: string; title: string; description: string; allowed: boolean; restrictedForCorrespondent: boolean}[] {
+  getUserPermissions(): Array<{icon: string; title: string; description: string; allowed: boolean; restrictedForCorrespondent: boolean}> {
     const userType = this.user?.tipo;
     
     // For correspondents, only allow "Gerenciar Solicitações"
     const isCorrespondent = userType === UserType.CORRESPONDENTE;
     
-    const permissions: {icon: string; title: string; description: string; allowed: boolean; restrictedForCorrespondent: boolean}[] = [
+    const permissions = [
       {
         icon: 'people',
         title: 'Gerenciar Usuários',
@@ -207,8 +207,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
         icon: 'assignment',
         title: 'Gerenciar Solicitações',
         description: 'Criar e acompanhar solicitações',
-        allowed: true,
-        restrictedForCorrespondent: isCorrespondent
+        allowed: true
       },
       {
         icon: 'analytics',
@@ -373,7 +372,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
     this.router.navigate(['/usuarios']);
   }
 
-  getCorrespondentInfo(): {label: string; value: string}[] {
+  getCorrespondentInfo(): Array<{label: string; value: string}> {
     if (!this.user || this.user.tipo !== UserType.CORRESPONDENTE || !this.user.correspondente?.id) {
       return [];
     }
@@ -389,7 +388,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
     const correspondente = this.user.correspondente;
     const endereco = correspondente.endereco;
     
-    const info: {label: string; value: string}[] = [
+    const info = [
       {
         label: 'Nome',
         value: correspondente.nome

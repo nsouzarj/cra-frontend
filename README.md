@@ -321,12 +321,6 @@ $cra-frontend-accent: mat-palette($mat-pink, A200, A100, A400);
 2. Adicione roteamento em `src/app/app-routing.module.ts`
 3. Adicione itens de navegação em `src/app/shared/components/layout/sidenav/sidenav.component.ts`
 
-### Configuração de Armazenamento de Arquivos
-Para personalizar as opções de armazenamento de arquivos:
-1. Modifique os componentes de seleção de armazenamento em `src/app/features/request-management/` e `src/app/features/correspondent-requests/`
-2. Atualize os estilos em `src/app/features/request-management/request-form.component.scss` e `src/app/features/request-management/request-detail.component.scss`
-3. Configure as permissões de acesso no serviço de autenticação externa
-
 ## 📱 Suporte Mobile
 
 A aplicação é totalmente responsiva e suporta dispositivos móveis com:
@@ -402,7 +396,7 @@ Para problemas e dúvidas:
 
 Para atualizar o Angular e as dependências:
 
-```
+```bash
 # Atualizar Angular
 ng update @angular/core @angular/cli
 

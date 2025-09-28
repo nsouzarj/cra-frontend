@@ -51,14 +51,14 @@
             <span class="info-value">{{ formatDate(solicitacao?.datasolicitacao) }}</span>
           </div>
           <!-- Conditional field for Audiência: Data do Agendamento -->
-          <div class="info-item" *ngIf="isAudiencia()">
+          <div class="info-item" *ngIf="isAudiencia() && solicitacao?.dataagendamento">
             <span class="info-label">Data do Agendamento:</span>
-            <span class="info-value">{{ solicitacao?.dataagendamento ? formatDate(solicitacao?.dataagendamento) : 'Não informado' }}</span>
+            <span class="info-value">{{ formatDate(solicitacao?.dataagendamento) }}</span>
           </div>
           <!-- Conditional field for Audiência: Hora da Audiência -->
-          <div class="info-item" *ngIf="isAudiencia()">
+          <div class="info-item" *ngIf="isAudiencia() && solicitacao?.horaudiencia">
             <span class="info-label">Hora da Audiência:</span>
-            <span class="info-value">{{ solicitacao?.horaudiencia || 'Não informado' }}</span>
+            <span class="info-value">{{ solicitacao?.horaudiencia }}</span>
           </div>
           <!-- Valor field for all solicitation types -->
           <div class="info-item" *ngIf="solicitacao?.valor">

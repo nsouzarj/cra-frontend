@@ -39,7 +39,12 @@
 }
 
 /* Style to make comarca search input text uppercase */
-.mat-form-field input[formcontrolname='comarcaSearchControl'] {
+#mat-input-3 { /* This targets the comarca search input specifically */
+  text-transform: uppercase;
+}
+
+/* Alternative approach using attribute selector */
+input[formcontrolname='comarcaSearchControl'] {
   text-transform: uppercase;
 }
 

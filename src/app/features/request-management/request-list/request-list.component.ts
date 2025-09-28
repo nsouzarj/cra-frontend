@@ -311,11 +311,11 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadRequests();
   }
 
-  viewRequest(): void {
+  viewRequest(_solicitacao: Solicitacao): void {
     // Implementation for viewing a request
   }
 
-  editRequest(): void {
+  editRequest(_solicitacao: Solicitacao): void {
     // Implementation for editing a request
   }
 

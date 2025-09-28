@@ -115,7 +115,7 @@ export class CorrespondentDashboardSimpleComponent implements OnInit {
         this.currentUser = user;
         this.loadDashboardData();
       },
-      error: () => {
+      error: (_error) => {
         // Fallback to cached data
         this.currentUser = this.authService.currentUserValue;
         this.loadDashboardData();
@@ -168,7 +168,7 @@ export class CorrespondentDashboardSimpleComponent implements OnInit {
             this.loading = false;
           }
         },
-        error: () => {
+        error: (_error) => {
           this.loading = false;
         }
       });
@@ -189,7 +189,7 @@ export class CorrespondentDashboardSimpleComponent implements OnInit {
         
         this.loading = false;
       },
-      error: () => {
+      error: (_error) => {
         this.loading = false;
       }
     });

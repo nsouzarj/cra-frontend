@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, ActivatedRoute, RouterModule } from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { Router, ActivatedRoute } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { UserService } from '../../../core/services/user.service';
 import { CorrespondenteService } from '../../../core/services/correspondente.service';
@@ -20,8 +20,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-user-form',
@@ -38,11 +36,6 @@ import { MatCardModule } from '@angular/material/card';
     MatButtonModule,
     MatIconModule,
     MatSlideToggleModule,
-    MatSnackBarModule,
-    MatDialogModule,
-    MatProgressSpinnerModule,
-    MatCardModule,
-    RouterModule,
     ConfirmationDialogComponent,
     PasswordResetDialogComponent
   ]
@@ -61,18 +54,17 @@ export class UserFormComponent implements OnInit, OnDestroy {
 
   private themeSubscription: Subscription | null = null;
 
-  // Using inject() function instead of constructor injection
-  private formBuilder = inject(FormBuilder);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private userService = inject(UserService);
-  private correspondenteService = inject(CorrespondenteService);
-  private authService = inject(AuthService);
-  public permissionService = inject(PermissionService);
-  private snackBar = inject(MatSnackBar);
-  private dialog = inject(MatDialog);
-
-  constructor() {
+  constructor(
+    private formBuilder: FormBuilder,
+    private router: Router,
+    private route: ActivatedRoute,
+    private userService: UserService,
+    private correspondenteService: CorrespondenteService,
+    private authService: AuthService,
+    public permissionService: PermissionService,
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
+  ) {
     this.userForm = this.createUserForm();
     this.passwordForm = this.createPasswordForm();
     this.currentUserId = this.authService.currentUserValue?.id;
@@ -92,14 +84,18 @@ export class UserFormComponent implements OnInit, OnDestroy {
     // Subscribe to tipo changes to show/hide correspondent field
     this.userForm.get('tipo')?.valueChanges.subscribe(tipo => {
       this.showCorrespondentField = tipo === UserType.CORRESPONDENTE;
+      // Debug log removed
       // Remove the required validator - users can have no correspondent associated
       this.userForm.get('correspondente')?.clearValidators();
       this.userForm.get('correspondente')?.updateValueAndValidity();
     });
     
     // Subscribe to correspondent changes for debugging
-    this.userForm.get('correspondente')?.valueChanges.subscribe(() => {
-      // Debug logs removed
+    this.userForm.get('correspondente')?.valueChanges.subscribe(value => {
+      // Debug log removed
+      // Debug log removed
+      // Debug log removed
+      // Debug log removed
     });
     
     this.setupThemeListener();
@@ -114,7 +110,8 @@ export class UserFormComponent implements OnInit, OnDestroy {
   setupThemeListener(): void {
     // Listen for theme changes to trigger change detection
     this.themeSubscription = new Subscription();
-    const themeHandler = () => {
+    const themeHandler = (event: Event) => {
+      const customEvent = event as CustomEvent;
       // Force change detection when theme changes
       // This will cause the component to re-render with the new theme styles
     };
@@ -167,9 +164,12 @@ export class UserFormComponent implements OnInit, OnDestroy {
   }
 
   loadCorrespondentes(): void {
+    // Debug log removed
     this.correspondenteService.getCorrespondentes().subscribe({
       next: (correspondentes) => {
+        // Debug log removed
         this.correspondentes = correspondentes;
+        // Debug log removed
       },
       error: (error) => {
         console.error('Error loading correspondentes in user form:', error);
@@ -187,6 +187,10 @@ export class UserFormComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.userService.getUserById(this.userId).subscribe({
       next: (user) => {
+        // Debug log removed
+        // Debug log removed
+        // Debug log removed
+        
         this.userForm.patchValue({
           login: user.login,
           nomecompleto: user.nomecompleto,
@@ -200,6 +204,9 @@ export class UserFormComponent implements OnInit, OnDestroy {
 
         // Set the showCorrespondentField flag based on user type
         this.showCorrespondentField = user.tipo === UserType.CORRESPONDENTE;
+        
+        // Debug log removed
+        // Debug log removed
         
         this.loading = false;
       },
@@ -249,12 +256,23 @@ export class UserFormComponent implements OnInit, OnDestroy {
     
     const formData = this.userForm.value;
     
+    // Debug: Log form data
+    // Debug log removed
+    // Debug log removed
+    // Debug log removed
+    // Debug log removed
+    // Debug log removed
+    // Debug log removed;
+    
+    // First, get the current user data to preserve authorities
+    let userData: any = {};
+    
     if (this.isEditMode && this.userId) {
       // For edit mode, we need to get the current user data first to preserve authorities
       this.userService.getUserById(this.userId).subscribe({
         next: (currentUser) => {
           // Preserve the authorities from the current user
-          const userData: User = {
+          userData = {
             id: currentUser.id,
             login: formData.login,
             nomecompleto: formData.nomecompleto,
@@ -266,18 +284,51 @@ export class UserFormComponent implements OnInit, OnDestroy {
             authorities: currentUser.authorities || [] // Preserve authorities
           };
 
-          // Add correspondent for correspondent users
-          if (formData.tipo === UserType.CORRESPONDENTE) {
-            // If a correspondent is selected, find it in the correspondentes array
-            if (formData.correspondente) {
-              const selectedCorrespondent = this.correspondentes.find(c => c.id === formData.correspondente);
-              if (selectedCorrespondent) {
-                userData.correspondente = selectedCorrespondent;
-              }
-            }
+          // Add password only for new users or if it's provided in edit mode
+          if (!this.isEditMode && formData.senha) {
+            userData.senha = formData.senha;
           }
 
-          this.userService.updateUser(this.userId!, userData).subscribe({
+          // Add correspondent for correspondent users (following the same pattern as comarca/UF)
+          if (formData.tipo === UserType.CORRESPONDENTE) {
+            // If a correspondent is selected, send it as { id: correspondentId }
+            if (formData.correspondente) {
+              userData.correspondente = { id: formData.correspondente };
+              // Debug log removed
+            } else {
+              // For correspondent users, if no correspondent is selected, send null to clear any existing association
+              userData.correspondente = null;
+              // Debug log removed
+            }
+          } else {
+            // Debug log removed
+          }
+
+          // Debug log removed
+          // Debug log removed
+          
+          // Additional debugging - check if the correspondente property exists in the object
+          if ('correspondente' in userData) {
+            // Debug log removed
+            // Debug log removed
+            if (userData.correspondente) {
+              // Debug log removed
+              // Debug log removed
+              // Debug log removed
+            } else {
+              // Debug log removed
+            }
+          } else {
+            // Debug log removed
+          }
+          
+          // Debug log removed
+
+          const operation = this.isEditMode && this.userId
+            ? this.userService.updateUser(this.userId, userData)
+            : this.userService.createUser(userData);
+
+          operation.subscribe({
             next: (user) => {
               this.loading = false;
               const message = this.isEditMode ? 'Usuário atualizado com sucesso!' : 'Usuário criado com sucesso!';
@@ -315,7 +366,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
       });
     } else {
       // For new users, create userData without preserving authorities
-      const userData: User = {
+      userData = {
         login: formData.login,
         nomecompleto: formData.nomecompleto,
         tipo: formData.tipo,
@@ -325,18 +376,51 @@ export class UserFormComponent implements OnInit, OnDestroy {
         ativo: formData.ativo
       };
 
-      // Add correspondent for correspondent users
-      if (formData.tipo === UserType.CORRESPONDENTE) {
-        // If a correspondent is selected, find it in the correspondentes array
-        if (formData.correspondente) {
-          const selectedCorrespondent = this.correspondentes.find(c => c.id === formData.correspondente);
-          if (selectedCorrespondent) {
-            userData.correspondente = selectedCorrespondent;
-          }
-        }
+      // Add password only for new users or if it's provided in edit mode
+      if (!this.isEditMode && formData.senha) {
+        userData.senha = formData.senha;
       }
 
-      this.userService.createUser(userData).subscribe({
+      // Add correspondent for correspondent users (following the same pattern as comarca/UF)
+      if (formData.tipo === UserType.CORRESPONDENTE) {
+        // If a correspondent is selected, send it as { id: correspondentId }
+        if (formData.correspondente) {
+          userData.correspondente = { id: formData.correspondente };
+          // Debug log removed
+        } else {
+          // For correspondent users, if no correspondent is selected, send null to clear any existing association
+          userData.correspondente = null;
+          // Debug log removed
+        }
+      } else {
+        // Debug log removed
+      }
+
+      // Debug log removed
+      // Debug log removed
+      
+      // Additional debugging - check if the correspondente property exists in the object
+      if ('correspondente' in userData) {
+        // Debug log removed
+        // Debug log removed
+        if (userData.correspondente) {
+          // Debug log removed
+          // Debug log removed
+          // Debug log removed
+        } else {
+          // Debug log removed
+        }
+      } else {
+        // Debug log removed
+      }
+      
+      // Debug log removed
+
+      const operation = this.isEditMode && this.userId
+        ? this.userService.updateUser(this.userId, userData)
+        : this.userService.createUser(userData);
+
+      operation.subscribe({
         next: (user) => {
           this.loading = false;
           const message = this.isEditMode ? 'Usuário atualizado com sucesso!' : 'Usuário criado com sucesso!';

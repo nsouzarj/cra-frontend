@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
@@ -15,7 +15,7 @@ import { MatDialog } from '@angular/material/dialog';
 // Add import for confirmation dialog component
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 // Add HttpEventType import for file upload progress handling
-import { HttpEventType, HttpEvent } from '@angular/common/http';
+import { HttpEventType } from '@angular/common/http';
 // Add AuthService import for role-based functionality
 import { AuthService } from '../../../core/services/auth.service';
 // Add import for external storage authentication
@@ -26,24 +26,6 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-// Add missing Material modules
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
-
-interface ProgressInfo {
-  value: number;
-  fileName: string;
-}
-
-interface UploadProgressEvent {
-  type: typeof HttpEventType.UploadProgress;
-  loaded: number;
-  total: number;
-}
-
-type HttpEventTypeUnion = HttpEvent<unknown> | UploadProgressEvent;
 
 @Component({
   selector: 'app-request-detail',
@@ -56,31 +38,10 @@ type HttpEventTypeUnion = HttpEvent<unknown> | UploadProgressEvent;
     MatRadioModule,
     MatProgressSpinnerModule,
     MatButtonModule,
-    MatIconModule,
-    // Add missing Material modules to imports
-    MatProgressBarModule,
-    MatTooltipModule,
-    MatCardModule,
-    MatDividerModule
+    MatIconModule
   ]
 })
 export class RequestDetailComponent implements OnInit, OnDestroy {
-  // Using inject() function instead of constructor injection
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private solicitacaoService = inject(SolicitacaoService);
-  public permissionService = inject(PermissionService);
-  private snackBar = inject(MatSnackBar);
-  private dateFormatService = inject(DateFormatService);
-  // Add the new attachment service
-  private solicitacaoAnexoService = inject(SolicitacaoAnexoService);
-  // Add MatDialog
-  private dialog = inject(MatDialog);
-  // Add AuthService
-  private authService = inject(AuthService);
-  // Add external storage auth guard service
-  private externalStorageAuthGuard = inject(ExternalStorageAuthGuardService);
-
   solicitacao: Solicitacao | null = null;
   loading = true;
   // Add property for attachments
@@ -88,13 +49,30 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
   
   // File attachment properties
   selectedFiles: File[] = [];
-  progressInfos: ProgressInfo[] = [];
+  progressInfos: any[] = [];
   message = '';
   
   // Storage location selection
   storageLocation: 'local' | 'google_drive' = 'google_drive';
 
   private themeSubscription: Subscription | null = null;
+
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private solicitacaoService: SolicitacaoService,
+    public permissionService: PermissionService,
+    private snackBar: MatSnackBar,
+    private dateFormatService: DateFormatService,
+    // Add the new attachment service to the constructor
+    private solicitacaoAnexoService: SolicitacaoAnexoService,
+    // Add MatDialog to the constructor
+    private dialog: MatDialog,
+    // Add AuthService to the constructor
+    private authService: AuthService,
+    // Add external storage auth guard service
+    private externalStorageAuthGuard: ExternalStorageAuthGuardService
+  ) {}
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -118,7 +96,8 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
   setupThemeListener(): void {
     // Listen for theme changes to trigger change detection
     this.themeSubscription = new Subscription();
-    const themeHandler = () => {
+    const themeHandler = (event: Event) => {
+      const customEvent = event as CustomEvent;
       // Force change detection when theme changes
       // This will cause the component to re-render with the new theme styles
     };
@@ -135,6 +114,7 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
       next: (solicitacao) => {
         this.solicitacao = solicitacao;
         this.loading = false;
+        // Debug log removed
       },
       error: (error) => {
         console.error('Error loading solicitacao:', error);
@@ -149,6 +129,11 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
   private loadAnexos(requestId: number): void {
     this.solicitacaoAnexoService.getAnexosBySolicitacaoId(requestId).subscribe({
       next: (anexos) => {
+        // Debug log removed
+        // Add debugging to check origin values
+        anexos.forEach(anexo => {
+          // Debug log removed
+        });
         this.anexos = anexos;
       },
       error: (error) => {
@@ -159,13 +144,10 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
   }
 
   // Method to handle file selection
-  selectFiles(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    if (target.files) {
-      this.selectedFiles = Array.from(target.files);
-      this.progressInfos = [];
-      this.message = '';
-    }
+  selectFiles(event: any): void {
+    this.selectedFiles = Array.from(event.target.files);
+    this.progressInfos = [];
+    this.message = '';
   }
 
   // Method to upload all selected files
@@ -177,8 +159,8 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    for (const file of this.selectedFiles) {
-      this.progressInfos.push({ value: 0, fileName: file.name });
+    for (let i = 0; i < this.selectedFiles.length; i++) {
+      this.progressInfos.push({ value: 0, fileName: this.selectedFiles[i].name });
     }
 
     for (let i = 0; i < this.selectedFiles.length; i++) {
@@ -189,13 +171,11 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
   // Method to upload a single file
   private uploadAnexo(solicitacaoId: number, file: File, index: number): void {
     this.solicitacaoAnexoService.uploadAnexo(file, solicitacaoId, this.storageLocation).subscribe({
-      next: (event: HttpEventTypeUnion) => {
+      next: (event: any) => {
         if (event.type === HttpEventType.UploadProgress) {
           // Upload progress
-          if (event.total) {
-            const progress = Math.round(100 * event.loaded / event.total);
-            this.progressInfos[index].value = progress;
-          }
+          const progress = Math.round(100 * event.loaded / event.total);
+          this.progressInfos[index].value = progress;
         } else if (event.type === HttpEventType.Response) {
           // Upload complete
           this.message = 'Arquivo(s) carregado(s) com sucesso!';
@@ -206,7 +186,7 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
           this.progressInfos = [];
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         this.progressInfos[index].value = 0;
         this.message = 'Erro ao carregar arquivo: ' + file.name;
         console.error('Error uploading file:', err);
@@ -362,7 +342,10 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
   }
 
   formatDate(date: Date | string | undefined): string {
-    return this.dateFormatService.formatDate(date);
+    // Debug log removed
+    const result = this.dateFormatService.formatDate(date);
+    // Debug log removed
+    return result;
   }
 
   /**
@@ -372,7 +355,10 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
    * @returns Formatted date string in DD/MM/YYYY HH:mm format
    */
   formatDateTime(date: Date | string | undefined): string {
-    return this.dateFormatService.formatDateTime(date);
+    // Debug log removed
+    const result = this.dateFormatService.formatDateTime(date);
+    // Debug log removed
+    return result;
   }
 
   // Helper method to check if the solicitation is of type Audiência
@@ -457,9 +443,13 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
 
   // Method to get the CSS class for an attachment based on its origin
   getAttachmentClass(anexo: SolicitacaoAnexo): string {
+    // Debug log removed
+    // Debug log removed
     if (anexo.origem === 'correspondente') {
+      // Debug log removed
       return 'attachment-correspondente';
     } else {
+      // Debug log removed
       return 'attachment-solicitante';
     }
   }

@@ -36,7 +36,7 @@ export class SidenavComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  isMobile = false;
+  isMobile: boolean = false;
   currentRoute = '';
   
   menuItems: MenuItem[] = [
