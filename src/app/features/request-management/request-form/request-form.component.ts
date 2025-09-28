@@ -645,10 +645,14 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   // Helper method to format time for display (converts "HH:MM" to "HH:MM AM/PM")
   private formatTimeForDisplay(timeString: string | null): string {
     console.log('formatTimeForDisplay called with:', timeString);
+    // Ensure we're working with a string
     if (!timeString) return '';
     
+    // Convert to string if it's not already (handles Date objects and other types)
+    const timeStr = typeof timeString === 'string' ? timeString : String(timeString);
+    
     // Parse the time string (assuming it's in HH:MM format)
-    const [hours, minutes] = timeString.split(':').map(Number);
+    const [hours, minutes] = timeStr.split(':').map(Number);
     
     if (isNaN(hours) || isNaN(minutes)) return '';
     
@@ -664,10 +668,14 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   // Helper method to parse time from display format (converts "HH:MM AM/PM" to "HH:MM")
   private parseTimeFromDisplay(timeString: string | null): string {
     console.log('parseTimeFromDisplay called with:', timeString);
+    // Ensure we're working with a string
     if (!timeString) return '';
     
+    // Convert to string if it's not already (handles Date objects and other types)
+    const timeStr = typeof timeString === 'string' ? timeString : String(timeString);
+    
     // Parse the time string (assuming it's in "HH:MM AM/PM" format)
-    const match = timeString.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
     if (!match) return '';
     
     let hours = parseInt(match[1]);
@@ -684,6 +692,23 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     const result = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
     console.log('parseTimeFromDisplay result:', result);
     return result;
+  }
+  
+  // Test method to verify our fix works correctly
+  private testTimeParsing(): void {
+    console.log('Testing time parsing with different input types:');
+    
+    // Test with string
+    console.log('String input:', this.parseTimeFromDisplay('10:30 AM'));
+    
+    // Test with null
+    console.log('Null input:', this.parseTimeFromDisplay(null));
+    
+    // Test with empty string
+    console.log('Empty string input:', this.parseTimeFromDisplay(''));
+    
+    // Test with Date object converted to string (this would cause the original error)
+    console.log('Date object input:', this.parseTimeFromDisplay(new Date().toString()));
   }
 
   // Method to handle file selection
