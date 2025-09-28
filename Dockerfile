@@ -1,8 +1,11 @@
 # Stage 1: Build the Angular application
-FROM node:18 AS builder
+FROM node:20 AS builder
 
 # Set the working directory
 WORKDIR /app
+
+# Set environment variables for build optimization
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
@@ -13,8 +16,8 @@ RUN npm ci
 # Copy the rest of the application
 COPY . .
 
-# Build the Angular application
-RUN npm run build
+# Build the Angular application with production configuration
+RUN npm run build -- --configuration=production --aot --build-optimizer
 
 # Stage 2: Serve the application using nginx
 FROM nginx:alpine
