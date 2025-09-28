@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
@@ -26,6 +26,9 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-request-detail',
@@ -38,10 +41,28 @@ import { MatIconModule } from '@angular/material/icon';
     MatRadioModule,
     MatProgressSpinnerModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatCardModule,
+    MatTooltipModule,
+    MatProgressBarModule
   ]
 })
 export class RequestDetailComponent implements OnInit, OnDestroy {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private solicitacaoService = inject(SolicitacaoService);
+  public permissionService = inject(PermissionService);
+  private snackBar = inject(MatSnackBar);
+  private dateFormatService = inject(DateFormatService);
+  // Add the new attachment service to the constructor
+  private solicitacaoAnexoService = inject(SolicitacaoAnexoService);
+  // Add MatDialog to the constructor
+  private dialog = inject(MatDialog);
+  // Add AuthService to the constructor
+  private authService = inject(AuthService);
+  // Add external storage auth guard service
+  private externalStorageAuthGuard = inject(ExternalStorageAuthGuardService);
+  
   solicitacao: Solicitacao | null = null;
   loading = true;
   // Add property for attachments
@@ -49,30 +70,13 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
   
   // File attachment properties
   selectedFiles: File[] = [];
-  progressInfos: any[] = [];
+  progressInfos: { value: number; fileName: string }[] = [];
   message = '';
   
   // Storage location selection
   storageLocation: 'local' | 'google_drive' = 'google_drive';
 
   private themeSubscription: Subscription | null = null;
-
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private solicitacaoService: SolicitacaoService,
-    public permissionService: PermissionService,
-    private snackBar: MatSnackBar,
-    private dateFormatService: DateFormatService,
-    // Add the new attachment service to the constructor
-    private solicitacaoAnexoService: SolicitacaoAnexoService,
-    // Add MatDialog to the constructor
-    private dialog: MatDialog,
-    // Add AuthService to the constructor
-    private authService: AuthService,
-    // Add external storage auth guard service
-    private externalStorageAuthGuard: ExternalStorageAuthGuardService
-  ) {}
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -96,8 +100,7 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
   setupThemeListener(): void {
     // Listen for theme changes to trigger change detection
     this.themeSubscription = new Subscription();
-    const themeHandler = (event: Event) => {
-      const customEvent = event as CustomEvent;
+    const themeHandler = () => {
       // Force change detection when theme changes
       // This will cause the component to re-render with the new theme styles
     };
@@ -131,9 +134,6 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
       next: (anexos) => {
         // Debug log removed
         // Add debugging to check origin values
-        anexos.forEach(anexo => {
-          // Debug log removed
-        });
         this.anexos = anexos;
       },
       error: (error) => {
@@ -143,9 +143,9 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Method to handle file selection
-  selectFiles(event: any): void {
-    this.selectedFiles = Array.from(event.target.files);
+  selectFiles(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.selectedFiles = Array.from(target.files || []);
     this.progressInfos = [];
     this.message = '';
   }
@@ -159,8 +159,8 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    for (let i = 0; i < this.selectedFiles.length; i++) {
-      this.progressInfos.push({ value: 0, fileName: this.selectedFiles[i].name });
+    for (const file of this.selectedFiles) {
+      this.progressInfos.push({ value: 0, fileName: file.name });
     }
 
     for (let i = 0; i < this.selectedFiles.length; i++) {
@@ -171,8 +171,8 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
   // Method to upload a single file
   private uploadAnexo(solicitacaoId: number, file: File, index: number): void {
     this.solicitacaoAnexoService.uploadAnexo(file, solicitacaoId, this.storageLocation).subscribe({
-      next: (event: any) => {
-        if (event.type === HttpEventType.UploadProgress) {
+      next: (event) => {
+        if (event.type === HttpEventType.UploadProgress && event.total) {
           // Upload progress
           const progress = Math.round(100 * event.loaded / event.total);
           this.progressInfos[index].value = progress;
@@ -186,7 +186,7 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
           this.progressInfos = [];
         }
       },
-      error: (err: any) => {
+      error: (err) => {
         this.progressInfos[index].value = 0;
         this.message = 'Erro ao carregar arquivo: ' + file.name;
         console.error('Error uploading file:', err);

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -20,6 +20,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-user-form',
@@ -36,11 +38,23 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     MatButtonModule,
     MatIconModule,
     MatSlideToggleModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
     ConfirmationDialogComponent,
     PasswordResetDialogComponent
   ]
 })
 export class UserFormComponent implements OnInit, OnDestroy {
+  private formBuilder = inject(FormBuilder);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private userService = inject(UserService);
+  private correspondenteService = inject(CorrespondenteService);
+  private authService = inject(AuthService);
+  public permissionService = inject(PermissionService);
+  private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
+  
   userForm: FormGroup;
   passwordForm: FormGroup;
   isEditMode = false;
@@ -54,17 +68,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
 
   private themeSubscription: Subscription | null = null;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private router: Router,
-    private route: ActivatedRoute,
-    private userService: UserService,
-    private correspondenteService: CorrespondenteService,
-    private authService: AuthService,
-    public permissionService: PermissionService,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog
-  ) {
+  constructor() {
     this.userForm = this.createUserForm();
     this.passwordForm = this.createPasswordForm();
     this.currentUserId = this.authService.currentUserValue?.id;
@@ -91,7 +95,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
     });
     
     // Subscribe to correspondent changes for debugging
-    this.userForm.get('correspondente')?.valueChanges.subscribe(value => {
+    this.userForm.get('correspondente')?.valueChanges.subscribe(() => {
       // Debug log removed
       // Debug log removed
       // Debug log removed
@@ -110,8 +114,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
   setupThemeListener(): void {
     // Listen for theme changes to trigger change detection
     this.themeSubscription = new Subscription();
-    const themeHandler = (event: Event) => {
-      const customEvent = event as CustomEvent;
+    const themeHandler = () => {
       // Force change detection when theme changes
       // This will cause the component to re-render with the new theme styles
     };
@@ -265,7 +268,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
     // Debug log removed;
     
     // First, get the current user data to preserve authorities
-    let userData: any = {};
+    let userData: User;
     
     if (this.isEditMode && this.userId) {
       // For edit mode, we need to get the current user data first to preserve authorities
@@ -273,15 +276,16 @@ export class UserFormComponent implements OnInit, OnDestroy {
         next: (currentUser) => {
           // Preserve the authorities from the current user
           userData = {
-            id: currentUser.id,
-            login: formData.login,
-            nomecompleto: formData.nomecompleto,
-            tipo: formData.tipo,
-            emailprincipal: formData.emailprincipal,
-            emailsecundario: formData.emailsecundario,
-            emailresponsavel: formData.emailresponsavel,
-            ativo: formData.ativo,
-            authorities: currentUser.authorities || [] // Preserve authorities
+            id: currentUser.id || 0,
+            login: formData.login || '',
+            nomecompleto: formData.nomecompleto || '',
+            tipo: formData.tipo || UserType.ADMIN,
+            emailprincipal: formData.emailprincipal || undefined,
+            emailsecundario: formData.emailsecundario || undefined,
+            emailresponsavel: formData.emailresponsavel || undefined,
+            ativo: formData.ativo !== undefined ? formData.ativo : true,
+            authorities: currentUser.authorities || [], // Preserve authorities
+            dataentrada: currentUser.dataentrada || new Date().toISOString()
           };
 
           // Add password only for new users or if it's provided in edit mode
@@ -293,11 +297,11 @@ export class UserFormComponent implements OnInit, OnDestroy {
           if (formData.tipo === UserType.CORRESPONDENTE) {
             // If a correspondent is selected, send it as { id: correspondentId }
             if (formData.correspondente) {
-              userData.correspondente = { id: formData.correspondente };
+              userData.correspondente = { id: formData.correspondente, nome: '', ativo: true };
               // Debug log removed
             } else {
               // For correspondent users, if no correspondent is selected, send null to clear any existing association
-              userData.correspondente = null;
+              userData.correspondente = undefined;
               // Debug log removed
             }
           } else {
@@ -367,13 +371,17 @@ export class UserFormComponent implements OnInit, OnDestroy {
     } else {
       // For new users, create userData without preserving authorities
       userData = {
-        login: formData.login,
-        nomecompleto: formData.nomecompleto,
-        tipo: formData.tipo,
-        emailprincipal: formData.emailprincipal,
-        emailsecundario: formData.emailsecundario,
-        emailresponsavel: formData.emailresponsavel,
-        ativo: formData.ativo
+        login: formData.login || '',
+        nomecompleto: formData.nomecompleto || '',
+        tipo: formData.tipo || UserType.ADMIN,
+        emailprincipal: formData.emailprincipal || undefined,
+        emailsecundario: formData.emailsecundario || undefined,
+        emailresponsavel: formData.emailresponsavel || undefined,
+        ativo: formData.ativo !== undefined ? formData.ativo : true,
+        // Initialize other required fields with default values
+        id: 0,
+        authorities: [],
+        dataentrada: new Date().toISOString()
       };
 
       // Add password only for new users or if it's provided in edit mode
@@ -385,11 +393,11 @@ export class UserFormComponent implements OnInit, OnDestroy {
       if (formData.tipo === UserType.CORRESPONDENTE) {
         // If a correspondent is selected, send it as { id: correspondentId }
         if (formData.correspondente) {
-          userData.correspondente = { id: formData.correspondente };
+          userData.correspondente = { id: formData.correspondente, nome: '', ativo: true };
           // Debug log removed
         } else {
           // For correspondent users, if no correspondent is selected, send null to clear any existing association
-          userData.correspondente = null;
+          userData.correspondente = undefined;
           // Debug log removed
         }
       } else {
