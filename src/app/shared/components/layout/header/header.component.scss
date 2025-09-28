@@ -40,6 +40,11 @@
   display: flex;
   align-items: center;
   gap: 4px;
+  
+  // Make zoom control icons white
+  .mat-icon-button .mat-icon {
+    color: white !important;
+  }
 }
 
 .zoom-level {
@@ -48,6 +53,9 @@
   font-size: 14px;
   font-weight: 500;
   color: var(--header-color, #ffffff);
+  
+  // Ensure the zoom level text is white
+  color: white !important;
 }
 
 .user-welcome {
@@ -94,6 +102,11 @@
   &:hover {
     background-color: rgba(255, 255, 255, 0.2) !important;
   }
+  
+  // Make the logout icon white
+  .mat-icon {
+    color: white !important;
+  }
 }
 
 // Ensure user menu button is always visible
@@ -101,6 +114,11 @@
   display: flex !important;
   visibility: visible !important;
   opacity: 1 !important;
+  
+  // Make the user icon white
+  .mat-icon {
+    color: white !important;
+  }
 }
 
 // Ensure tooltips appear above header and are visible
@@ -169,6 +187,8 @@
     font-size: 20px;
     width: 20px;
     height: 20px;
+    // Ensure icons remain white on small screens
+    color: white !important;
   }
 }
 
@@ -210,6 +230,8 @@
     font-size: 18px;
     width: 18px;
     height: 18px;
+    // Ensure icons remain white on very small screens
+    color: white !important;
   }
 }
 
