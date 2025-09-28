@@ -32,6 +32,15 @@ export class AuthService {
     if (storedUser) {
       try {
         parsedUser = JSON.parse(storedUser);
+        // Apply the correspondent role fix when loading from localStorage
+        if (parsedUser && parsedUser.tipo === UserType.CORRESPONDENTE) {
+          // Ensure ROLE_CORRESPONDENTE is present in authorities
+          if (!parsedUser.authorities) {
+            parsedUser.authorities = ['ROLE_CORRESPONDENTE'];
+          } else if (!parsedUser.authorities.includes('ROLE_CORRESPONDENTE')) {
+            parsedUser.authorities = [...parsedUser.authorities, 'ROLE_CORRESPONDENTE'];
+          }
+        }
       } catch (e) {
         console.error('Error parsing stored user:', e);
       }
@@ -140,6 +149,25 @@ export class AuthService {
   }
 
   /**
+   * Ensures that correspondent users have the ROLE_CORRESPONDENTE authority
+   * This is a helper method to fix any inconsistencies in user data
+   * 
+   * @param user The user object to check and fix if needed
+   * @returns The user object with proper authorities
+   */
+  private ensureCorrespondentRole(user: User): User {
+    if (user.tipo === UserType.CORRESPONDENTE) {
+      // Ensure ROLE_CORRESPONDENTE is present in authorities
+      if (!user.authorities) {
+        user.authorities = ['ROLE_CORRESPONDENTE'];
+      } else if (!user.authorities.includes('ROLE_CORRESPONDENTE')) {
+        user.authorities = [...user.authorities, 'ROLE_CORRESPONDENTE'];
+      }
+    }
+    return user;
+  }
+
+  /**
    * Checks if the current user has any of the specified roles
    * 
    * @param roles Array of roles to check
@@ -213,15 +241,8 @@ export class AuthService {
             correspondente: response.correspondente
           };
           
-          // SPECIAL FIX: Ensure correspondent users have ROLE_CORRESPONDENTE
-          if (user.tipo === UserType.CORRESPONDENTE) {
-            // Ensure ROLE_CORRESPONDENTE is present in authorities
-            if (!user.authorities) {
-              user.authorities = ['ROLE_CORRESPONDENTE'];
-            } else if (!user.authorities.includes('ROLE_CORRESPONDENTE')) {
-              user.authorities = [...user.authorities, 'ROLE_CORRESPONDENTE'];
-            }
-          }
+          // Ensure correspondent users have ROLE_CORRESPONDENTE
+          this.ensureCorrespondentRole(user);
           
           // If we have a correspondentId but no correspondente object, create a minimal correspondent object
           if (response.correspondentId && !user.correspondente) {
@@ -318,15 +339,8 @@ export class AuthService {
             normalizedUser.authorities = Array.isArray(possibleAuthorities) ? possibleAuthorities : [];
           }
           
-          // SPECIAL FIX: Ensure correspondent users have ROLE_CORRESPONDENTE
-          if (normalizedUser.tipo === UserType.CORRESPONDENTE) {
-            // Ensure ROLE_CORRESPONDENTE is present in authorities
-            if (!normalizedUser.authorities) {
-              normalizedUser.authorities = ['ROLE_CORRESPONDENTE'];
-            } else if (!normalizedUser.authorities.includes('ROLE_CORRESPONDENTE')) {
-              normalizedUser.authorities = [...normalizedUser.authorities, 'ROLE_CORRESPONDENTE'];
-            }
-          }
+          // Ensure correspondent users have ROLE_CORRESPONDENTE
+          this.ensureCorrespondentRole(normalizedUser);
           
           // Preserve correspondent data from localStorage if not provided by server
           const storedUser = localStorage.getItem('currentUser');
@@ -432,6 +446,9 @@ export class AuthService {
    * @param user The updated user data
    */
   updateCurrentUser(user: User): void {
+    // Ensure correspondent users have ROLE_CORRESPONDENTE
+    this.ensureCorrespondentRole(user);
+    
     // Update localStorage
     localStorage.setItem('currentUser', JSON.stringify(user));
     // Update the current user subject
@@ -446,6 +463,8 @@ export class AuthService {
   refreshCurrentUser(): Observable<User> {
     return this.getCurrentUser().pipe(
       tap(user => {
+        // Ensure correspondent users have ROLE_CORRESPONDENTE
+        this.ensureCorrespondentRole(user);
         // Update the current user subject with fresh data
         this.currentUserSubject.next(user);
       })

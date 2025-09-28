@@ -202,12 +202,21 @@ export class ProfileComponent implements OnInit {
       return;
     }
     
-    // If no cached data, try to get it from localStorage directly
+    // If no cached data, try to get it from the auth service which ensures proper role assignment
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
       try {
         let user = JSON.parse(storedUser);
+        // Normalize and ensure correspondent role is properly set
         user = this.normalizeUser(user);
+        // Use the auth service to ensure proper role assignment
+        if (user.tipo === 3) { // UserType.CORRESPONDENTE
+          if (!user.authorities) {
+            user.authorities = ['ROLE_CORRESPONDENTE'];
+          } else if (!user.authorities.includes('ROLE_CORRESPONDENTE')) {
+            user.authorities = [...user.authorities, 'ROLE_CORRESPONDENTE'];
+          }
+        }
         this.currentUser = user;
       } catch (e) {
         console.error('Error parsing stored user data:', e);
