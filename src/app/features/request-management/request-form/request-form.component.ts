@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, ElementRef, ChangeDetectorRef, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -11,7 +11,7 @@ import { FormControl } from '@angular/forms';
 // Models
 import { Solicitacao } from '../../../shared/models/solicitacao.model';
 import { Processo } from '../../../shared/models/processo.model';
-import { User } from '../../../shared/models/user.model';
+import { User, UserType } from '../../../shared/models/user.model';
 import { TipoSolicitacao } from '../../../shared/models/tiposolicitacao.model';
 import { SolicitacaoStatus } from '../../../shared/models/solicitacao.model';
 import { SolicitacaoAnexo } from '../../../shared/models/solicitacao-anexo.model';
@@ -40,6 +40,10 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTimepickerModule, NativeDateTimeModule } from '@dhutaryan/ngx-mat-timepicker';
 
 interface ProgressInfo {
   value: number;
@@ -61,10 +65,35 @@ interface ProgressInfo {
     MatRadioModule,
     MatProgressSpinnerModule,
     MatIconModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatProgressBarModule,
+    MatTimepickerModule,
+    NativeDateTimeModule
   ]
 })
 export class RequestFormComponent implements OnInit, OnDestroy {
+  private formBuilder = inject(FormBuilder);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
+  private solicitacaoService = inject(SolicitacaoService);
+  private solicitacaoStatusService = inject(SolicitacaoStatusService);
+  private processoService = inject(ProcessoService);
+  private correspondenteService = inject(CorrespondenteService);
+  private userService = inject(UserService);
+  private tipoSolicitacaoService = inject(TipoSolicitacaoService);
+  // Add the new attachment service to the constructor
+  private solicitacaoAnexoService = inject(SolicitacaoAnexoService);
+  // Inject AuthService to determine user role
+  private authService = inject(AuthService);
+  // Add external storage auth guard service
+  private externalStorageAuthGuard = inject(ExternalStorageAuthGuardService);
+  // Inject ChangeDetectorRef
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  
   @ViewChild('fileInput') fileInput!: ElementRef;
   
   requestForm: FormGroup;
@@ -103,32 +132,13 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   // Search controls for dropdowns
   processoSearchControl = new FormControl('');
   correspondenteSearchControl = new FormControl('');
-
-  constructor(
-    private formBuilder: FormBuilder,
-    private router: Router,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog,
-    private solicitacaoService: SolicitacaoService,
-    private solicitacaoStatusService: SolicitacaoStatusService,
-    private processoService: ProcessoService,
-    private correspondenteService: CorrespondenteService,
-    private userService: UserService,
-    private tipoSolicitacaoService: TipoSolicitacaoService,
-    // Add the new attachment service to the constructor
-    private solicitacaoAnexoService: SolicitacaoAnexoService,
-    // Inject AuthService to determine user role
-    private authService: AuthService,
-    // Add external storage auth guard service
-    private externalStorageAuthGuard: ExternalStorageAuthGuardService,
-    // Inject ChangeDetectorRef
-    private changeDetectorRef: ChangeDetectorRef
-  ) {
+  
+  constructor() {
     this.requestForm = this.createForm();
   }
 
   ngOnInit(): void {
+    console.log('ngOnInit called');
     this.loadDropdownData();
     
     // Set up processo search
@@ -137,6 +147,12 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       distinctUntilChanged()
     ).subscribe(searchTerm => {
       if (typeof searchTerm === 'string') {
+        // Check if this is a display value (contains " - ")
+        if (searchTerm.includes(' - ')) {
+          // This is likely a display value, not a search term
+          // Don't filter in this case
+          return;
+        }
         this.filterProcessos(searchTerm || '');
       } else if (searchTerm && typeof searchTerm === 'object') {
         // If it's a Processo object, set the form control to the ID
@@ -149,8 +165,16 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       debounceTime(300),
       distinctUntilChanged()
     ).subscribe(searchTerm => {
-      if (typeof searchTerm === 'string' && searchTerm.length > 2) {
-        this.searchCorrespondentes(searchTerm);
+      if (typeof searchTerm === 'string') {
+        // Check if this is a display value (contains " - ")
+        if (searchTerm.includes(' - ')) {
+          // This is likely a display value, not a search term
+          // Don't filter in this case
+          return;
+        }
+        if (searchTerm.length > 2) {
+          this.searchCorrespondentes(searchTerm);
+        }
       } else if (!searchTerm) {
         // If no search term, show filtered correspondentes (active only)
         this.filteredCorrespondentes = this.correspondentes.filter(c => c.ativo === true);
@@ -162,13 +186,48 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       if (params['id']) {
         this.isEditMode = true;
         this.requestId = +params['id'];
-        this.loadRequest();
+        console.log('Edit mode detected with ID:', this.requestId);
+        // Wait for dropdown data to be loaded before loading the request
+        this.waitForDropdownDataThenLoadRequest();
         // Load existing attachments for this request
         this.loadAnexos();
       }
     });
     
     this.setupThemeListener();
+  }
+
+  // Wait for dropdown data to be loaded before loading the request
+  private waitForDropdownDataThenLoadRequest(): void {
+    console.log('waitForDropdownDataThenLoadRequest called');
+    // Check if all dropdown data is loaded
+    if (this.areAllDropdownsLoaded()) {
+      console.log('All dropdowns loaded, calling loadRequest');
+      this.loadRequest();
+    } else {
+      console.log('Not all dropdowns loaded yet, waiting...');
+      // Wait a bit and try again
+      setTimeout(() => {
+        this.waitForDropdownDataThenLoadRequest();
+      }, 100);
+    }
+  }
+
+  // Check if all dropdown data is loaded
+  private areAllDropdownsLoaded(): boolean {
+    const result = this.processos.length > 0 && 
+           this.correspondentes.length > 0 && 
+           this.usuarios.length > 0 && 
+           this.tiposSolicitacao.length > 0 && 
+           this.statuses.length > 0;
+    console.log('areAllDropdownsLoaded:', result, {
+      processos: this.processos.length,
+      correspondentes: this.correspondentes.length,
+      usuarios: this.usuarios.length,
+      tiposSolicitacao: this.tiposSolicitacao.length,
+      statuses: this.statuses.length
+    });
+    return result;
   }
 
   ngOnDestroy(): void {
@@ -180,8 +239,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   setupThemeListener(): void {
     // Listen for theme changes to trigger change detection
     this.themeSubscription = new Subscription();
-    const themeHandler = (event: Event) => {
-      const customEvent = event as CustomEvent;
+    const themeHandler = () => {
       // Force change detection when theme changes
       // This will cause the component to re-render with the new theme styles
     };
@@ -205,7 +263,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       instrucoes: [''],
       // Conditional fields
       dataAgendamento: [''],
-      horaAudiencia: [''], // Changed from horaAudiencia to match model property
+      horaAudiencia: [''],
       valor: [''] // Remove initial validator, let onTipoSolicitacaoChange handle it
     });
     
@@ -233,11 +291,13 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   }
 
   private loadDropdownData(): void {
+    console.log('loadDropdownData called');
     // Load all processos initially (for search functionality)
     this.processoService.getProcessosPaginated(0, 10000, 'numeroprocesso', 'ASC').subscribe({
       next: (response) => {
         const processos = response.content || [];
         this.processos = processos;
+        console.log('Loaded processos:', processos.length);
         
         // Filter to only show processes with status "EM_ANDAMENTO"
         this.filteredProcessos = this.processos.filter(p => p.status === 'EM_ANDAMENTO');
@@ -246,6 +306,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         if (this.filteredProcessos.length === 0) {
           this.filteredProcessos = this.processos;
         }
+        console.log('Filtered processos:', this.filteredProcessos.length);
         
         // Force change detection to ensure the template updates
         this.changeDetectorRef.detectChanges();
@@ -260,8 +321,13 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     this.correspondenteService.getCorrespondentes().subscribe({
       next: (correspondentes) => {
         this.correspondentes = correspondentes;
+        console.log('Loaded correspondentes:', correspondentes.length);
         // Filter to only show active correspondentes
         this.filteredCorrespondentes = correspondentes.filter(c => c.ativo === true);
+        console.log('Filtered correspondentes:', this.filteredCorrespondentes.length);
+        
+        // Force change detection to ensure the template updates
+        this.changeDetectorRef.detectChanges();
       },
       error: (error) => {
         console.error('Error loading correspondentes:', error);
@@ -273,6 +339,10 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     this.userService.getUsers().subscribe({
       next: (usuarios) => {
         this.usuarios = usuarios;
+        console.log('Loaded usuarios:', usuarios.length);
+        
+        // Force change detection to ensure the template updates
+        this.changeDetectorRef.detectChanges();
       },
       error: (error) => {
         console.error('Error loading usuarios:', error);
@@ -284,6 +354,10 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     this.tipoSolicitacaoService.getTiposSolicitacao().subscribe({
       next: (tipos) => {
         this.tiposSolicitacao = tipos;
+        console.log('Loaded tipos solicitacao:', tipos.length);
+        
+        // Force change detection to ensure the template updates
+        this.changeDetectorRef.detectChanges();
       },
       error: (error) => {
         console.error('Error loading tipos de solicitacao:', error);
@@ -295,6 +369,10 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     this.solicitacaoStatusService.getSolicitacaoStatuses().subscribe({
       next: (statuses) => {
         this.statuses = statuses;
+        console.log('Loaded statuses:', statuses.length);
+        
+        // Force change detection to ensure the template updates
+        this.changeDetectorRef.detectChanges();
       },
       error: (error) => {
         console.error('Error loading statuses:', error);
@@ -305,12 +383,14 @@ export class RequestFormComponent implements OnInit, OnDestroy {
 
   // Method to filter processos based on search term
   private filterProcessos(searchTerm: string): void {
+    console.log('filterProcessos called with:', searchTerm);
     if (!searchTerm) {
       // If no search term, show filtered processos (EM_ANDAMENTO or all)
       this.filteredProcessos = this.processos.filter(p => p.status === 'EM_ANDAMENTO');
       if (this.filteredProcessos.length === 0) {
         this.filteredProcessos = this.processos;
       }
+      console.log('Filtered processos (no search term):', this.filteredProcessos.length);
       return;
     }
     
@@ -319,25 +399,37 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       p.numeroprocesso.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (p.parte && p.parte.toLowerCase().includes(searchTerm.toLowerCase()))
     );
+    console.log('Filtered processos (with search term):', this.filteredProcessos.length);
   }
 
   // Method to handle processo selection from autocomplete
-  onProcessoSelected(event: any): void {
+  onProcessoSelected(event: { option: { value: Processo } }): void {
+    console.log('onProcessoSelected called with:', event);
     const selectedProcesso: Processo = event.option.value;
     this.requestForm.get('processo')?.setValue(selectedProcesso.id);
   }
 
   // Method to display processo in autocomplete
-  displayProcesso(processo: Processo): string {
-    return processo && processo.numeroprocesso ? `${processo.numeroprocesso} - ${processo.parte || ''}` : '';
+  displayProcesso(processo: Processo | string): string {
+    // If it's already a string, return it directly
+    if (typeof processo === 'string') {
+      return processo;
+    }
+    
+    // If it's a Processo object, format it properly
+    const result = processo && processo.numeroprocesso ? `${processo.numeroprocesso} - ${processo.parte || ''}` : '';
+    console.log('displayProcesso called with:', processo, 'result:', result);
+    return result;
   }
 
   private loadRequest(): void {
     if (!this.requestId) return;
     
+    console.log('loadRequest called with ID:', this.requestId);
     this.loading = true;
     this.solicitacaoService.getSolicitacaoById(this.requestId).subscribe({
       next: (solicitacao) => {
+        console.log('Received solicitacao data:', solicitacao);
         // Store the complete solicitacao object to preserve fields not in the form
         this.loadedSolicitacao = solicitacao;
         
@@ -348,6 +440,39 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         let formattedValor = null;
         if (solicitacao.valor !== null && solicitacao.valor !== undefined) {
           formattedValor = solicitacao.valor;
+        }
+        
+        // Use the time exactly as it's stored in the database ("12:30 PM" format)
+        // The timepicker might need a Date object, so we'll convert the string time
+        let formattedHoraAudiencia = null;
+        if (solicitacao.horaudiencia) {
+          // Try to parse the time string ("12:30 PM") and convert to Date object
+          const timeString = solicitacao.horaudiencia;
+          console.log('Parsing time string for timepicker:', timeString);
+          
+          // Parse the time string (assuming it's in "HH:MM AM/PM" format)
+          const match = timeString.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+          if (match) {
+            let hours = parseInt(match[1]);
+            const minutes = parseInt(match[2]);
+            const period = match[3].toUpperCase();
+            
+            // Convert to 24-hour format for Date object
+            if (period === 'PM' && hours !== 12) {
+              hours += 12;
+            } else if (period === 'AM' && hours === 12) {
+              hours = 0;
+            }
+            
+            // Create a Date object with today's date and the parsed time
+            const today = new Date();
+            formattedHoraAudiencia = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes);
+            console.log('Converted to Date object:', formattedHoraAudiencia);
+          } else {
+            // If parsing fails, use the string as is
+            formattedHoraAudiencia = timeString;
+            console.log('Using time string as is:', formattedHoraAudiencia);
+          }
         }
         
         // Set form values
@@ -363,19 +488,14 @@ export class RequestFormComponent implements OnInit, OnDestroy {
           observacao: solicitacao.observacao || '',
           // Conditional fields
           dataAgendamento: solicitacao.dataagendamento || '',
-          horaAudiencia: solicitacao.horaudiencia || '',
+          horaAudiencia: formattedHoraAudiencia,
           valor: formattedValor
         });
         
-        // Set the processo search control to the selected processo for display
-        if (solicitacao.processo) {
-          this.processoSearchControl.setValue(this.displayProcesso(solicitacao.processo));
-        }
-        
-        // Set the correspondente search control to the selected correspondente for display
-        if (solicitacao.correspondente) {
-          this.correspondenteSearchControl.setValue(this.displayCorrespondente(solicitacao.correspondente));
-        }
+        console.log('Form values after patch:', this.requestForm.getRawValue());
+        console.log('horaAudiencia form control value after patch:', this.requestForm.get('horaAudiencia')?.value);
+        console.log('Processo search control value:', this.processoSearchControl.value);
+        console.log('Correspondente search control value:', this.correspondenteSearchControl.value);
         
         // Check if we need to show conditional fields based on the loaded tipoSolicitacao
         if (solicitacao.tipoSolicitacao?.idtiposolicitacao) {
@@ -383,9 +503,26 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         }
         
         // Ensure conditional fields are shown if they have values (for edit mode)
+        // This is important for audiência types that have existing data
         if (solicitacao.dataagendamento || solicitacao.horaudiencia) {
-          this.showAudienciaFields = true;
+          // We need to check if the tipoSolicitacao is audiência
+          if (solicitacao.tipoSolicitacao?.idtiposolicitacao) {
+            const selectedTipo = this.tiposSolicitacao.find(tipo => tipo.idtiposolicitacao === solicitacao.tipoSolicitacao?.idtiposolicitacao);
+            if (selectedTipo && this.isTipoAudiencia(selectedTipo)) {
+              this.showAudienciaFields = true;
+              console.log('Showing audiencia fields because of existing data');
+              // Force change detection to ensure the template updates
+              this.changeDetectorRef.detectChanges();
+            }
+          }
         }
+        
+        // Set the autocomplete display values after ensuring dropdown data is loaded
+        this.ensureAutocompleteDisplayValues(solicitacao);
+        
+        console.log('After ensureAutocompleteDisplayValues:');
+        console.log('Processo search control value:', this.processoSearchControl.value);
+        console.log('Correspondente search control value:', this.correspondenteSearchControl.value);
         
         this.loading = false;
       },
@@ -396,6 +533,125 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         this.router.navigate(['/solicitacoes']);
       }
     });
+  }
+
+  // Ensure autocomplete display values are set correctly
+  private ensureAutocompleteDisplayValues(solicitacao: Solicitacao): void {
+    console.log('ensureAutocompleteDisplayValues called with:', solicitacao);
+    
+    // Set the processo search control to the selected processo for display
+    if (solicitacao.processo && solicitacao.processo.id) {
+      console.log('Setting processo autocomplete value for ID:', solicitacao.processo.id);
+      // Check if processos data is already loaded
+      if (this.processos && this.processos.length > 0) {
+        // Find the processo object from our loaded data
+        const processo = this.processos.find(p => p.id === solicitacao.processo?.id);
+        if (processo) {
+          console.log('Found processo in loaded data:', processo);
+          const displayValue = this.displayProcesso(processo);
+          this.processoSearchControl.setValue(displayValue);
+        } else {
+          console.log('Processo not found in loaded data, fetching specifically');
+          // If processo not found in loaded data, fetch it specifically
+          this.processoService.getProcessoById(solicitacao.processo.id).subscribe({
+            next: (processo) => {
+              if (processo) {
+                console.log('Successfully fetched processo:', processo);
+                const displayValue = this.displayProcesso(processo);
+                this.processoSearchControl.setValue(displayValue);
+                // Also add to processos array to prevent future lookups
+                if (!this.processos.find(p => p.id === processo.id)) {
+                  this.processos.push(processo);
+                }
+                // Force change detection to ensure the template updates
+                this.changeDetectorRef.detectChanges();
+              }
+            },
+            error: (error) => {
+              console.error('Error loading processo by ID:', error);
+            }
+          });
+        }
+      } else {
+        console.log('Processos not loaded yet, fetching specifically');
+        // If not loaded yet, fetch the processo specifically
+        this.processoService.getProcessoById(solicitacao.processo.id).subscribe({
+          next: (processo) => {
+            if (processo) {
+              console.log('Successfully fetched processo:', processo);
+              const displayValue = this.displayProcesso(processo);
+              this.processoSearchControl.setValue(displayValue);
+              // Also add to processos array to prevent future lookups
+              if (!this.processos.find(p => p.id === processo.id)) {
+                this.processos.push(processo);
+              }
+              // Force change detection to ensure the template updates
+              this.changeDetectorRef.detectChanges();
+            }
+          },
+          error: (error) => {
+            console.error('Error loading processo by ID:', error);
+          }
+        });
+      }
+    }
+    
+    // Set the correspondente search control to the selected correspondente for display
+    if (solicitacao.correspondente && solicitacao.correspondente.id) {
+      console.log('Setting correspondente autocomplete value for ID:', solicitacao.correspondente.id);
+      // Check if correspondentes data is already loaded
+      if (this.correspondentes && this.correspondentes.length > 0) {
+        // Find the correspondente object from our loaded data
+        const correspondente = this.correspondentes.find(c => c.id === solicitacao.correspondente?.id);
+        if (correspondente) {
+          console.log('Found correspondente in loaded data:', correspondente);
+          const displayValue = this.displayCorrespondente(correspondente);
+          this.correspondenteSearchControl.setValue(displayValue);
+        } else {
+          console.log('Correspondente not found in loaded data, fetching specifically');
+          // If correspondente not found in loaded data, fetch it specifically
+          this.correspondenteService.getCorrespondenteById(solicitacao.correspondente.id).subscribe({
+            next: (correspondente) => {
+              if (correspondente) {
+                console.log('Successfully fetched correspondente:', correspondente);
+                const displayValue = this.displayCorrespondente(correspondente);
+                this.correspondenteSearchControl.setValue(displayValue);
+                // Also add to correspondentes array to prevent future lookups
+                if (!this.correspondentes.find(c => c.id === correspondente.id)) {
+                  this.correspondentes.push(correspondente);
+                }
+                // Force change detection to ensure the template updates
+                this.changeDetectorRef.detectChanges();
+              }
+            },
+            error: (error) => {
+              console.error('Error loading correspondente by ID:', error);
+            }
+          });
+        }
+      } else {
+        console.log('Correspondentes not loaded yet, fetching specifically');
+        // If not loaded yet, fetch the correspondente specifically
+        this.correspondenteService.getCorrespondenteById(solicitacao.correspondente.id).subscribe({
+          next: (correspondente) => {
+            if (correspondente) {
+              console.log('Successfully fetched correspondente:', correspondente);
+              const displayValue = this.displayCorrespondente(correspondente);
+              this.correspondenteSearchControl.setValue(displayValue);
+              // Also add to correspondentes array to prevent future lookups
+              if (!this.correspondentes.find(c => c.id === correspondente.id)) {
+                this.correspondentes.push(correspondente);
+              }
+              // Force change detection to ensure the template updates
+              this.changeDetectorRef.detectChanges();
+            }
+          },
+          error: (error) => {
+            console.error('Error loading correspondente by ID:', error);
+          }
+        });
+      }
+    }
   }
 
   // Load existing attachments for the current request
@@ -413,17 +669,105 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Helper method to format time for display (converts "HH:MM" to "HH:MM AM/PM")
+  private formatTimeForDisplay(timeString: string | null): string {
+    console.log('formatTimeForDisplay called with:', timeString);
+    // Ensure we're working with a string
+    if (!timeString) return '';
+    
+    // Convert to string if it's not already (handles Date objects and other types)
+    const timeStr = typeof timeString === 'string' ? timeString : String(timeString);
+    console.log('formatTimeForDisplay - timeStr:', timeStr);
+    
+    // Check if it's already in display format (HH:MM AM/PM)
+    const displayFormatMatch = timeStr.match(/\d{1,2}:\d{2}\s*(AM|PM)/i);
+    if (displayFormatMatch) {
+      console.log('formatTimeForDisplay - already in display format:', timeStr);
+      return timeStr;
+    }
+    
+    // Parse the time string (assuming it's in HH:MM format)
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    console.log('formatTimeForDisplay - hours, minutes:', hours, minutes);
+    
+    if (isNaN(hours) || isNaN(minutes)) return '';
+    
+    // Convert to 12-hour format
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    
+    const result = `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${period}`;
+    console.log('formatTimeForDisplay result:', result);
+    return result;
+  }
+  
+  // Helper method to parse time from display format (converts "HH:MM AM/PM" to "HH:MM")
+  private parseTimeFromDisplay(timeString: string | null): string {
+    console.log('parseTimeFromDisplay called with:', timeString);
+    // Ensure we're working with a string
+    if (!timeString) return '';
+    
+    // Convert to string if it's not already (handles Date objects and other types)
+    const timeStr = typeof timeString === 'string' ? timeString : String(timeString);
+    console.log('parseTimeFromDisplay - timeStr:', timeStr);
+    
+    // First check if it's already in HH:MM format (might be from database)
+    const dbFormatMatch = timeStr.match(/^(\d{2}):(\d{2})$/);
+    if (dbFormatMatch) {
+      console.log('parseTimeFromDisplay - already in DB format:', timeStr);
+      return timeStr;
+    }
+    
+    // Parse the time string (assuming it's in "HH:MM AM/PM" format)
+    const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    console.log('parseTimeFromDisplay - match:', match);
+    if (!match) return '';
+    
+    let hours = parseInt(match[1]);
+    const minutes = parseInt(match[2]);
+    const period = match[3].toUpperCase();
+    
+    // Convert to 24-hour format
+    if (period === 'PM' && hours !== 12) {
+      hours += 12;
+    } else if (period === 'AM' && hours === 12) {
+      hours = 0;
+    }
+    
+    const result = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    console.log('parseTimeFromDisplay result:', result);
+    return result;
+  }
+  
+  // Test method to verify our fix works correctly
+  private testTimeParsing(): void {
+    console.log('Testing time parsing with different input types:');
+    
+    // Test with string
+    console.log('String input:', this.parseTimeFromDisplay('10:30 AM'));
+    
+    // Test with null
+    console.log('Null input:', this.parseTimeFromDisplay(null));
+    
+    // Test with empty string
+    console.log('Empty string input:', this.parseTimeFromDisplay(''));
+    
+    // Test with Date object converted to string (this would cause the original error)
+    console.log('Date object input:', this.parseTimeFromDisplay(new Date().toString()));
+  }
+
   // Method to handle file selection
-  selectFiles(event: any): void {
-    this.selectedFiles = Array.from(event.target.files);
+  selectFiles(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.selectedFiles = Array.from(target.files || []);
     this.progressInfos = [];
     this.message = '';
   }
 
   // Method to format currency input for Brazilian format
-  formatCurrency(event: any): void {
-    const input = event.target;
-    let value = input.value.replace(/\D/g, ''); // Remove all non-digit characters
+  formatCurrency(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value.replace(/\D/g, ''); // Remove all non-digit characters
     
     // Handle empty value
     if (value === '') {
@@ -526,6 +870,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
 
   // Method to update visibility of conditional fields based on tipoSolicitacao
   private updateConditionalFields(tipoSolicitacaoId: number): void {
+    console.log('updateConditionalFields called with tipoSolicitacaoId:', tipoSolicitacaoId);
     // Debug log removed
     // Find the selected tipoSolicitacao
     const selectedTipo = this.tiposSolicitacao.find(tipo => tipo.idtiposolicitacao === tipoSolicitacaoId);
@@ -538,7 +883,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       // For diligência, we hide the audiência fields
       const isDiligencia = this.isTipoDiligencia(selectedTipo);
       
-      // Debug log removed
+      console.log('isAudiencia:', isAudiencia, 'isDiligencia:', isDiligencia);
       
       // Show/hide fields based on tipo - only show for audiencia, hide for diligencia
       this.showAudienciaFields = isAudiencia;
@@ -560,12 +905,14 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     // Special case: If we're in edit mode and already have audiencia data, ensure fields are visible
     if (this.isEditMode) {
       const formValue = this.requestForm.getRawValue();
+      console.log('Edit mode - form values:', formValue);
       // Debug log removed
       
       if (formValue.dataAgendamento || formValue.horaAudiencia) {
         // Only show for audiencia types in edit mode
         if (selectedTipo && this.isTipoAudiencia(selectedTipo)) {
           this.showAudienciaFields = true;
+          console.log('Showing audiencia fields in edit mode due to existing data');
           // Debug log removed
         }
       }
@@ -573,16 +920,19 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       // Also check if the current tipoSolicitacao is Audiência
       if (selectedTipo && this.isTipoAudiencia(selectedTipo)) {
         this.showAudienciaFields = true;
+        console.log('Showing audiencia fields because tipo is audiencia');
         // Debug log removed
       }
       
       // Ensure valor field is visible if there's a value (for both audiencia and diligencia)
       if (formValue.valor) {
         this.showValorField = true;
+        console.log('Showing valor field because it has a value');
         // Debug log removed
       }
     }
     
+    console.log('showAudienciaFields:', this.showAudienciaFields, 'showValorField:', this.showValorField);
     // Debug log removed
     // Debug log removed
     
@@ -627,8 +977,8 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       return;
     }
 
-    for (let i = 0; i < this.selectedFiles.length; i++) {
-      this.progressInfos.push({ value: 0, fileName: this.selectedFiles[i].name });
+    for (const file of this.selectedFiles) {
+      this.progressInfos.push({ value: 0, fileName: file.name });
     }
 
     for (let i = 0; i < this.selectedFiles.length; i++) {
@@ -639,10 +989,10 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   // Method to upload a single file
   private uploadAnexo(solicitacaoId: number, file: File, index: number): void {
     this.solicitacaoAnexoService.uploadAnexo(file, solicitacaoId, this.storageLocation).subscribe({
-      next: (event: any) => {
+      next: (event) => {
         if (event.type === HttpEventType.UploadProgress) {
           // Upload progress
-          const progress = Math.round(100 * event.loaded / event.total);
+          const progress = Math.round(100 * event.loaded / (event.total || 1));
           this.progressInfos[index].value = progress;
         } else if (event.type === HttpEventType.Response) {
           // Upload complete
@@ -651,7 +1001,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
           this.loadAnexos();
         }
       },
-      error: (err: any) => {
+      error: (err) => {
         this.progressInfos[index].value = 0;
         this.message = 'Erro ao carregar arquivo: ' + file.name;
         console.error('Error uploading file:', err);
@@ -698,9 +1048,22 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     
     // Prepare the solicitacao object
     const formValue = this.requestForm.getRawValue(); // Use getRawValue to include disabled fields
+    console.log('Form values before save:', formValue);
+    console.log('horaAudiencia form control value:', this.requestForm.get('horaAudiencia')?.value);
     
     // Start with the loaded solicitacao to preserve fields not in the form
-    const solicitacao: any = this.loadedSolicitacao ? { ...this.loadedSolicitacao } : {};
+    const solicitacao: Solicitacao = this.loadedSolicitacao ? { ...this.loadedSolicitacao } : {
+      id: 0,
+      ativo: true,
+      datasolicitacao: new Date(),
+      dataprazo: undefined,
+      instrucoes: '',
+      tipoSolicitacao: undefined,
+      statusSolicitacao: undefined,
+      processo: undefined,
+      correspondente: undefined,
+      usuario: undefined
+    } as unknown as Solicitacao;
     
     // Update fields that are in the form
     solicitacao.datasolicitacao = formValue.dataSolicitacao || this.getCurrentDate(); // Ensure we always have a value
@@ -710,13 +1073,50 @@ export class RequestFormComponent implements OnInit, OnDestroy {
 
     // Add conditional fields if they should be included
     // For Audiência, always include horaAudiencia when it exists in the form (especially in edit mode)
-    if (this.showAudienciaFields || (this.isEditMode && formValue.horaAudiencia !== undefined)) {
+    console.log('Checking audiencia conditions:', {
+      showAudienciaFields: this.showAudienciaFields,
+      isEditMode: this.isEditMode,
+      horaAudiencia: formValue.horaAudiencia,
+      horaAudienciaType: typeof formValue.horaAudiencia
+    });
+    
+    // Always save audiencia fields if this is an audiencia type
+    if (this.showAudienciaFields) {
       solicitacao.dataagendamento = formValue.dataAgendamento || null;
-      solicitacao.horaudiencia = formValue.horaAudiencia || null; // Fixed property name
+      // Debug the timepicker value to see what type it is
+      console.log('Timepicker value:', formValue.horaAudiencia);
+      console.log('Timepicker value type:', typeof formValue.horaAudiencia);
+      
+      // Convert the timepicker value to string format for the backend
+      let timeString: string | undefined;
+      if (formValue.horaAudiencia) {
+        // If it's already a string, use it directly
+        if (typeof formValue.horaAudiencia === 'string') {
+          timeString = formValue.horaAudiencia;
+        } 
+        // If it's a Date object, convert it to "HH:MM AM/PM" format
+        else if (formValue.horaAudiencia instanceof Date) {
+          const hours = formValue.horaAudiencia.getHours();
+          const minutes = formValue.horaAudiencia.getMinutes();
+          const period = hours >= 12 ? 'PM' : 'AM';
+          const displayHours = hours % 12 || 12;
+          timeString = `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${period}`;
+        }
+        // For any other type, convert to string
+        else {
+          timeString = String(formValue.horaAudiencia);
+        }
+      }
+      
+      // If the time is an empty string, set to undefined to match the model
+      solicitacao.horaudiencia = timeString && timeString !== '' ? timeString : undefined;
       console.log('Setting audiencia fields:', {
         dataagendamento: solicitacao.dataagendamento,
         horaudiencia: solicitacao.horaudiencia
       });
+    } else if (this.isEditMode && solicitacao.horaudiencia === undefined && this.loadedSolicitacao?.horaudiencia) {
+      // Preserve existing audiencia time in edit mode if not changed
+      solicitacao.horaudiencia = this.loadedSolicitacao.horaudiencia;
     }
     
     // Always include valor field for diligência and audiência types
@@ -731,17 +1131,17 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       // Find "Aguardando Confirmação" status
       const aguardandoConfirmacaoStatus = this.statuses.find(s => s.status === 'Aguardando Confirmação' || s.status === 'Aguardando Confirmacao');
       if (aguardandoConfirmacaoStatus) {
-        solicitacao.statusSolicitacao = { idstatus: aguardandoConfirmacaoStatus.idstatus };
+        solicitacao.statusSolicitacao = { idstatus: aguardandoConfirmacaoStatus.idstatus, status: '' };
       } else {
         // Fallback to first status if "Aguardando Confirmação" is not found
-        solicitacao.statusSolicitacao = { idstatus: this.statuses.length > 0 ? this.statuses[0].idstatus : 1 };
+        solicitacao.statusSolicitacao = { idstatus: this.statuses.length > 0 ? this.statuses[0].idstatus : 1, status: '' };
       }
       
       // When creating a new solicitation with "Aguardando Confirmação" status, clear dataconclusao
       solicitacao.dataconclusao = undefined;
     } else if(formValue.status){
       // Use selected status for editing
-      solicitacao.statusSolicitacao = { idstatus: formValue.status };
+      solicitacao.statusSolicitacao = { idstatus: formValue.status, status: '' };
       
       // When editing, check if status is "Aguardando Confirmação" and clear dataconclusao if so
       const selectedStatus = this.statuses.find(s => s.idstatus === formValue.status);
@@ -755,15 +1155,15 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     }
     
     if (formValue.processo) {
-      solicitacao.processo = { id: formValue.processo };
+      solicitacao.processo = { id: formValue.processo, numeroprocesso: '', ativo: true };
     }
     
     if (formValue.correspondente) {
-      solicitacao.correspondente = { id: formValue.correspondente };
+      solicitacao.correspondente = { id: formValue.correspondente, nome: '', ativo: true };
     }
     
     if (formValue.usuario) {
-      solicitacao.usuario = { id: formValue.usuario };
+      solicitacao.usuario = { id: formValue.usuario, login: '', nomecompleto: '', tipo: UserType.ADMIN, ativo: true };
     }
 
     // Determine if we're creating or updating
@@ -774,9 +1174,9 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     operation.pipe(
       finalize(() => this.loading = false)
     ).subscribe({
-      next: (result: any) => {
+      next: (result) => {
         // Get the ID of the created/updated solicitacao
-        const solicitacaoId = this.isEditMode ? this.requestId : (result?.id || result?.idsolicitacao);
+        const solicitacaoId = this.isEditMode ? this.requestId : (result?.id || result?.datasolicitacao);
         
         const message = this.isEditMode 
           ? 'Solicitação atualizada com sucesso!' 
@@ -788,7 +1188,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         
         // Upload attachments if any were selected
         if (this.selectedFiles.length > 0 && solicitacaoId) {
-          this.uploadAnexos(solicitacaoId);
+          this.uploadAnexos(Number(solicitacaoId));
         }
         
         // Navigate to request detail page instead of list
@@ -845,7 +1245,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     const field = this.requestForm.get(fieldName);
     if (field && field.errors) {
       if (field.errors['required']) {
-        const fieldLabels: { [key: string]: string } = {
+        const fieldLabels: Record<string, string> = {
           'processo': 'Processo',
           'correspondente': 'Correspondente',
           'tipoSolicitacao': 'Tipo de Solicitação',
@@ -947,9 +1347,11 @@ export class RequestFormComponent implements OnInit, OnDestroy {
 
   // Method to search correspondentes based on search term
   private searchCorrespondentes(searchTerm: string): void {
+    console.log('searchCorrespondentes called with:', searchTerm);
     this.correspondenteService.searchByNome(searchTerm).subscribe({
       next: (correspondentes) => {
         this.filteredCorrespondentes = correspondentes.filter(c => c.ativo === true);
+        console.log('Filtered correspondentes:', this.filteredCorrespondentes.length);
       },
       error: (error) => {
         console.error('Error searching correspondentes:', error);
@@ -959,13 +1361,22 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   }
 
   // Method to handle correspondente selection from autocomplete
-  onCorrespondenteSelected(event: any): void {
+  onCorrespondenteSelected(event: { option: { value: Correspondente } }): void {
+    console.log('onCorrespondenteSelected called with:', event);
     const selectedCorrespondente: Correspondente = event.option.value;
     this.requestForm.get('correspondente')?.setValue(selectedCorrespondente.id);
   }
 
   // Method to display correspondente in autocomplete
-  displayCorrespondente(correspondente: Correspondente): string {
-    return correspondente && correspondente.nome ? `${correspondente.nome} - ${correspondente.oab || ''}` : '';
+  displayCorrespondente(correspondente: Correspondente | string): string {
+    // If it's already a string, return it directly
+    if (typeof correspondente === 'string') {
+      return correspondente;
+    }
+    
+    // If it's a Correspondente object, format it properly
+    const result = correspondente && correspondente.nome ? `${correspondente.nome} - ${correspondente.oab || ''}` : '';
+    console.log('displayCorrespondente called with:', correspondente, 'result:', result);
+    return result;
   }
 }

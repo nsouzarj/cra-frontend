@@ -58,7 +58,24 @@
           <!-- Conditional field for Audiência: Hora da Audiência -->
           <div class="info-item" *ngIf="isAudiencia() && solicitacao?.horaudiencia">
             <span class="info-label">Hora da Audiência:</span>
+            <span class="info-value">{{ solicitacao?.horaudiencia || null }}</span>
+          </div>
+          <!-- Temporary debug information -->
+          <div class="info-item" *ngIf="solicitacao?.horaudiencia && !isAudiencia()">
+            <span class="info-label">DEBUG - Hora (not audiencia):</span>
             <span class="info-value">{{ solicitacao?.horaudiencia }}</span>
+          </div>
+          <div class="info-item" *ngIf="isAudiencia() && !solicitacao?.horaudiencia">
+            <span class="info-label">DEBUG - Is Audiencia but no time:</span>
+            <span class="info-value">true</span>
+          </div>
+          <div class="info-item" *ngIf="!isAudiencia()">
+            <span class="info-label">DEBUG - Not Audiencia:</span>
+            <span class="info-value">true</span>
+          </div>
+          <div class="info-item" *ngIf="!solicitacao?.horaudiencia">
+            <span class="info-label">DEBUG - No Hora:</span>
+            <span class="info-value">true</span>
           </div>
           <!-- Valor field for all solicitation types -->
           <div class="info-item" *ngIf="solicitacao?.valor">

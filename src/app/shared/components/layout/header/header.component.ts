@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, HostListener, OnDestroy, ChangeDetectorRef, Input, inject } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, HostListener, OnDestroy, ChangeDetectorRef, Input, inject, ViewChild } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ThemeService, Theme } from '../../../../core/services/theme.service';
@@ -8,7 +8,7 @@ import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDividerModule } from '@angular/material/divider';
 
@@ -34,6 +34,7 @@ interface UserWithAlternativeFields extends User {
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   @Input() isMobile = false;
+  @ViewChild('userMenuTrigger', { read: MatMenuTrigger }) userMenuTrigger!: MatMenuTrigger;
   currentUser: User | null = null;
   private currentUserSubscription: Subscription | null = null;
   private themeSubscription: Subscription | null = null;
@@ -44,7 +45,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   public router = inject(Router);
   private authService = inject(AuthService);
   private themeService = inject(ThemeService);
-  private zoomService = inject(ZoomoomService);
+  private zoomService = inject(ZoomService);
   private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
@@ -124,13 +125,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Set the theme
     this.setTheme(theme);
     
-    // Close the menu explicitly
-    const menuButton = document.getElementById('theme-menu-button');
-    if (menuButton) {
-      const menuTrigger = (menuButton as any)._menuTrigger;
-      if (menuTrigger && typeof menuTrigger.closeMenu === 'function') {
-        menuTrigger.closeMenu();
-      }
+    // Close the menu explicitly using ViewChild
+    if (this.userMenuTrigger) {
+      this.userMenuTrigger.closeMenu();
     }
   }
 

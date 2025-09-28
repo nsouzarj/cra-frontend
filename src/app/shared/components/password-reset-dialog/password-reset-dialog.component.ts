@@ -1,5 +1,6 @@
-import { Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+
+import { Component, inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -21,18 +22,20 @@ export interface PasswordResetDialogData {
     FormsModule,
     MatInputModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatDialogContent,
+    MatDialogActions
   ]
 })
 export class PasswordResetDialogComponent {
-  newPassword: string = '';
-  showPassword: boolean = false;
-
-  constructor(
-    public dialogRef: MatDialogRef<PasswordResetDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: PasswordResetDialogData,
-    private snackBar: MatSnackBar
-  ) {
+  public dialogRef = inject(MatDialogRef<PasswordResetDialogComponent>);
+  public data = inject(MAT_DIALOG_DATA) as PasswordResetDialogData;
+  private snackBar = inject(MatSnackBar);
+  
+  newPassword = '';
+  showPassword = false;
+  
+  constructor() {
     // Generate a random password when the dialog opens
     this.newPassword = this.generateRandomPassword();
   }
@@ -46,8 +49,9 @@ export class PasswordResetDialogComponent {
     return password;
   }
 
-  onPasswordChange(event: any): void {
-    this.newPassword = event.target.value;
+  onPasswordChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.newPassword = target.value;
   }
 
   onCopyPassword(): void {
