@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, ElementRef, ChangeDetectorRef, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -11,7 +11,7 @@ import { FormControl } from '@angular/forms';
 // Models
 import { Solicitacao } from '../../../shared/models/solicitacao.model';
 import { Processo } from '../../../shared/models/processo.model';
-import { User } from '../../../shared/models/user.model';
+import { User, UserType } from '../../../shared/models/user.model';
 import { TipoSolicitacao } from '../../../shared/models/tiposolicitacao.model';
 import { SolicitacaoStatus } from '../../../shared/models/solicitacao.model';
 import { SolicitacaoAnexo } from '../../../shared/models/solicitacao-anexo.model';
@@ -40,6 +40,9 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 interface ProgressInfo {
   value: number;
@@ -61,10 +64,33 @@ interface ProgressInfo {
     MatRadioModule,
     MatProgressSpinnerModule,
     MatIconModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatProgressBarModule
   ]
 })
 export class RequestFormComponent implements OnInit, OnDestroy {
+  private formBuilder = inject(FormBuilder);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
+  private solicitacaoService = inject(SolicitacaoService);
+  private solicitacaoStatusService = inject(SolicitacaoStatusService);
+  private processoService = inject(ProcessoService);
+  private correspondenteService = inject(CorrespondenteService);
+  private userService = inject(UserService);
+  private tipoSolicitacaoService = inject(TipoSolicitacaoService);
+  // Add the new attachment service to the constructor
+  private solicitacaoAnexoService = inject(SolicitacaoAnexoService);
+  // Inject AuthService to determine user role
+  private authService = inject(AuthService);
+  // Add external storage auth guard service
+  private externalStorageAuthGuard = inject(ExternalStorageAuthGuardService);
+  // Inject ChangeDetectorRef
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  
   @ViewChild('fileInput') fileInput!: ElementRef;
   
   requestForm: FormGroup;
@@ -103,28 +129,8 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   // Search controls for dropdowns
   processoSearchControl = new FormControl('');
   correspondenteSearchControl = new FormControl('');
-
-  constructor(
-    private formBuilder: FormBuilder,
-    private router: Router,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog,
-    private solicitacaoService: SolicitacaoService,
-    private solicitacaoStatusService: SolicitacaoStatusService,
-    private processoService: ProcessoService,
-    private correspondenteService: CorrespondenteService,
-    private userService: UserService,
-    private tipoSolicitacaoService: TipoSolicitacaoService,
-    // Add the new attachment service to the constructor
-    private solicitacaoAnexoService: SolicitacaoAnexoService,
-    // Inject AuthService to determine user role
-    private authService: AuthService,
-    // Add external storage auth guard service
-    private externalStorageAuthGuard: ExternalStorageAuthGuardService,
-    // Inject ChangeDetectorRef
-    private changeDetectorRef: ChangeDetectorRef
-  ) {
+  
+  constructor() {
     this.requestForm = this.createForm();
   }
 
@@ -180,8 +186,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   setupThemeListener(): void {
     // Listen for theme changes to trigger change detection
     this.themeSubscription = new Subscription();
-    const themeHandler = (event: Event) => {
-      const customEvent = event as CustomEvent;
+    const themeHandler = () => {
       // Force change detection when theme changes
       // This will cause the component to re-render with the new theme styles
     };
@@ -322,7 +327,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   }
 
   // Method to handle processo selection from autocomplete
-  onProcessoSelected(event: any): void {
+  onProcessoSelected(event: { option: { value: Processo } }): void {
     const selectedProcesso: Processo = event.option.value;
     this.requestForm.get('processo')?.setValue(selectedProcesso.id);
   }
@@ -414,16 +419,17 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   }
 
   // Method to handle file selection
-  selectFiles(event: any): void {
-    this.selectedFiles = Array.from(event.target.files);
+  selectFiles(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.selectedFiles = Array.from(target.files || []);
     this.progressInfos = [];
     this.message = '';
   }
 
   // Method to format currency input for Brazilian format
-  formatCurrency(event: any): void {
-    const input = event.target;
-    let value = input.value.replace(/\D/g, ''); // Remove all non-digit characters
+  formatCurrency(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value.replace(/\D/g, ''); // Remove all non-digit characters
     
     // Handle empty value
     if (value === '') {
@@ -627,8 +633,8 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       return;
     }
 
-    for (let i = 0; i < this.selectedFiles.length; i++) {
-      this.progressInfos.push({ value: 0, fileName: this.selectedFiles[i].name });
+    for (const file of this.selectedFiles) {
+      this.progressInfos.push({ value: 0, fileName: file.name });
     }
 
     for (let i = 0; i < this.selectedFiles.length; i++) {
@@ -639,10 +645,10 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   // Method to upload a single file
   private uploadAnexo(solicitacaoId: number, file: File, index: number): void {
     this.solicitacaoAnexoService.uploadAnexo(file, solicitacaoId, this.storageLocation).subscribe({
-      next: (event: any) => {
+      next: (event) => {
         if (event.type === HttpEventType.UploadProgress) {
           // Upload progress
-          const progress = Math.round(100 * event.loaded / event.total);
+          const progress = Math.round(100 * event.loaded / (event.total || 1));
           this.progressInfos[index].value = progress;
         } else if (event.type === HttpEventType.Response) {
           // Upload complete
@@ -651,7 +657,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
           this.loadAnexos();
         }
       },
-      error: (err: any) => {
+      error: (err) => {
         this.progressInfos[index].value = 0;
         this.message = 'Erro ao carregar arquivo: ' + file.name;
         console.error('Error uploading file:', err);
@@ -700,7 +706,18 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     const formValue = this.requestForm.getRawValue(); // Use getRawValue to include disabled fields
     
     // Start with the loaded solicitacao to preserve fields not in the form
-    const solicitacao: any = this.loadedSolicitacao ? { ...this.loadedSolicitacao } : {};
+    const solicitacao: Solicitacao = this.loadedSolicitacao ? { ...this.loadedSolicitacao } : {
+      id: 0,
+      ativo: true,
+      datasolicitacao: new Date(),
+      dataprazo: undefined,
+      instrucoes: '',
+      tipoSolicitacao: undefined,
+      statusSolicitacao: undefined,
+      processo: undefined,
+      correspondente: undefined,
+      usuario: undefined
+    } as unknown as Solicitacao;
     
     // Update fields that are in the form
     solicitacao.datasolicitacao = formValue.dataSolicitacao || this.getCurrentDate(); // Ensure we always have a value
@@ -731,17 +748,17 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       // Find "Aguardando Confirmação" status
       const aguardandoConfirmacaoStatus = this.statuses.find(s => s.status === 'Aguardando Confirmação' || s.status === 'Aguardando Confirmacao');
       if (aguardandoConfirmacaoStatus) {
-        solicitacao.statusSolicitacao = { idstatus: aguardandoConfirmacaoStatus.idstatus };
+        solicitacao.statusSolicitacao = { idstatus: aguardandoConfirmacaoStatus.idstatus, status: '' };
       } else {
         // Fallback to first status if "Aguardando Confirmação" is not found
-        solicitacao.statusSolicitacao = { idstatus: this.statuses.length > 0 ? this.statuses[0].idstatus : 1 };
+        solicitacao.statusSolicitacao = { idstatus: this.statuses.length > 0 ? this.statuses[0].idstatus : 1, status: '' };
       }
       
       // When creating a new solicitation with "Aguardando Confirmação" status, clear dataconclusao
       solicitacao.dataconclusao = undefined;
     } else if(formValue.status){
       // Use selected status for editing
-      solicitacao.statusSolicitacao = { idstatus: formValue.status };
+      solicitacao.statusSolicitacao = { idstatus: formValue.status, status: '' };
       
       // When editing, check if status is "Aguardando Confirmação" and clear dataconclusao if so
       const selectedStatus = this.statuses.find(s => s.idstatus === formValue.status);
@@ -755,15 +772,15 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     }
     
     if (formValue.processo) {
-      solicitacao.processo = { id: formValue.processo };
+      solicitacao.processo = { id: formValue.processo, numeroprocesso: '', ativo: true };
     }
     
     if (formValue.correspondente) {
-      solicitacao.correspondente = { id: formValue.correspondente };
+      solicitacao.correspondente = { id: formValue.correspondente, nome: '', ativo: true };
     }
     
     if (formValue.usuario) {
-      solicitacao.usuario = { id: formValue.usuario };
+      solicitacao.usuario = { id: formValue.usuario, login: '', nomecompleto: '', tipo: UserType.ADMIN, ativo: true };
     }
 
     // Determine if we're creating or updating
@@ -774,9 +791,9 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     operation.pipe(
       finalize(() => this.loading = false)
     ).subscribe({
-      next: (result: any) => {
+      next: (result) => {
         // Get the ID of the created/updated solicitacao
-        const solicitacaoId = this.isEditMode ? this.requestId : (result?.id || result?.idsolicitacao);
+        const solicitacaoId = this.isEditMode ? this.requestId : (result?.id || result?.datasolicitacao);
         
         const message = this.isEditMode 
           ? 'Solicitação atualizada com sucesso!' 
@@ -788,7 +805,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         
         // Upload attachments if any were selected
         if (this.selectedFiles.length > 0 && solicitacaoId) {
-          this.uploadAnexos(solicitacaoId);
+          this.uploadAnexos(Number(solicitacaoId));
         }
         
         // Navigate to request detail page instead of list
@@ -845,7 +862,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     const field = this.requestForm.get(fieldName);
     if (field && field.errors) {
       if (field.errors['required']) {
-        const fieldLabels: { [key: string]: string } = {
+        const fieldLabels: Record<string, string> = {
           'processo': 'Processo',
           'correspondente': 'Correspondente',
           'tipoSolicitacao': 'Tipo de Solicitação',
@@ -959,7 +976,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   }
 
   // Method to handle correspondente selection from autocomplete
-  onCorrespondenteSelected(event: any): void {
+  onCorrespondenteSelected(event: { option: { value: Correspondente } }): void {
     const selectedCorrespondente: Correspondente = event.option.value;
     this.requestForm.get('correspondente')?.setValue(selectedCorrespondente.id);
   }

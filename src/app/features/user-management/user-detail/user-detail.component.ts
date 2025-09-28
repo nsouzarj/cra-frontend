@@ -175,7 +175,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  getUserPermissions(): Array<{icon: string; title: string; description: string; allowed: boolean; restrictedForCorrespondent: boolean}> {
+  getUserPermissions(): {icon: string; title: string; description: string; allowed: boolean; restrictedForCorrespondent?: boolean}[] {
     const userType = this.user?.tipo;
     
     // For correspondents, only allow "Gerenciar Solicitações"
@@ -207,7 +207,8 @@ export class UserDetailComponent implements OnInit, OnDestroy {
         icon: 'assignment',
         title: 'Gerenciar Solicitações',
         description: 'Criar e acompanhar solicitações',
-        allowed: true
+        allowed: true,
+        restrictedForCorrespondent: isCorrespondent
       },
       {
         icon: 'analytics',
@@ -372,7 +373,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
     this.router.navigate(['/usuarios']);
   }
 
-  getCorrespondentInfo(): Array<{label: string; value: string}> {
+  getCorrespondentInfo(): {label: string; value: string}[] {
     if (!this.user || this.user.tipo !== UserType.CORRESPONDENTE || !this.user.correspondente?.id) {
       return [];
     }
