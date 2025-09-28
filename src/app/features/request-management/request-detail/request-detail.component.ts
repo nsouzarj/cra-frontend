@@ -117,7 +117,6 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
       next: (solicitacao) => {
         this.solicitacao = solicitacao;
         this.loading = false;
-        // Debug log removed
       },
       error: (error) => {
         console.error('Error loading solicitacao:', error);
@@ -342,9 +341,7 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
   }
 
   formatDate(date: Date | string | undefined): string {
-    // Debug log removed
     const result = this.dateFormatService.formatDate(date);
-    // Debug log removed
     return result;
   }
 
@@ -355,9 +352,30 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
    * @returns Formatted date string in DD/MM/YYYY HH:mm format
    */
   formatDateTime(date: Date | string | undefined): string {
-    // Debug log removed
     const result = this.dateFormatService.formatDateTime(date);
-    // Debug log removed
+    return result;
+  }
+
+  /**
+   * Helper method to format time for display (converts "HH:MM" to "HH:MM AM/PM")
+   */
+  formatTimeForDisplay(timeString: string | null | undefined): string {
+    // Ensure we're working with a string
+    if (!timeString) return '';
+    
+    // Convert to string if it's not already (handles Date objects and other types)
+    const timeStr = typeof timeString === 'string' ? timeString : String(timeString);
+    
+    // Parse the time string (assuming it's in HH:MM format)
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    
+    if (isNaN(hours) || isNaN(minutes)) return '';
+    
+    // Convert to 12-hour format
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    
+    const result = `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${period}`;
     return result;
   }
 
@@ -370,8 +388,12 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
     const especie = this.solicitacao.tipoSolicitacao.especie?.toLowerCase() || '';
     const tipo = this.solicitacao.tipoSolicitacao.tipo?.toLowerCase() || '';
     
-    return especie.includes('audiencia') || especie.includes('audiência') || 
-           tipo.includes('audiencia') || tipo.includes('audiência');
+    // More flexible matching for audiencia terms
+    const isAudiencia = especie.includes('audiencia') || especie.includes('audiência') || 
+           tipo.includes('audiencia') || tipo.includes('audiência') ||
+           especie.includes('hearing') || tipo.includes('hearing');
+    
+    return isAudiencia;
   }
 
   // Method to check if the current user can delete an attachment
@@ -443,13 +465,9 @@ export class RequestDetailComponent implements OnInit, OnDestroy {
 
   // Method to get the CSS class for an attachment based on its origin
   getAttachmentClass(anexo: SolicitacaoAnexo): string {
-    // Debug log removed
-    // Debug log removed
     if (anexo.origem === 'correspondente') {
-      // Debug log removed
       return 'attachment-correspondente';
     } else {
-      // Debug log removed
       return 'attachment-solicitante';
     }
   }

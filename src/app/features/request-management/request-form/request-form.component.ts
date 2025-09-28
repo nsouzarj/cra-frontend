@@ -467,6 +467,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         });
         
         console.log('Form values after patch:', this.requestForm.getRawValue());
+        console.log('horaAudiencia form control value after patch:', this.requestForm.get('horaAudiencia')?.value);
         console.log('Processo search control value:', this.processoSearchControl.value);
         console.log('Correspondente search control value:', this.correspondenteSearchControl.value);
         
@@ -650,9 +651,11 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     
     // Convert to string if it's not already (handles Date objects and other types)
     const timeStr = typeof timeString === 'string' ? timeString : String(timeString);
+    console.log('formatTimeForDisplay - timeStr:', timeStr);
     
     // Parse the time string (assuming it's in HH:MM format)
     const [hours, minutes] = timeStr.split(':').map(Number);
+    console.log('formatTimeForDisplay - hours, minutes:', hours, minutes);
     
     if (isNaN(hours) || isNaN(minutes)) return '';
     
@@ -673,9 +676,11 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     
     // Convert to string if it's not already (handles Date objects and other types)
     const timeStr = typeof timeString === 'string' ? timeString : String(timeString);
+    console.log('parseTimeFromDisplay - timeStr:', timeStr);
     
     // Parse the time string (assuming it's in "HH:MM AM/PM" format)
     const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    console.log('parseTimeFromDisplay - match:', match);
     if (!match) return '';
     
     let hours = parseInt(match[1]);
@@ -1003,6 +1008,8 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     
     // Prepare the solicitacao object
     const formValue = this.requestForm.getRawValue(); // Use getRawValue to include disabled fields
+    console.log('Form values before save:', formValue);
+    console.log('horaAudiencia form control value:', this.requestForm.get('horaAudiencia')?.value);
     
     // Start with the loaded solicitacao to preserve fields not in the form
     const solicitacao: Solicitacao = this.loadedSolicitacao ? { ...this.loadedSolicitacao } : {
@@ -1026,9 +1033,18 @@ export class RequestFormComponent implements OnInit, OnDestroy {
 
     // Add conditional fields if they should be included
     // For Audiência, always include horaAudiencia when it exists in the form (especially in edit mode)
-    if (this.showAudienciaFields || (this.isEditMode && formValue.horaAudiencia !== undefined)) {
+    console.log('Checking audiencia conditions:', {
+      showAudienciaFields: this.showAudienciaFields,
+      isEditMode: this.isEditMode,
+      horaAudiencia: formValue.horaAudiencia,
+      horaAudienciaType: typeof formValue.horaAudiencia
+    });
+    
+    // Always save audiencia fields if they exist in the form, regardless of showAudienciaFields status
+    if (formValue.horaAudiencia !== undefined && formValue.horaAudiencia !== null && formValue.horaAudiencia !== '') {
       solicitacao.dataagendamento = formValue.dataAgendamento || null;
       // Parse the time from display format to save in the database
+      console.log('Parsing time from display:', formValue.horaAudiencia);
       const parsedTime = this.parseTimeFromDisplay(formValue.horaAudiencia);
       solicitacao.horaudiencia = parsedTime || undefined;
       console.log('Setting audiencia fields:', {

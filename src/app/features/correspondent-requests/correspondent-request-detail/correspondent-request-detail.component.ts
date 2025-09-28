@@ -610,8 +610,10 @@ export class CorrespondentRequestDetailComponent implements OnInit {
     const especie = this.solicitacao.tipoSolicitacao.especie?.toLowerCase() || '';
     const tipo = this.solicitacao.tipoSolicitacao.tipo?.toLowerCase() || '';
     
+    // More flexible matching for audiencia terms
     const result = especie.includes('audiencia') || especie.includes('audiência') || 
-           tipo.includes('audiencia') || tipo.includes('audiência');
+           tipo.includes('audiencia') || tipo.includes('audiência') ||
+           especie.includes('hearing') || tipo.includes('hearing');
     
     return result;
   }
@@ -628,6 +630,27 @@ export class CorrespondentRequestDetailComponent implements OnInit {
     const result = especie.includes('diligencia') || especie.includes('diligência') || 
            tipo.includes('diligencia') || tipo.includes('diligência');
     
+    return result;
+  }
+
+  // Helper method to format time for display (converts "HH:MM" to "HH:MM AM/PM")
+  formatTimeForDisplay(timeString: string | null | undefined): string {
+    // Ensure we're working with a string
+    if (!timeString) return '';
+    
+    // Convert to string if it's not already (handles Date objects and other types)
+    const timeStr = typeof timeString === 'string' ? timeString : String(timeString);
+    
+    // Parse the time string (assuming it's in HH:MM format)
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    
+    if (isNaN(hours) || isNaN(minutes)) return '';
+    
+    // Convert to 12-hour format
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    
+    const result = `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${period}`;
     return result;
   }
 }
