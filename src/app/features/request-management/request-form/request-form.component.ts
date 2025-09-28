@@ -76,6 +76,7 @@ interface ProgressInfo {
 })
 export class RequestFormComponent implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef;
+  @ViewChild('timepicker') timepicker!: any; // Add ViewChild for timepicker
   
   requestForm: FormGroup;
   requestId: number | null = null;
@@ -111,8 +112,8 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   storageLocation: 'local' | 'google_drive' = 'google_drive';
   
   // Search controls for dropdowns
-  processoSearchControl = new FormControl('');
-  correspondenteSearchControl = new FormControl('');
+  processoSearchControl = new FormControl<string | Processo>('');
+  correspondenteSearchControl = new FormControl<string | Correspondente>('');
 
   // Using inject() function instead of constructor injection
   private formBuilder = inject(FormBuilder);
@@ -173,7 +174,6 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       if (params['id']) {
         this.isEditMode = true;
         this.requestId = +params['id'];
-        this.loadRequest();
         // Load existing attachments for this request
         this.loadAnexos();
       }
@@ -336,6 +336,18 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   }
 
   private loadDropdownData(): void {
+    // Counter to track how many requests have completed
+    let completedRequests = 0;
+    const totalRequests = 5; // We have 5 async requests
+    
+    const checkIfAllLoaded = () => {
+      completedRequests++;
+      if (completedRequests === totalRequests && this.isEditMode && this.requestId) {
+        // All dropdown data loaded and we're in edit mode, now load the request
+        this.loadRequest();
+      }
+    };
+    
     // Load all processos initially (for search functionality)
     this.processoService.getProcessosPaginated(0, 10000, 'numeroprocesso', 'ASC').subscribe({
       next: (response) => {
@@ -352,10 +364,12 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         
         // Force change detection to ensure the template updates
         this.changeDetectorRef.detectChanges();
+        checkIfAllLoaded();
       },
       error: (error) => {
         console.error('Error loading processos:', error);
         this.snackBar.open('Erro ao carregar processos', 'Fechar', { duration: 5000 });
+        checkIfAllLoaded();
       }
     });
 
@@ -365,10 +379,12 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         this.correspondentes = correspondentes;
         // Filter to only show active correspondentes
         this.filteredCorrespondentes = correspondentes.filter(c => c.ativo === true);
+        checkIfAllLoaded();
       },
       error: (error) => {
         console.error('Error loading correspondentes:', error);
         this.snackBar.open('Erro ao carregar correspondentes', 'Fechar', { duration: 5000 });
+        checkIfAllLoaded();
       }
     });
 
@@ -376,10 +392,12 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     this.userService.getUsers().subscribe({
       next: (usuarios) => {
         this.usuarios = usuarios;
+        checkIfAllLoaded();
       },
       error: (error) => {
         console.error('Error loading usuarios:', error);
         this.snackBar.open('Erro ao carregar usuários', 'Fechar', { duration: 5000 });
+        checkIfAllLoaded();
       }
     });
 
@@ -387,10 +405,12 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     this.tipoSolicitacaoService.getTiposSolicitacao().subscribe({
       next: (tipos) => {
         this.tiposSolicitacao = tipos;
+        checkIfAllLoaded();
       },
       error: (error) => {
         console.error('Error loading tipos de solicitacao:', error);
         this.snackBar.open('Erro ao carregar tipos de solicitação', 'Fechar', { duration: 5000 });
+        checkIfAllLoaded();
       }
     });
 
@@ -398,10 +418,12 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     this.solicitacaoStatusService.getSolicitacaoStatuses().subscribe({
       next: (statuses) => {
         this.statuses = statuses;
+        checkIfAllLoaded();
       },
       error: (error) => {
         console.error('Error loading statuses:', error);
         this.snackBar.open('Erro ao carregar status', 'Fechar', { duration: 5000 });
+        checkIfAllLoaded();
       }
     });
   }
@@ -471,19 +493,38 @@ export class RequestFormComponent implements OnInit, OnDestroy {
           observacao: solicitacao.observacao || '',
           // Conditional fields
           dataAgendamento: solicitacao.dataagendamento || '',
-          horaAudiencia: solicitacao.horaudiencia || '09:00 AM',
+          horaAudiencia: solicitacao.horaudiencia ? this.ensureTimeFormat(solicitacao.horaudiencia) : '09:00 AM',
           valor: formattedValor
         });
         
         // Set the processo search control to the selected processo for display
         if (solicitacao.processo) {
-          this.processoSearchControl.setValue(this.displayProcesso(solicitacao.processo));
+          // Find the processo object in our processos array
+          const processoObj = this.processos.find(p => p.id === solicitacao.processo?.id);
+          if (processoObj) {
+            this.processoSearchControl.setValue(processoObj);
+          } else {
+            // Fallback to display string if object not found
+            this.processoSearchControl.setValue(this.displayProcesso(solicitacao.processo));
+          }
         }
         
         // Set the correspondente search control to the selected correspondente for display
         if (solicitacao.correspondente) {
-          this.correspondenteSearchControl.setValue(this.displayCorrespondente(solicitacao.correspondente));
+          // Find the correspondente object in our correspondentes array
+          const correspondenteObj = this.correspondentes.find(c => c.id === solicitacao.correspondente?.id);
+          if (correspondenteObj) {
+            this.correspondenteSearchControl.setValue(correspondenteObj);
+          } else {
+            // Fallback to display string if object not found
+            this.correspondenteSearchControl.setValue(this.displayCorrespondente(solicitacao.correspondente));
+          }
         }
+        
+        // Ensure the autocomplete controls are properly updated
+        setTimeout(() => {
+          this.changeDetectorRef.detectChanges();
+        }, 0);
         
         // Check if we need to show conditional fields based on the loaded tipoSolicitacao
         if (solicitacao.tipoSolicitacao?.idtiposolicitacao) {
@@ -494,6 +535,9 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         if (solicitacao.dataagendamento || solicitacao.horaudiencia) {
           this.showAudienciaFields = true;
         }
+        
+        // Force change detection to ensure the template updates
+        this.changeDetectorRef.detectChanges();
         
         this.loading = false;
       },

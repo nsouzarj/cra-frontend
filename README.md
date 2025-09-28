@@ -18,6 +18,8 @@ Para mais informações sobre o projeto completo, consulte o [README.md](../READ
 - **Dashboard**: Visão geral de estatísticas em tempo real e ações rápidas
 - **Design Responsivo**: Interface compatível com dispositivos móveis usando Angular Material
 - **Internacionalização**: Interface e documentação em português
+- **Armazenamento de Arquivos Híbrido**: Suporte para armazenamento local e na nuvem (Google Drive) com seleção por usuário
+- **Controle de Origem de Arquivos**: Diferenciação visual e permissões baseadas na origem dos arquivos (solicitante vs correspondente)
 
 ## 🛠️ Tecnologias
 
@@ -57,7 +59,7 @@ Antes de executar esta aplicação, certifique-se de ter:
 
 ### Modo Desenvolvimento
 
-```bash
+```
 npm start
 # ou
 ng serve --host 0.0.0.0 --disable-host-check
@@ -69,7 +71,7 @@ A aplicação estará disponível em:
 
 ### Build de Produção
 
-```bash
+```
 npm run build
 # ou
 ng build --configuration production
@@ -90,12 +92,14 @@ src/
 │   │   ├── admin-dashboard/      # Dashboard administrativo
 │   │   ├── advogado-dashboard/   # Dashboard de advogado
 │   │   ├── auth/                 # Autenticação
+│   │   │   ├── login/            # Componentes de login
+│   │   │   └── external-storage/ # Autenticação e gerenciamento de armazenamento externo (Google Drive)
 │   │   ├── comarca-management/   # Gerenciamento de comarcas
 │   │   ├── correspondent-dashboard/ # Dashboard de correspondente
 │   │   ├── correspondent-management/  # Gerenciamento de correspondentes
 │   │   ├── correspondent-requests/ # Solicitações de correspondente
 │   │   ├── process-management/   # Gerenciamento de processos
-│   │   └── request-management/   # Gerenciamento de solicitações
+│   │   ├── request-management/   # Gerenciamento de solicitações
 │   │   └── user-management/      # Gerenciamento de usuários
 │   ├── main-nav/                 # Componentes de navegação principal
 │   ├── shared/                   # Componentes e utilitários compartilhados
@@ -142,6 +146,8 @@ src/
 - Vincular solicitações a processos e correspondentes
 - Acompanhamento de status (Pendente, Em Andamento, Finalizada, Cancelada)
 - Gerenciamento de prazos
+- **Sistema de Anexos**: Upload e download de arquivos com suporte a armazenamento local e na nuvem (Google Drive)
+- **Controle de Origem**: Diferenciação visual de arquivos com base em sua origem (solicitante vs correspondente)
 
 ## 🆕 Novas Funcionalidades Implementadas
 
@@ -179,6 +185,16 @@ src/
 - Componentes de diálogo padronizados (confirmação e observação)
 - Feedback visual aprimorado para diferentes estados da aplicação
 
+### 7. Sistema de Armazenamento de Arquivos Híbrido
+- **Armazenamento Local**: Os arquivos são armazenados diretamente no servidor backend no diretório configurado.
+- **Armazenamento na Nuvem**: Integração com Google Drive para armazenamento externo através de autenticação OAuth2.
+- **Seleção de Local de Armazenamento**: Interface que permite ao usuário escolher entre armazenamento local ou na nuvem ao anexar arquivos.
+- **Autenticação Externa**: Sistema de autenticação seguro com Google Drive para proteger arquivos armazenados na nuvem.
+- **Download Unificado**: Interface unificada para download de arquivos independentemente do local de armazenamento.
+- **Controle de Origem**: Diferenciação visual de arquivos com base em sua origem (solicitante vs correspondente).
+- **Gerenciamento de Permissões**: Controle de acesso baseado em perfis para exclusão de arquivos.
+- **Módulo de Autenticação Externa**: Componentes especializados para gerenciamento da autenticação com Google Drive.
+
 ## 🔧 Configuração
 
 ### Configuração do Endpoint da API
@@ -204,6 +220,43 @@ export const environment = {
   production: true,
   apiUrl: '/cra-api'
 };
+```
+
+### Configuração de Armazenamento de Arquivos
+
+O sistema suporta dois tipos de armazenamento de arquivos:
+
+1. **Armazenamento Local**: Os arquivos são armazenados diretamente no servidor backend no diretório configurado.
+
+2. **Armazenamento na Nuvem (Google Drive)**: Os arquivos são armazenados no Google Drive do usuário através de autenticação OAuth2.
+
+Para habilitar o armazenamento na nuvem, é necessário configurar as credenciais do Google Drive API no backend e garantir que o frontend tenha permissões adequadas para acessar a API.
+
+#### Fluxo de Autenticação para Armazenamento na Nuvem
+
+1. O usuário seleciona "Google Drive" como local de armazenamento
+2. O sistema verifica se o usuário já está autenticado com o Google Drive
+3. Se não estiver autenticado, uma janela de autenticação do Google é aberta
+4. Após autenticação bem-sucedida, o usuário pode fazer upload de arquivos para o Google Drive
+5. Os metadados dos arquivos são armazenados no banco de dados local, incluindo o ID do arquivo no Google Drive
+
+A escolha entre armazenamento local e na nuvem pode ser feita configurando a variável `fileStorageType` nos arquivos de ambiente:
+
+```
+// src/environments/environment.ts (desenvolvimento)
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:8081/cra-api',
+  fileStorageType: 'local' // ou 'cloud'
+};
+
+// src/environments/environment.prod.ts (produção)
+export const environment = {
+  production: true,
+  apiUrl: '/cra-api',
+  fileStorageType: 'cloud' // ou 'local'
+};
+
 ```
 
 ## ▶️ Execução com Docker
@@ -243,6 +296,8 @@ Para instruções detalhadas sobre implantação com Docker, consulte:
 - [DOCKER.md](DOCKER.md) (Inglês)
 - [DOCKER.pt.md](DOCKER.pt.md) (Português)
 
+**Nota sobre Armazenamento de Arquivos**: Ao executar com Docker, certifique-se de que os volumes para armazenamento de arquivos locais estão corretamente mapeados no docker-compose.yml para persistir os arquivos entre reinicializações dos containers.
+
 ## 🔐 Credenciais Padrão
 
 Use as mesmas credenciais configuradas no backend:
@@ -256,7 +311,7 @@ Use as mesmas credenciais configuradas no backend:
 ### Tema
 A aplicação utiliza temas do Angular Material. Personalize as cores em `src/styles.scss`:
 
-```scss
+``scss
 $cra-frontend-primary: mat-palette($mat-indigo);
 $cra-frontend-accent: mat-palette($mat-pink, A200, A100, A400);
 ```
@@ -265,6 +320,12 @@ $cra-frontend-accent: mat-palette($mat-pink, A200, A100, A400);
 1. Crie módulos de funcionalidades em `src/app/features/`
 2. Adicione roteamento em `src/app/app-routing.module.ts`
 3. Adicione itens de navegação em `src/app/shared/components/layout/sidenav/sidenav.component.ts`
+
+### Configuração de Armazenamento de Arquivos
+Para personalizar as opções de armazenamento de arquivos:
+1. Modifique os componentes de seleção de armazenamento em `src/app/features/request-management/` e `src/app/features/correspondent-requests/`
+2. Atualize os estilos em `src/app/features/request-management/request-form.component.scss` e `src/app/features/request-management/request-detail.component.scss`
+3. Configure as permissões de acesso no serviço de autenticação externa
 
 ## 📱 Suporte Mobile
 
@@ -280,7 +341,7 @@ Esta aplicação pode ser containerizada usando Docker para fácil implantação
 
 ### Início Rápido
 
-```bash
+```
 # Construir a imagem Docker
 docker build -t cra-frontend .
 
@@ -314,6 +375,7 @@ Principais dependências incluem:
 - **@angular/cdk**: ~20.2.2
 - **rxjs**: ~7.8.0
 - **typescript**: ~5.9.2
+- **@dhutaryan/ngx-mat-timepicker**: Componente de timepicker para Angular Material
 
 ## 🤝 Contribuição
 
@@ -334,12 +396,13 @@ Para problemas e dúvidas:
 2. Verifique as permissões e funções dos usuários
 3. Verifique o console do navegador em busca de erros
 4. Revise as requisições de rede nas ferramentas de desenvolvedor
+5. Para problemas com armazenamento na nuvem, verifique se as credenciais do Google Drive API estão corretamente configuradas no backend
 
 ## 🔄 Atualizações
 
 Para atualizar o Angular e as dependências:
 
-```bash
+```
 # Atualizar Angular
 ng update @angular/core @angular/cli
 

@@ -1,25 +1,30 @@
-import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
+import { of } from 'rxjs';
 
 import { MainNavComponent } from './main-nav.component';
 
 describe('MainNavComponent', () => {
   let component: MainNavComponent;
   let fixture: ComponentFixture<MainNavComponent>;
+  let breakpointObserverSpy: jasmine.SpyObj<BreakpointObserver>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [MainNavComponent],
+  beforeEach(async () => {
+    // Create a spy object for BreakpointObserver
+    breakpointObserverSpy = jasmine.createSpyObj('BreakpointObserver', ['observe']);
+    breakpointObserverSpy.observe.and.returnValue(of({ matches: false, breakpoints: {} } as BreakpointState));
+
+    await TestBed.configureTestingModule({
       imports: [
-        MatButtonModule,
-        MatIconModule,
-        MatListModule,
-        MatSidenavModule,
-        MatToolbarModule,
+        MainNavComponent,
+        BrowserAnimationsModule
+      ],
+      providers: [
+        { provide: BreakpointObserver, useValue: breakpointObserverSpy }
       ]
-    });
-  }));
+    }).compileComponents();
 
-  beforeEach(() => {
     fixture = TestBed.createComponent(MainNavComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

@@ -2,17 +2,11 @@ import { ThemeService, Theme } from './theme.service';
 
 describe('ThemeService', () => {
   let service: ThemeService;
-  let localStorageMock: any;
 
   beforeEach(() => {
     // Mock localStorage
-    localStorageMock = {
-      getItem: jasmine.createSpy('getItem'),
-      setItem: jasmine.createSpy('setItem')
-    };
-    
-    spyOn(localStorage, 'getItem').and.callFake((key: string) => localStorageMock.getItem(key));
-    spyOn(localStorage, 'setItem').and.callFake((key: string, value: string) => localStorageMock.setItem(key, value));
+    spyOn(localStorage, 'getItem');
+    spyOn(localStorage, 'setItem');
     
     // Mock document.body.classList
     spyOn(document.body.classList, 'add');
@@ -33,7 +27,7 @@ describe('ThemeService', () => {
 
   it('should get available themes', () => {
     const themes = service.getAvailableThemes();
-    expect(themes.length).toBe(11); // Updated from 12 to 11 since blue theme was removed
+    expect(themes.length).toBe(12); // Updated to 12 themes
     expect(themes[0].value).toBe('light');
     expect(themes[1].value).toBe('dark');
     expect(themes[2].value).toBe('green');

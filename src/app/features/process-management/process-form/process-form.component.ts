@@ -169,14 +169,20 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
       debounceTime(300),
       distinctUntilChanged(),
       switchMap(searchTerm => {
-        if (!searchTerm || searchTerm.length < 2) {
-          // If search term is too short, return initial comarcas
+        // Convert search term to uppercase for string values
+        let searchValue = searchTerm;
+        if (searchTerm && typeof searchTerm === 'string') {
+          searchValue = searchTerm.toUpperCase();
+        }
+        
+        if (!searchValue || (typeof searchValue === 'string' && searchValue.length < 2)) {
+          // If search term is too short or empty, return initial comarcas
           return this.comarcaService.getComarcas(0, 50, 'nome', 'ASC');
         }
         
         this.searchingComarca = true;
-        // Search for comarcas by name
-        return this.comarcaService.searchByName(searchTerm, 0, 20, 'nome', 'ASC');
+        // Search for comarcas by name (uppercase)
+        return this.comarcaService.searchByName(searchValue as string, 0, 20, 'nome', 'ASC');
       })
     ).subscribe({
       next: (response) => {
@@ -202,12 +208,32 @@ export class ProcessFormComponent implements OnInit, OnDestroy {
   }
 
   displayComarca(comarca: Comarca): string {
-    return comarca && comarca.nome ? `${comarca.nome} - ${comarca.uf.sigla}` : '';
+    return comarca && comarca.nome ? `${comarca.nome.toUpperCase()} - ${comarca.uf.sigla}` : '';
   }
 
   onComarcaSelected(comarca: Comarca): void {
     this.selectedComarca = comarca;
     this.processForm.get('comarca')?.setValue(comarca.id);
+  }
+
+  onComarcaSearchKeyup(event: KeyboardEvent): void {
+    const input = event.target as HTMLInputElement;
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+    
+    // Convert the input value to uppercase
+    const upperCaseValue = input.value.toUpperCase();
+    
+    // If the value changed after uppercasing, update the input
+    if (input.value !== upperCaseValue) {
+      input.value = upperCaseValue;
+      
+      // Restore cursor position
+      input.setSelectionRange(start, end);
+      
+      // Update the form control value
+      this.comarcaSearchControl.setValue(upperCaseValue);
+    }
   }
 
   loadProcess(): void {

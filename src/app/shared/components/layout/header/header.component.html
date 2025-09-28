@@ -10,13 +10,13 @@
     <div class="header-right">
       <!-- Zoom Controls -->
       <button mat-icon-button (click)="zoomOut()" matTooltip="Diminuir zoom (Ctrl+-)" matTooltipPosition="below">
-        <mat-icon>zoom_out</mat-icon>
+        <mat-icon style="color: white;">zoom_out</mat-icon>
       </button>
       <button mat-icon-button (click)="resetZoom()" matTooltip="Redefinir zoom (Ctrl+0)" matTooltipPosition="below">
-        <span style="font-size: 14px; font-weight: 500;">{{ getZoomLevel() }}%</span>
+        <span style="font-size: 14px; font-weight: 500;color:white ">{{ getZoomLevel() }}%</span>
       </button>
       <button mat-icon-button (click)="zoomIn()" matTooltip="Aumentar zoom (Ctrl+)" matTooltipPosition="below">
-        <mat-icon>zoom_in</mat-icon>
+        <mat-icon style="color: white;">zoom_in</mat-icon>
       </button>
       
       <!-- Logout button - moved from user menu to header -->
@@ -30,7 +30,7 @@
       
       <!-- User menu button - without logout option now -->
       <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="User menu"  matTooltip="Menu do usuário" matTooltipPosition="below">
-        <mat-icon>account_circle</mat-icon>
+        <mat-icon style="color: white;">account_circle</mat-icon>
       </button>
       
       <mat-menu #userMenu="matMenu">
