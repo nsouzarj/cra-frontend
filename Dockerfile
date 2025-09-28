@@ -11,7 +11,7 @@ ENV NODE_OPTIONS="--max-old-space-size=4096"
 COPY package*.json ./
 
 # Install dependencies
-RUN npm Install --force
+RUN npm install 
 
 # Copy the rest of the application
 COPY . .
