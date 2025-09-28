@@ -56,27 +56,26 @@
             <span class="info-value">{{ formatDate(solicitacao?.dataagendamento) }}</span>
           </div>
           <!-- Conditional field for Audiência: Hora da Audiência -->
-          <div class="info-item" *ngIf="solicitacao?.horaudiencia">
+          <div class="info-item" *ngIf="isAudiencia() && solicitacao?.horaudiencia">
             <span class="info-label">Hora da Audiência:</span>
-            <span class="info-value">{{ formatTimeForDisplay(solicitacao?.horaudiencia || null) }}</span>
+            <span class="info-value">{{ solicitacao?.horaudiencia || null }}</span>
           </div>
-          <!-- Debug information - temporary -->
-          <div class="info-item" *ngIf="isAudiencia()">
-            <span class="info-label">Debug - Is Audiência:</span>
-            <span class="info-value">true</span>
-          </div>
-          <div class="info-item" *ngIf="solicitacao?.horaudiencia">
-            <span class="info-label">Debug - Hora Audiência:</span>
+          <!-- Temporary debug information -->
+          <div class="info-item" *ngIf="solicitacao?.horaudiencia && !isAudiencia()">
+            <span class="info-label">DEBUG - Hora (not audiencia):</span>
             <span class="info-value">{{ solicitacao?.horaudiencia }}</span>
           </div>
-          <div class="info-item" *ngIf="isAudiencia() && solicitacao?.horaudiencia">
-            <span class="info-label">Debug - Both conditions:</span>
+          <div class="info-item" *ngIf="isAudiencia() && !solicitacao?.horaudiencia">
+            <span class="info-label">DEBUG - Is Audiencia but no time:</span>
             <span class="info-value">true</span>
           </div>
-          <!-- Temporary - show time even if conditions don't match -->
-          <div class="info-item" *ngIf="solicitacao?.horaudiencia && !isAudiencia()">
-            <span class="info-label">TEMP - Hora (not audiencia):</span>
-            <span class="info-value">{{ formatTimeForDisplay(solicitacao?.horaudiencia || null) }}</span>
+          <div class="info-item" *ngIf="!isAudiencia()">
+            <span class="info-label">DEBUG - Not Audiencia:</span>
+            <span class="info-value">true</span>
+          </div>
+          <div class="info-item" *ngIf="!solicitacao?.horaudiencia">
+            <span class="info-label">DEBUG - No Hora:</span>
+            <span class="info-value">true</span>
           </div>
           <!-- Valor field for all solicitation types -->
           <div class="info-item" *ngIf="solicitacao?.valor">

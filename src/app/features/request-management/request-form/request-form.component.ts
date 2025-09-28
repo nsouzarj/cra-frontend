@@ -263,7 +263,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       instrucoes: [''],
       // Conditional fields
       dataAgendamento: [''],
-      horaAudiencia: [''], // Changed from horaAudiencia to match model property
+      horaAudiencia: [''],
       valor: [''] // Remove initial validator, let onTipoSolicitacaoChange handle it
     });
     
@@ -442,11 +442,37 @@ export class RequestFormComponent implements OnInit, OnDestroy {
           formattedValor = solicitacao.valor;
         }
         
-        // Format the time for display if it exists
+        // Use the time exactly as it's stored in the database ("12:30 PM" format)
+        // The timepicker might need a Date object, so we'll convert the string time
         let formattedHoraAudiencia = null;
         if (solicitacao.horaudiencia) {
-          formattedHoraAudiencia = this.formatTimeForDisplay(solicitacao.horaudiencia);
-          console.log('Formatted hora audiencia:', formattedHoraAudiencia);
+          // Try to parse the time string ("12:30 PM") and convert to Date object
+          const timeString = solicitacao.horaudiencia;
+          console.log('Parsing time string for timepicker:', timeString);
+          
+          // Parse the time string (assuming it's in "HH:MM AM/PM" format)
+          const match = timeString.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+          if (match) {
+            let hours = parseInt(match[1]);
+            const minutes = parseInt(match[2]);
+            const period = match[3].toUpperCase();
+            
+            // Convert to 24-hour format for Date object
+            if (period === 'PM' && hours !== 12) {
+              hours += 12;
+            } else if (period === 'AM' && hours === 12) {
+              hours = 0;
+            }
+            
+            // Create a Date object with today's date and the parsed time
+            const today = new Date();
+            formattedHoraAudiencia = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes);
+            console.log('Converted to Date object:', formattedHoraAudiencia);
+          } else {
+            // If parsing fails, use the string as is
+            formattedHoraAudiencia = timeString;
+            console.log('Using time string as is:', formattedHoraAudiencia);
+          }
         }
         
         // Set form values
@@ -653,6 +679,13 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     const timeStr = typeof timeString === 'string' ? timeString : String(timeString);
     console.log('formatTimeForDisplay - timeStr:', timeStr);
     
+    // Check if it's already in display format (HH:MM AM/PM)
+    const displayFormatMatch = timeStr.match(/\d{1,2}:\d{2}\s*(AM|PM)/i);
+    if (displayFormatMatch) {
+      console.log('formatTimeForDisplay - already in display format:', timeStr);
+      return timeStr;
+    }
+    
     // Parse the time string (assuming it's in HH:MM format)
     const [hours, minutes] = timeStr.split(':').map(Number);
     console.log('formatTimeForDisplay - hours, minutes:', hours, minutes);
@@ -677,6 +710,13 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     // Convert to string if it's not already (handles Date objects and other types)
     const timeStr = typeof timeString === 'string' ? timeString : String(timeString);
     console.log('parseTimeFromDisplay - timeStr:', timeStr);
+    
+    // First check if it's already in HH:MM format (might be from database)
+    const dbFormatMatch = timeStr.match(/^(\d{2}):(\d{2})$/);
+    if (dbFormatMatch) {
+      console.log('parseTimeFromDisplay - already in DB format:', timeStr);
+      return timeStr;
+    }
     
     // Parse the time string (assuming it's in "HH:MM AM/PM" format)
     const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
@@ -1040,17 +1080,43 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       horaAudienciaType: typeof formValue.horaAudiencia
     });
     
-    // Always save audiencia fields if they exist in the form, regardless of showAudienciaFields status
-    if (formValue.horaAudiencia !== undefined && formValue.horaAudiencia !== null && formValue.horaAudiencia !== '') {
+    // Always save audiencia fields if this is an audiencia type
+    if (this.showAudienciaFields) {
       solicitacao.dataagendamento = formValue.dataAgendamento || null;
-      // Parse the time from display format to save in the database
-      console.log('Parsing time from display:', formValue.horaAudiencia);
-      const parsedTime = this.parseTimeFromDisplay(formValue.horaAudiencia);
-      solicitacao.horaudiencia = parsedTime || undefined;
+      // Debug the timepicker value to see what type it is
+      console.log('Timepicker value:', formValue.horaAudiencia);
+      console.log('Timepicker value type:', typeof formValue.horaAudiencia);
+      
+      // Convert the timepicker value to string format for the backend
+      let timeString: string | undefined;
+      if (formValue.horaAudiencia) {
+        // If it's already a string, use it directly
+        if (typeof formValue.horaAudiencia === 'string') {
+          timeString = formValue.horaAudiencia;
+        } 
+        // If it's a Date object, convert it to "HH:MM AM/PM" format
+        else if (formValue.horaAudiencia instanceof Date) {
+          const hours = formValue.horaAudiencia.getHours();
+          const minutes = formValue.horaAudiencia.getMinutes();
+          const period = hours >= 12 ? 'PM' : 'AM';
+          const displayHours = hours % 12 || 12;
+          timeString = `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${period}`;
+        }
+        // For any other type, convert to string
+        else {
+          timeString = String(formValue.horaAudiencia);
+        }
+      }
+      
+      // If the time is an empty string, set to undefined to match the model
+      solicitacao.horaudiencia = timeString && timeString !== '' ? timeString : undefined;
       console.log('Setting audiencia fields:', {
         dataagendamento: solicitacao.dataagendamento,
         horaudiencia: solicitacao.horaudiencia
       });
+    } else if (this.isEditMode && solicitacao.horaudiencia === undefined && this.loadedSolicitacao?.horaudiencia) {
+      // Preserve existing audiencia time in edit mode if not changed
+      solicitacao.horaudiencia = this.loadedSolicitacao.horaudiencia;
     }
     
     // Always include valor field for diligência and audiência types
