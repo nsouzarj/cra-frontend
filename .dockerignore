@@ -18,6 +18,7 @@ dist/
 tmp/
 
 # Docker files (optional)
+# Note: We're not excluding package-lock.json anymore as it's needed for consistent builds
 Dockerfile
 .dockerignore
 docker-compose.yml
