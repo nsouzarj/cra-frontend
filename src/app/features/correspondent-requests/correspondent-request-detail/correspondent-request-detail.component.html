@@ -153,7 +153,7 @@
           <!-- Conditional field for Audiência: Hora da Audiência -->
           <div class="info-item" *ngIf="isAudiencia() && solicitacao?.horaudiencia">
             <span class="info-label">Hora da Audiência:</span>
-            <span class="info-value">{{ formatTimeForDisplay(solicitacao?.horaudiencia || null) }}</span>
+            <span class="info-value">{{ solicitacao?.horaudiencia || null }}</span>
           </div>
           <!-- Temporary debug information -->
           <div class="info-item" *ngIf="solicitacao?.horaudiencia && !isAudiencia()">
