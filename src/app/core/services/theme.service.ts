@@ -174,10 +174,10 @@ export class ThemeService {
         secondaryTextColor: '#e64a19'
       },
       midnightblue: {
-        background: '#1976d2', // Vibrant blue to match the theme
+        background: '#102BA9', // Lighter midnight blue
         color: '#ffffff', // White for better contrast on dark background
         welcomeColor: 'rgba(255, 255, 255, 0.9)', // White with transparency
-        userInfoBg: '#1976d2', // Vibrant blue for user info background
+        userInfoBg: '#102BA9', // Lighter midnight blue for user info background
         userNameColor: '#ffffff', // White for user name
         userEmailColor: '#bbdefb', // Light blue for user email
         userRoleColor: '#64b5f6', // Medium blue for user role

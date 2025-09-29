@@ -1658,17 +1658,17 @@ html, body {
   
   /* Sidenav styles */
   .sidenav {
-    background-color: #152955 !important; /* Medium midnight blue */
+    background-color: #102BA9 !important; /* Lighter midnight blue */
     border-right: 1px solid #284a8c !important; /* Slightly lighter blue */
     color: #e3f2fd; /* Light blue text */
   }
   
   .sidenav-list {
-    background-color: #152955; /* Match sidenav */
+    background-color: #102BA9; /* Match sidenav */
   }
   
   .nav-header {
-    background-color: #1976d2; /* Vibrant blue */
+    background-color: #102BA9; /* Lighter midnight blue */
     color: #ffffff;
   }
   
@@ -1688,7 +1688,7 @@ html, body {
   
   .nav-child-item {
     color: #e3f2fd !important; /* Light blue text */
-    background-color: #152955 !important; /* Match sidenav */
+    background-color: #102BA9 !important; /* Match sidenav */
   }
   
   .nav-child-item:hover {
@@ -1793,7 +1793,7 @@ html, body {
   
   /* Ensure all headers maintain proper styling */
   .app-header {
-    background-color: #1976d2; /* Vibrant blue */
+    background-color: #152955; /* Medium midnight blue */
   }
   
   .app-title {
@@ -1806,7 +1806,7 @@ html, body {
   
   /* Ensure mat-toolbar maintains proper styling */
   .mat-toolbar {
-    background-color: #1976d2 !important; /* Vibrant blue */
+    background-color: #152955 !important; /* Medium midnight blue */
     color: #ffffff !important;
   }
   
