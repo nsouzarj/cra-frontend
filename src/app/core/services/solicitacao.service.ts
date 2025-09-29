@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
 import { Solicitacao, SolicitacaoStatus } from '../../shared/models/solicitacao.model';
@@ -17,8 +17,7 @@ import { PaginatedResponse } from '../../shared/models/api-response.model';
 export class SolicitacaoService {
   private apiUrl = `${environment.apiUrl}/api/solicitacoes`;
 
-  constructor(private http: HttpClient) { 
-  }
+  private http = inject(HttpClient);
 
   /**
    * Retrieves all service requests from the system with pagination
@@ -29,8 +28,8 @@ export class SolicitacaoService {
    * @param direction The sort direction (ASC or DESC)
    * @returns Observable containing paginated list of service requests
    */
-  getSolicitacoesPaginated(page: number = 0, size: number = 20, sortBy: string = 'id', direction: string = 'ASC'): Observable<PaginatedResponse<Solicitacao>> {
-    let params = new HttpParams()
+  getSolicitacoesPaginated(page = 0, size = 20, sortBy = 'id', direction = 'ASC'): Observable<PaginatedResponse<Solicitacao>> {
+    const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString())
       .set('sortBy', sortBy)
@@ -145,8 +144,8 @@ export class SolicitacaoService {
    * @param size The number of items per page
    * @returns Observable containing paginated list of matching service requests
    */
-  searchByStatusPaginated(status: string, page: number = 0, size: number = 20): Observable<PaginatedResponse<Solicitacao>> {
-    let params = new HttpParams()
+  searchByStatusPaginated(status: string, page = 0, size = 20): Observable<PaginatedResponse<Solicitacao>> {
+    const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
       
@@ -184,12 +183,24 @@ export class SolicitacaoService {
    * @param size The number of items per page
    * @returns Observable containing paginated list of matching service requests
    */
-  searchByCorrespondentePaginated(correspondenteId: number, page: number = 0, size: number = 20): Observable<PaginatedResponse<Solicitacao>> {
-    let params = new HttpParams()
+  searchByCorrespondentePaginated(correspondenteId: number, page = 0, size = 20): Observable<PaginatedResponse<Solicitacao>> {
+    const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
       
     return this.http.get<PaginatedResponse<Solicitacao>>(`${this.apiUrl}/buscar/correspondente/${correspondenteId}`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  /**
+   * Generates and downloads a PDF report for a specific service request
+   * 
+   * @param solicitacaoId The ID of the service request to generate PDF for
+   * @returns Observable containing the PDF blob
+   */
+  generatePdfReport(solicitacaoId: number): Observable<Blob> {
+    const reportUrl = `${environment.apiUrl}/api/reports/solicitacao/${solicitacaoId}`;
+    return this.http.get(reportUrl, { responseType: 'blob' })
       .pipe(catchError(this.handleError));
   }
 
@@ -223,8 +234,8 @@ export class SolicitacaoService {
    * @param size The number of items per page
    * @returns Observable containing paginated list of matching service requests
    */
-  searchByUserCorrespondentePaginated(usuarioId: number, page: number = 0, size: number = 20): Observable<PaginatedResponse<Solicitacao>> {
-    let params = new HttpParams()
+  searchByUserCorrespondentePaginated(usuarioId: number, page = 0, size = 20): Observable<PaginatedResponse<Solicitacao>> {
+    const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
       
@@ -262,8 +273,8 @@ export class SolicitacaoService {
    * @param size The number of items per page
    * @returns Observable containing paginated list of matching service requests
    */
-  searchByProcessoPaginated(processoId: number, page: number = 0, size: number = 20): Observable<PaginatedResponse<Solicitacao>> {
-    let params = new HttpParams()
+  searchByProcessoPaginated(processoId: number, page = 0, size = 20): Observable<PaginatedResponse<Solicitacao>> {
+    const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
       
@@ -302,8 +313,8 @@ export class SolicitacaoService {
    * @param size The number of items per page
    * @returns Observable containing paginated list of matching service requests
    */
-  searchByTipoPaginated(tipo: string, page: number = 0, size: number = 20): Observable<PaginatedResponse<Solicitacao>> {
-    let params = new HttpParams()
+  searchByTipoPaginated(tipo: string, page = 0, size = 20): Observable<PaginatedResponse<Solicitacao>> {
+    const params = new HttpParams()
       .set('tipo', tipo)
       .set('page', page.toString())
       .set('size', size.toString());

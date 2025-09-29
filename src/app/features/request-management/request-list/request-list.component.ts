@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef, OnDestroy, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -30,6 +31,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { RequestFilterComponent } from '@/app/shared/components/request-filter/request-filter.component';
 
@@ -49,6 +51,7 @@ import { RequestFilterComponent } from '@/app/shared/components/request-filter/r
     MatCardModule,
     MatToolbarModule,
     MatChipsModule,
+    MatTooltipModule,
     RouterModule,
     RequestFilterComponent
   ]
@@ -94,6 +97,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
   private themeSubscription: Subscription | null = null;
 
   // Using inject() function instead of constructor injection
+  private http = inject(HttpClient);
   private solicitacaoService = inject(SolicitacaoService);
   private solicitacaoStatusService = inject(SolicitacaoStatusService);
   private processoService = inject(ProcessoService);
@@ -311,12 +315,43 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadRequests();
   }
 
-  viewRequest(_solicitacao: Solicitacao): void {
+  viewRequest(): void {
     // Implementation for viewing a request
   }
 
-  editRequest(_solicitacao: Solicitacao): void {
+  editRequest(): void {
     // Implementation for editing a request
+  }
+
+  /**
+   * Generate and download PDF report for a solicitation
+   * @param solicitacaoId The ID of the solicitation to generate PDF for
+   */
+  generatePdfReport(solicitacaoId: number): void {
+    this.solicitacaoService.generatePdfReport(solicitacaoId).subscribe({
+      next: (blob: Blob) => {
+        // Create a download link
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `solicitacao-${solicitacaoId}.pdf`;
+        
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        
+        // Clean up
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+      },
+      error: (error) => {
+        console.error('Error generating PDF report:', error);
+        this.snackBar.open('Erro ao gerar relatório PDF', 'Fechar', {
+          duration: 5000,
+          panelClass: ['error-snackbar']
+        });
+      }
+    });
   }
 
   deleteRequest(id: number): void {

@@ -213,6 +213,14 @@
             <span class="info-label">Órgão:</span>
             <span class="info-value">{{ solicitacao?.processo?.orgao?.descricao }}</span>
           </div>
+          <div class="info-item" *ngIf="solicitacao?.processo?.comarca">
+            <span class="info-label">Comarca:</span>
+            <span class="info-value">{{ solicitacao?.processo?.comarca?.nome }} - {{ solicitacao?.processo?.comarca?.uf?.sigla }}</span>
+          </div>
+          <div class="info-item" *ngIf="solicitacao?.processo?.orgao">
+            <span class="info-label">Vara/Órgão:</span>
+            <span class="info-value">{{ solicitacao?.processo?.orgao?.descricao }}</span>
+          </div>
           <div class="info-item">
             <span class="info-label">Processo Eletrônico:</span>
             <span class="info-value">{{ solicitacao?.processo?.proceletronico === 'S' ? 'SIM' : (solicitacao?.processo?.proceletronico === 'N' ? 'NÃO' : 'Não informado') }}</span>
@@ -246,6 +254,56 @@
           <div class="info-item">
             <span class="info-label">CPF/CNPJ:</span>
             <span class="info-value">{{ solicitacao?.correspondente?.cpfcnpj || 'Não informado' }}</span>
+          </div>
+          <div class="info-item" *ngIf="solicitacao?.correspondente?.emailprimario">
+            <span class="info-label">Email Principal:</span>
+            <span class="info-value">{{ solicitacao?.correspondente?.emailprimario }}</span>
+          </div>
+          <div class="info-item" *ngIf="solicitacao?.correspondente?.emailsecundario">
+            <span class="info-label">Email Secundário:</span>
+            <span class="info-value">{{ solicitacao?.correspondente?.emailsecundario }}</span>
+          </div>
+          <div class="info-item" *ngIf="solicitacao?.correspondente?.telefoneprimario">
+            <span class="info-label">Telefone Principal:</span>
+            <span class="info-value">{{ solicitacao?.correspondente?.telefoneprimario }}</span>
+          </div>
+          <div class="info-item" *ngIf="solicitacao?.correspondente?.telefonesecundario">
+            <span class="info-label">Telefone Secundário:</span>
+            <span class="info-value">{{ solicitacao?.correspondente?.telefonesecundario }}</span>
+          </div>
+          <div class="info-item" *ngIf="solicitacao?.correspondente?.telefonecelularprimario">
+            <span class="info-label">Celular Principal:</span>
+            <span class="info-value">{{ solicitacao?.correspondente?.telefonecelularprimario }}</span>
+          </div>
+          <div class="info-item" *ngIf="solicitacao?.correspondente?.telefonecelularsecundario">
+            <span class="info-label">Celular Secundário:</span>
+            <span class="info-value">{{ solicitacao?.correspondente?.telefonecelularsecundario }}</span>
+          </div>
+          
+          <!-- Address Information -->
+          <div *ngIf="solicitacao?.correspondente?.endereco">
+            <h3>Endereço</h3>
+            <div class="info-item" *ngIf="solicitacao?.correspondente?.endereco?.logradouro">
+              <span class="info-label">Logradouro:</span>
+              <span class="info-value">{{ solicitacao?.correspondente?.endereco?.logradouro }}
+                {{ solicitacao?.correspondente?.endereco?.numero ? ', ' + solicitacao?.correspondente?.endereco?.numero : '' }}
+                {{ solicitacao?.correspondente?.endereco?.complemento ? ' - ' + solicitacao?.correspondente?.endereco?.complemento : '' }}
+              </span>
+            </div>
+            <div class="info-item" *ngIf="solicitacao?.correspondente?.endereco?.bairro">
+              <span class="info-label">Bairro:</span>
+              <span class="info-value">{{ solicitacao?.correspondente?.endereco?.bairro }}</span>
+            </div>
+            <div class="info-item" *ngIf="solicitacao?.correspondente?.endereco?.cidade">
+              <span class="info-label">Cidade:</span>
+              <span class="info-value">{{ solicitacao?.correspondente?.endereco?.cidade }}
+                {{ solicitacao?.correspondente?.endereco?.uf ? ' - ' + solicitacao?.correspondente?.endereco?.uf?.sigla : '' }}
+              </span>
+            </div>
+            <div class="info-item" *ngIf="solicitacao?.correspondente?.endereco?.cep">
+              <span class="info-label">CEP:</span>
+              <span class="info-value">{{ solicitacao?.correspondente?.endereco?.cep }}</span>
+            </div>
           </div>
         </div>
       </mat-card-content>

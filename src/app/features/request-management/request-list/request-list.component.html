@@ -86,6 +86,11 @@
                   <mat-icon>edit</mat-icon>
                 </button>
                 
+                <!-- PDF Report button -->
+                <button mat-icon-button (click)="generatePdfReport(solicitacao.id)" matTooltip="Gerar Relatório PDF">
+                  <mat-icon>picture_as_pdf</mat-icon>
+                </button>
+                
                 <!-- Delete button only for admins -->
                 <button *ngIf="authService.isAdminUser" mat-icon-button (click)="deleteRequest(solicitacao.id)" class="delete-action">
                   <mat-icon>delete</mat-icon>
