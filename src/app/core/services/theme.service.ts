@@ -95,7 +95,7 @@ export class ThemeService {
     const root = document.documentElement;
     
     // Define theme-specific header colors
-    const themeColors: { [key in Theme]: { background: string; color: string; welcomeColor: string; userInfoBg: string; userNameColor: string; userEmailColor: string; userRoleColor: string; textColor: string; secondaryTextColor: string } } = {
+    const themeColors: Record<Theme, { background: string; color: string; welcomeColor: string; userInfoBg: string; userNameColor: string; userEmailColor: string; userRoleColor: string; textColor: string; secondaryTextColor: string }> = {
       light: {
         background: '#3f51b5',
         color: '#ffffff',
@@ -174,7 +174,7 @@ export class ThemeService {
         secondaryTextColor: '#e64a19'
       },
       midnightblue: {
-        background: '#0d1b3d', // Deep midnight blue
+        background: '#1976d2', // Vibrant blue to match the theme
         color: '#ffffff', // White for better contrast on dark background
         welcomeColor: 'rgba(255, 255, 255, 0.9)', // White with transparency
         userInfoBg: '#1976d2', // Vibrant blue for user info background
