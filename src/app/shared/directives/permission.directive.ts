@@ -1,4 +1,4 @@
-import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Directive, Input, TemplateRef, ViewContainerRef, inject } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 
 /**
@@ -13,13 +13,11 @@ import { AuthService } from '../../core/services/auth.service';
   standalone: true
 })
 export class HasPermissionDirective {
+  private templateRef = inject(TemplateRef);
+  private viewContainer = inject(ViewContainerRef);
+  private authService = inject(AuthService);
+  
   private isVisible = false;
-
-  constructor(
-    private templateRef: TemplateRef<any>,
-    private viewContainer: ViewContainerRef,
-    private authService: AuthService
-  ) { }
 
   @Input() set appHasPermission(roles: string[]) {
     this.updateView(roles, this.appHasPermissionRequireAll);
@@ -29,7 +27,7 @@ export class HasPermissionDirective {
     this.updateView(this.appHasPermission, requireAll);
   }
 
-  private updateView(roles: string[] = [], requireAll: boolean = false): void {
+  private updateView(roles: string[] = [], requireAll = false): void {
     let hasPermission = false;
 
     if (roles.length === 0) {

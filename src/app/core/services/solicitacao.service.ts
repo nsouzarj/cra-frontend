@@ -358,8 +358,8 @@ export class SolicitacaoService {
    * @param size The number of items per page
    * @returns Observable containing paginated list of matching service requests
    */
-  searchByPrazoPaginated(dataInicio: string, dataFim: string, page: number = 0, size: number = 20): Observable<PaginatedResponse<Solicitacao>> {
-    let params = new HttpParams()
+  searchByPrazoPaginated(dataInicio: string, dataFim: string, page = 0, size = 20): Observable<PaginatedResponse<Solicitacao>> {
+    const params = new HttpParams()
       .set('dataInicio', dataInicio)
       .set('dataFim', dataFim)
       .set('page', page.toString())
@@ -443,8 +443,8 @@ export class SolicitacaoService {
    * @param direction The sort direction (ASC or DESC)
    * @returns Observable containing paginated list of matching service requests
    */
-  searchSolicitacoesPaginated(searchTerm: string, page: number = 0, size: number = 20, sortBy: string = 'id', direction: string = 'ASC'): Observable<PaginatedResponse<Solicitacao>> {
-    let params = new HttpParams()
+  searchSolicitacoesPaginated(searchTerm: string, page = 0, size = 20, sortBy = 'id', direction = 'ASC'): Observable<PaginatedResponse<Solicitacao>> {
+    const params = new HttpParams()
       .set('search', searchTerm)
       .set('page', page.toString())
       .set('size', size.toString())
@@ -463,8 +463,8 @@ export class SolicitacaoService {
    * @param size The number of items per page
    * @returns Observable containing paginated list of matching service requests
    */
-  searchByComarcaPaginated(comarcaId: number, page: number = 0, size: number = 20): Observable<PaginatedResponse<Solicitacao>> {
-    let params = new HttpParams()
+  searchByComarcaPaginated(comarcaId: number, page = 0, size = 20): Observable<PaginatedResponse<Solicitacao>> {
+    const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
       
@@ -503,8 +503,8 @@ export class SolicitacaoService {
    * @param size The number of items per page
    * @returns Observable containing paginated list of matching service requests
    */
-  searchByComarcaAndCorrespondentePaginated(comarcaId: number, correspondenteId: number, page: number = 0, size: number = 20): Observable<PaginatedResponse<Solicitacao>> {
-    let params = new HttpParams()
+  searchByComarcaAndCorrespondentePaginated(comarcaId: number, correspondenteId: number, page = 0, size = 20): Observable<PaginatedResponse<Solicitacao>> {
+    const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString())
       .set('comarcaId', comarcaId.toString())
@@ -570,7 +570,7 @@ export class SolicitacaoService {
    * @param error The error object
    * @returns Observable that throws the error
    */
-  private handleError(error: any): Observable<never> {
+  private handleError(error: unknown): Observable<never> {
     console.error('Solicitacao Service Error:', error);
     throw error;
   }

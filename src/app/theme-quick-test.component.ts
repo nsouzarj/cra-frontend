@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ThemeService, Theme } from './core/services/theme.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -101,14 +101,12 @@ import { MatButtonModule } from '@angular/material/button';
   imports: [CommonModule, MatButtonModule]
 })
 export class ThemeQuickTestComponent implements OnInit {
+  private themeService = inject(ThemeService);
+  private router = inject(Router);
+  
   currentTheme: Theme = 'light';
-  bodyClasses: string = '';
+  bodyClasses = '';
   testResults: { message: string; success: boolean }[] = [];
-
-  constructor(
-    private themeService: ThemeService,
-    private router: Router
-  ) {}
 
   ngOnInit(): void {
     this.updateStatus();

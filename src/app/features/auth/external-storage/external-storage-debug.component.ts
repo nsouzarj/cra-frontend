@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ExternalStorageService } from '../../../core/services/external-storage.service';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+
+type DebugInfo = Record<string, unknown>;
 
 @Component({
   selector: 'app-external-storage-debug',
@@ -13,12 +15,15 @@ import { MatButtonModule } from '@angular/material/button';
   ]
 })
 export class ExternalStorageDebugComponent implements OnInit {
-  debugInfo: any = null;
-  error: string = '';
-
-  constructor(private externalStorageService: ExternalStorageService) {}
+  private externalStorageService = inject(ExternalStorageService);
+  
+  debugInfo: DebugInfo | null = null;
+  error = '';
 
   ngOnInit(): void {
+    // Initialize component state
+    this.debugInfo = null;
+    this.error = '';
   }
 
   checkStatus(): void {
