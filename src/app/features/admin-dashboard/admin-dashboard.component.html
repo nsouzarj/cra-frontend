@@ -345,56 +345,45 @@
   <!-- Quick Actions -->
   <div class="quick-actions" *ngIf="!loading">
     <h2>Ações Rápidas</h2>
-    <div class="actions-grid">
-      <mat-card class="action-card" *ngIf="authService.isAdmin()">
+    <div class="actions-grid clickable">
+      <mat-card class="action-card" *ngIf="authService.isAdmin()" routerLink="/register">
         <mat-card-content>
           <mat-icon>person_add</mat-icon>
           <h3>Cadastrar Usuário</h3>
-          <button mat-raised-button color="primary" routerLink="/register">
-            Cadastrar
-          </button>
+          <p>Adicionar um novo usuário ao sistema</p>
         </mat-card-content>
       </mat-card>
 
-      <mat-card class="action-card">
+      <mat-card class="action-card" routerLink="/correspondentes/novo">
         <mat-card-content>
           <mat-icon>business</mat-icon>
           <h3>Novo Correspondente</h3>
-          <button mat-raised-button color="primary" routerLink="/correspondentes/novo">
-            Cadastrar
-          </button>
+          <p>Cadastrar um novo correspondente</p>
         </mat-card-content>
       </mat-card>
 
-      <mat-card class="action-card">
+      <mat-card class="action-card" routerLink="/processos/novo">
         <mat-card-content>
           <mat-icon>folder_open</mat-icon>
           <h3>Novo Processo</h3>
-          <button mat-raised-button color="primary" routerLink="/processos/novo">
-            Cadastrar
-          </button>
+          <p>Adicionar um novo processo legal</p>
         </mat-card-content>
       </mat-card>
 
-      <mat-card class="action-card">
+      <mat-card class="action-card" routerLink="/solicitacoes/novo">
         <mat-card-content>
           <mat-icon>assignment_add</mat-icon>
           <h3>Nova Solicitação</h3>
-          <button mat-raised-button color="primary" routerLink="/solicitacoes/novo">
-            Criar
-          </button>
+          <p>Criar uma nova solicitação de serviço</p>
         </mat-card-content>
       </mat-card>
       
       <!-- Correspondent Dashboard Action -->
-      <mat-card class="action-card" *ngIf="authService.isCorrespondente()">
+      <mat-card class="action-card" *ngIf="authService.isCorrespondente()" routerLink="/correspondent-dashboard">
         <mat-card-content>
           <mat-icon>dashboard</mat-icon>
           <h3>Meu Dashboard</h3>
           <p>Visualizar minhas estatísticas</p>
-          <button mat-raised-button color="primary" routerLink="/correspondent-dashboard">
-            Acessar
-          </button>
         </mat-card-content>
       </mat-card>
     </div>
