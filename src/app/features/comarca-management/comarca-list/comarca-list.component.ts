@@ -285,6 +285,13 @@ export class ComarcaListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadComarcas();
   }
 
+  /**
+   * Navega para a página de criação de uma nova comarca.
+   */
+  addComarca(): void {
+    this.router.navigate(['/comarcas/nova']);
+  }
+
   viewComarca(comarca: Comarca): void {
     this.router.navigate(['/comarcas', comarca.id]);
   }
