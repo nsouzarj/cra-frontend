@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy, inject } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -64,15 +64,14 @@ export class CorrespondentListComponent implements OnInit, AfterViewInit, OnDest
   statusFilterControl = new FormControl('');
 
   private themeSubscription: Subscription | null = null;
-
-  constructor(
-    private correspondenteService: CorrespondenteService,
-    public authService: AuthService,
-    public permissionService: PermissionService,
-    private dialog: MatDialog,
-    private router: Router,
-    private snackBar: MatSnackBar
-  ) {}
+  
+  // Using inject() function instead of constructor injection
+  private correspondenteService = inject(CorrespondenteService);
+  public authService = inject(AuthService);
+  public permissionService = inject(PermissionService);
+  private dialog = inject(MatDialog);
+  private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
 
   ngOnInit(): void {
     this.loadCorrespondentes();
@@ -95,11 +94,7 @@ export class CorrespondentListComponent implements OnInit, AfterViewInit, OnDest
   setupThemeListener(): void {
     // Listen for theme changes to trigger change detection
     this.themeSubscription = new Subscription();
-    const themeHandler = (event: Event) => {
-      const customEvent = event as CustomEvent;
-      // Force change detection when theme changes
-      // This will cause the component to re-render with the new theme styles
-    };
+    const themeHandler = () => {};
     
     window.addEventListener('themeChanged', themeHandler);
     // Clean up the event listener when component is destroyed
@@ -156,7 +151,7 @@ export class CorrespondentListComponent implements OnInit, AfterViewInit, OnDest
   }
 
   applyFilters(): void {
-    this.dataSource.filterPredicate = (correspondent: Correspondente, filter: string): boolean => {
+    this.dataSource.filterPredicate = (correspondent: Correspondente): boolean => {
       const searchTerm = this.searchControl.value?.toLowerCase() || '';
       const typeFilter = this.typeFilterControl.value;
       const statusFilter = this.statusFilterControl.value;
@@ -196,6 +191,11 @@ export class CorrespondentListComponent implements OnInit, AfterViewInit, OnDest
     this.searchControl.setValue('');
     this.typeFilterControl.setValue('');
     this.statusFilterControl.setValue('');
+  }
+
+
+  addCorrespondent(): void {
+    this.router.navigate(['/correspondentes/novo']);
   }
 
   viewCorrespondent(correspondent: Correspondente): void {

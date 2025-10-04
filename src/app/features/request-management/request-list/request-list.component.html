@@ -87,8 +87,9 @@
                 </button>
                 
                 <!-- PDF Report button -->
-                <button mat-icon-button (click)="generatePdfReport(solicitacao.id)" matTooltip="Gerar Relatório PDF">
-                  <mat-icon>picture_as_pdf</mat-icon>
+                <button mat-icon-button (click)="generatePdfReport(solicitacao.id)" matTooltip="Gerar Relatório PDF" [disabled]="pdfLoading.has(solicitacao.id)">
+                  <mat-spinner *ngIf="pdfLoading.has(solicitacao.id)" [diameter]="24"></mat-spinner>
+                  <mat-icon *ngIf="!pdfLoading.has(solicitacao.id)">picture_as_pdf</mat-icon>
                 </button>
                 
                 <!-- Delete button only for admins -->

@@ -63,6 +63,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
   dataSource = new MatTableDataSource<Solicitacao>();
   displayedColumns: string[] = ['id', 'datasolicitacao', 'dataprazo', 'tipoSolicitacao', 'processo', 'correspondente', 'status', 'actions'];
   loading = true;
+  pdfLoading = new Set<number>();
   
   // Current filter criteria
   currentFilter: RequestFilterCriteria = {
@@ -328,6 +329,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param solicitacaoId The ID of the solicitation to generate PDF for
    */
   generatePdfReport(solicitacaoId: number): void {
+    this.pdfLoading.add(solicitacaoId);
     this.solicitacaoService.generatePdfReport(solicitacaoId).subscribe({
       next: (blob: Blob) => {
         // Create a download link
@@ -350,6 +352,9 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
           duration: 5000,
           panelClass: ['error-snackbar']
         });
+      },
+      complete: () => {
+        this.pdfLoading.delete(solicitacaoId);
       }
     });
   }
