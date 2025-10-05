@@ -166,3 +166,33 @@
   background-color: rgb(31, 31, 183);
   color: white;
 }
+
+.pdf-action {
+  color: #f44336 !important; /* Red color for PDF action */
+}
+
+.pdf-action:hover {
+  background-color: rgba(244, 67, 54, 0.1) !important;
+}
+
+/* Estilos para o prazo de vencimento na célula da tabela (apenas texto) */
+:host ::ng-deep .mat-mdc-cell.prazo-aviso {
+  font-weight: bold;
+  color: #f3c10e !important; /* Amarelo forte */
+}
+
+:host ::ng-deep .mat-mdc-cell.prazo-alerta {
+  font-weight: bold;
+  color: #e65100 !important; /* Laranja forte */
+}
+
+:host ::ng-deep .mat-mdc-cell.prazo-critico {
+  font-weight: bold;
+  color: #c62828 !important; /* Vermelho forte */
+}
+
+/* Remove a cor de fundo que estava sendo aplicada anteriormente */
+:host ::ng-deep .mat-mdc-cell.prazo-vencido,
+:host ::ng-deep .mat-mdc-cell.prazo-proximo {
+  background-color: transparent !important;
+}

@@ -275,6 +275,52 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  /**
+   * Retorna a classe CSS e o tooltip com base no prazo da solicitação.
+   * @param solicitacao O objeto da solicitação.
+   * @returns Um objeto com a classe CSS e a mensagem do tooltip.
+   */
+  public getPrazoInfo(solicitacao: Solicitacao): { class: string; tooltip: string } {
+    const defaultInfo = { class: '', tooltip: '' };
+    const status = solicitacao.statusSolicitacao?.status?.toLowerCase();
+
+    // A regra de cor do prazo só se aplica a status específicos.
+    const statusPermitidos = ['em andamento', 'em_andamento', 'aguardando confirmação', 'aguardando confirmacao', 'em producao', 'em_producao', 'em produção'];
+
+    if (!solicitacao.dataprazo || !status || !statusPermitidos.includes(status)) {
+      // Se não houver prazo, status, ou se o status não for um dos permitidos,
+      // não aplica nenhuma formatação especial.
+      // Isso exclui 'finalizada', 'concluída', 'cancelada', etc.
+      return defaultInfo;
+    }
+
+    const prazo = new Date(solicitacao.dataprazo);
+    const hoje = new Date();
+
+    // Zera a hora para comparar apenas as datas
+    prazo.setHours(0, 0, 0, 0);
+    hoje.setHours(0, 0, 0, 0);
+
+    const diffTime = prazo.getTime() - hoje.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) { // Vencido
+      const diasAtraso = Math.abs(diffDays);
+      const tooltip = `Prazo vencido há ${diasAtraso} dia(s).`;
+
+      if (diasAtraso <= 5) {
+        return { class: 'prazo-aviso', tooltip: tooltip };
+      }
+      if (diasAtraso <= 10) {
+        return { class: 'prazo-alerta', tooltip: tooltip };
+      }
+      // Mais de 10 dias
+      return { class: 'prazo-critico', tooltip: tooltip };
+    }
+
+    return defaultInfo; // Dentro do prazo, sem formatação especial
+  }
+
   // New method to handle filter changes from the RequestFilterComponent
   onFilterChange(filterCriteria: RequestFilterCriteria): void {
     // Debug log removed

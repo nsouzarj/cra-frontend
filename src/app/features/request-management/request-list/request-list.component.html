@@ -39,7 +39,12 @@
 
           <ng-container matColumnDef="dataprazo">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Prazo</th>
-            <td mat-cell *matCellDef="let solicitacao">{{ solicitacao.dataprazo | date:'dd/MM/yyyy' }}</td>
+            <td mat-cell 
+                *matCellDef="let solicitacao"
+                [ngClass]="getPrazoInfo(solicitacao).class"
+                [matTooltip]="getPrazoInfo(solicitacao).tooltip">
+              {{ solicitacao.dataprazo | date:'dd/MM/yyyy' }}
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="tipoSolicitacao">
@@ -77,23 +82,23 @@
             <th mat-header-cell *matHeaderCellDef>Ações</th>
             <td mat-cell *matCellDef="let solicitacao">
               <div class="action-buttons">
-                <button mat-icon-button [routerLink]="['/solicitacoes/visualizar', solicitacao.id]" class="view-action">
+                <button mat-icon-button [routerLink]="['/solicitacoes/visualizar', solicitacao.id]" class="view-action" matTooltip="Visualizar Solicitação">
                   <mat-icon>visibility</mat-icon>
                 </button>
                 
                 <!-- Using Permission Service -->
-                <button *ngIf="permissionService.canEditRequests()" mat-icon-button [routerLink]="['/solicitacoes/editar', solicitacao.id]" class="edit-action">
+                <button *ngIf="permissionService.canEditRequests()" mat-icon-button [routerLink]="['/solicitacoes/editar', solicitacao.id]" class="edit-action" matTooltip="Editar Solicitação">
                   <mat-icon>edit</mat-icon>
                 </button>
                 
                 <!-- PDF Report button -->
-                <button mat-icon-button (click)="generatePdfReport(solicitacao.id)" matTooltip="Gerar Relatório PDF" [disabled]="pdfLoading.has(solicitacao.id)">
+                <button mat-icon-button class="pdf-action" (click)="generatePdfReport(solicitacao.id)" matTooltip="Gerar Relatório PDF" [disabled]="pdfLoading.has(solicitacao.id)">
                   <mat-spinner *ngIf="pdfLoading.has(solicitacao.id)" [diameter]="24"></mat-spinner>
                   <mat-icon *ngIf="!pdfLoading.has(solicitacao.id)">picture_as_pdf</mat-icon>
                 </button>
                 
                 <!-- Delete button only for admins -->
-                <button *ngIf="authService.isAdminUser" mat-icon-button (click)="deleteRequest(solicitacao.id)" class="delete-action">
+                <button *ngIf="authService.isAdminUser" mat-icon-button (click)="deleteRequest(solicitacao.id)" class="delete-action" matTooltip="Excluir Solicitação">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>

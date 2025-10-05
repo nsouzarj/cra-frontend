@@ -255,6 +255,37 @@
         </mat-card-content>
       </mat-card>
 
+      <!-- Solicitações Atrasadas Chart -->
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Solicitações Atrasadas por Período</mat-card-title>
+          <mat-card-subtitle>Contagem de solicitações com prazo vencido</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container horizontal-scroll-container">
+            <div class="bar-chart responsive-bar-chart">
+              <div class="chart-bars">
+                <div
+                  *ngFor="let value of solicitacoesAtrasadasChart.values; let i = index"
+                  class="bar-container"
+                  (click)="navigateToOverdueRequests(solicitacoesAtrasadasChart.labels[i])"
+                >
+                  <div
+                    class="bar"
+                    [ngStyle]="{
+                      'height': getBarHeight(value, getMaxValue(solicitacoesAtrasadasChart.values)),
+                      'background-color': solicitacoesAtrasadasChart.colors[i]
+                    }"
+                  ></div>
+                  <div class="bar-label">{{ solicitacoesAtrasadasChart.labels[i] }}</div>
+                  <div class="bar-value">{{ value }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
       <!-- Solicitações por Status Chart (Pie Chart) -->
       <mat-card class="chart-card">
         <mat-card-header>

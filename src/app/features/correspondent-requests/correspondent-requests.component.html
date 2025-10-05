@@ -85,36 +85,44 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Ações</th>
             <td mat-cell *matCellDef="let solicitacao">
-              <button mat-icon-button color="primary" 
-                      [routerLink]="['/minhas-solicitacoes/visualizar', solicitacao.id]"
-                      matTooltip="Visualizar"
-                      class="view-action">
-                <mat-icon>visibility</mat-icon>
-              </button>
-              
-              <!-- Status update buttons for correspondents, admins and lawyers -->
-              <ng-container *ngIf="canChangeStatus()">
-                <!-- Show buttons for correspondents only if status is not "Finalizada" -->
-                <ng-container *ngIf="canCorrespondentChangeStatus(solicitacao) || canAdminOrLawyerChangeStatus()">
-                 
-                  <button mat-icon-button color="warn" 
-                          *ngIf="solicitacao.statusSolicitacao?.status === 'Em Andamento'"
-                          (click)="updateStatus(solicitacao, 'Finalizada')"
-                          matTooltip="Finalizar solicitação"
-                          class="status-action">
-                    <mat-icon>check</mat-icon>
-                  </button>
-                </ng-container> 
-                <!-- Special case: Show "Reabrir" button for admins/lawyers when status is "Finalizada" -->
-              
+              <div class="action-buttons">
                 <button mat-icon-button color="primary" 
-                        *ngIf="canAdminOrLawyerChangeStatus() && solicitacao.statusSolicitacao?.status === 'Finalizada'"
-                        (click)="updateStatus(solicitacao, 'Em Andamento')"
-                        matTooltip="Reabrir solicitação"
-                        class="reopen-action">
-                  <mat-icon>replay</mat-icon>
-                </button> 
-              </ng-container>
+                        [routerLink]="['/minhas-solicitacoes/visualizar', solicitacao.id]"
+                        matTooltip="Visualizar Solicitação"
+                        class="view-action">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                
+                <!-- PDF Report button -->
+                <button mat-icon-button class="pdf-action" (click)="generatePdfReport(solicitacao.id)" matTooltip="Gerar Relatório PDF" [disabled]="pdfLoading.has(solicitacao.id)">
+                  <mat-spinner *ngIf="pdfLoading.has(solicitacao.id)" [diameter]="24"></mat-spinner>
+                  <mat-icon *ngIf="!pdfLoading.has(solicitacao.id)">picture_as_pdf</mat-icon>
+                </button>
+                
+                <!-- Status update buttons for correspondents, admins and lawyers -->
+                <ng-container *ngIf="canChangeStatus()">
+                  <!-- Show buttons for correspondents only if status is not "Finalizada" -->
+                  <ng-container *ngIf="canCorrespondentChangeStatus(solicitacao) || canAdminOrLawyerChangeStatus()">
+                   
+                    <button mat-icon-button color="warn" 
+                            *ngIf="solicitacao.statusSolicitacao?.status === 'Em Andamento'"
+                            (click)="updateStatus(solicitacao, 'Finalizada')"
+                            matTooltip="Finalizar solicitação"
+                            class="status-action">
+                      <mat-icon>check</mat-icon>
+                    </button>
+                  </ng-container> 
+                  <!-- Special case: Show "Reabrir" button for admins/lawyers when status is "Finalizada" -->
+                
+                  <button mat-icon-button color="primary" 
+                          *ngIf="canAdminOrLawyerChangeStatus() && solicitacao.statusSolicitacao?.status === 'Finalizada'"
+                          (click)="updateStatus(solicitacao, 'Em Andamento')"
+                          matTooltip="Reabrir solicitação"
+                          class="reopen-action">
+                    <mat-icon>replay</mat-icon>
+                  </button> 
+                </ng-container>
+              </div>
             </td>
           </ng-container>
           

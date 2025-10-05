@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { CorrespondenteService } from '../../core/services/correspondente.service';
@@ -7,15 +7,11 @@ import { SolicitacaoService } from '../../core/services/solicitacao.service';
 import { SolicitacaoStatusService } from '../../core/services/solicitacao-status.service';
 import { TipoSolicitacaoService } from '../../core/services/tiposolicitacao.service';
 import { ComarcaService } from '../../core/services/comarca.service';
-import { DashboardService, DashboardData, MappedDashboardData, ChartData } from '../../core/services/dashboard.service';
+import { DashboardService,  ChartData } from '../../core/services/dashboard.service';
 import { User } from '../../shared/models/user.model';
 import { Correspondente } from '../../shared/models/correspondente.model';
 import { Processo } from '../../shared/models/processo.model';
-import { Solicitacao, SolicitacaoStatus } from '../../shared/models/solicitacao.model';
-import { TipoSolicitacao } from '../../shared/models/tiposolicitacao.model';
-import { Comarca } from '../../shared/models/comarca.model';
 import { PaginatedResponse } from '../../shared/models/api-response.model';
-import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -23,6 +19,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
+import { forkJoin, Observable, of } from 'rxjs';
+import { TipoSolicitacao } from '../../shared/models/tiposolicitacao.model';
+import { Solicitacao, SolicitacaoStatus } from '../../shared/models/solicitacao.model';
 
 interface DashboardStats {
   totalUsers: number;
@@ -105,6 +104,13 @@ export class AdminDashboardComponent implements OnInit {
     colors: []
   };
 
+  solicitacoesAtrasadasChart: ChartData = {
+    labels: ['1-5 dias', '6-10 dias', '> 10 dias'],
+    values: [0, 0, 0],
+    colors: ['#f57f17', '#e65100', '#c62828'] // Amarelo forte, Laranja forte, Vermelho forte
+  };
+
+
   private statusColors: { [key: string]: string } = {
     // Process and general statuses
     'EM_ANDAMENTO': '#4facfe',
@@ -151,18 +157,19 @@ export class AdminDashboardComponent implements OnInit {
     'Recebido': '#cddc39'
   };
 
-  constructor(
-    public authService: AuthService,
-    private userService: UserService,
-    private correspondenteService: CorrespondenteService,
-    private processoService: ProcessoService,
-    private solicitacaoService: SolicitacaoService,
-    private solicitacaoStatusService: SolicitacaoStatusService,
-    private tipoSolicitacaoService: TipoSolicitacaoService,
-    private comarcaService: ComarcaService,
-    private dashboardService: DashboardService,
-    private router: Router
-  ) {}
+  // Injected services
+  public authService = inject(AuthService);
+  private userService = inject(UserService);
+  private correspondenteService = inject(CorrespondenteService);
+  private processoService = inject(ProcessoService);
+  private solicitacaoService = inject(SolicitacaoService);
+  private solicitacaoStatusService = inject(SolicitacaoStatusService);
+  private tipoSolicitacaoService = inject(TipoSolicitacaoService);
+  private comarcaService = inject(ComarcaService);
+  private dashboardService = inject(DashboardService);
+  private router = inject(Router);
+
+  constructor() {}
 
   // Method to manually refresh dashboard data
   refreshDashboard(): void {
@@ -192,15 +199,23 @@ export class AdminDashboardComponent implements OnInit {
 
   private loadDashboardData(): void {
     // Try to use the dedicated dashboard API first
-    this.dashboardService.getDashboardData().pipe(
-      catchError((error) => {
+    // We will fetch dashboard data and all solicitations in parallel
+    const dashboardData$ = this.dashboardService.getDashboardData();
+    const allSolicitacoes$ = this.solicitacaoService.getSolicitacoes().pipe(
+      catchError(_error => of([])) // If solicitations fail, return empty array
+    );
+
+    forkJoin([dashboardData$, allSolicitacoes$]).pipe(
+      catchError((_error) => {
         // Call the fallback method directly instead of returning an Observable
         this.loadDashboardDataFallback();
         // Return an observable that never emits to prevent the subscribe block from executing
         return new Observable<never>(() => {});
       })
     ).subscribe({
-      next: (dashboardData) => {
+      next: (results) => {
+        const [dashboardData, allSolicitacoes] = results;
+
         // Map the dashboard data to our stats using the service method
         const mappedData = this.dashboardService.mapDashboardData(dashboardData);
         
@@ -239,10 +254,13 @@ export class AdminDashboardComponent implements OnInit {
         
         // Map and set the solicitacoes por status chart data
         this.solicitacoesPorStatusChart = this.dashboardService.mapSolicitacoesPorStatusData(dashboardData);
-        
+
+        // Processar dados para o novo gráfico de solicitações atrasadas
+        this.processSolicitacoesAtrasadas(allSolicitacoes);
+
         this.loading = false;
       },
-      error: (error) => {
+      error: (_error) => {
         // This will only be called if there's an error in the subscribe block itself
       }
     });
@@ -255,10 +273,10 @@ export class AdminDashboardComponent implements OnInit {
     // Add user-related requests for admin/advogado
     if (this.canViewUsers()) {
       requests.push(
-        this.userService.getUsers().pipe(catchError((error) => {
+        this.userService.getUsers().pipe(catchError((_error) => {
           return of([]);
         })),
-        this.userService.getActiveUsers().pipe(catchError((error) => {
+        this.userService.getActiveUsers().pipe(catchError((_error) => {
           return of([]);
         }))
       );
@@ -268,21 +286,21 @@ export class AdminDashboardComponent implements OnInit {
 
     // Add correspondent requests
     requests.push(
-      this.correspondenteService.getCorrespondentes().pipe(catchError((error) => {
+      this.correspondenteService.getCorrespondentes().pipe(catchError((_error) => {
         return of([]);
       })),
-      this.correspondenteService.getActiveCorrespondentes().pipe(catchError((error) => {
+      this.correspondenteService.getActiveCorrespondentes().pipe(catchError((_error) => {
         return of([]);
       }))
     );
 
     // Add process requests
     requests.push(
-      this.processoService.getProcessos().pipe(catchError((error) => {
+      this.processoService.getProcessos().pipe(catchError((_error) => {
         return of([]);
       })),
       this.processoService.searchByStatusPaginated('EM_ANDAMENTO', 0, 1000).pipe(
-        catchError((error) => {
+        catchError((_error) => {
           return of({ 
             content: [], 
             totalElements: 0, 
@@ -302,31 +320,31 @@ export class AdminDashboardComponent implements OnInit {
 
     // Add solicitacao requests
     requests.push(
-      this.solicitacaoService.getSolicitacoes().pipe(catchError((error) => {
+      this.solicitacaoService.getSolicitacoes().pipe(catchError((_error) => {
         return of([]);
       })),
-      this.solicitacaoService.searchByStatus('Pendente').pipe(catchError((error) => {
+      this.solicitacaoService.searchByStatus('Pendente').pipe(catchError((_error) => {
         return of([]);
       }))
     );
 
     // Add solicitacao status requests
     requests.push(
-      this.solicitacaoStatusService.getSolicitacaoStatuses().pipe(catchError((error) => {
+      this.solicitacaoStatusService.getSolicitacaoStatuses().pipe(catchError((_error) => {
         return of([]);
       }))
     );
 
     // Add tipo solicitacao requests
     requests.push(
-      this.tipoSolicitacaoService.getTiposSolicitacao().pipe(catchError((error) => {
+      this.tipoSolicitacaoService.getTiposSolicitacao().pipe(catchError((_error) => {
         return of([]);
       }))
     );
 
     // Add comarca requests
     requests.push(
-      this.comarcaService.getComarcasCount().pipe(catchError((error) => {
+      this.comarcaService.getComarcasCount().pipe(catchError((_error) => {
         return of(0);
       }))
     );
@@ -421,9 +439,12 @@ export class AdminDashboardComponent implements OnInit {
         // Load solicitacoes by status data
         this.loadSolicitacoesPorStatusData(solicitacaoStatuses);
 
+        // Processar dados para o novo gráfico de solicitações atrasadas
+        this.processSolicitacoesAtrasadas(allSolicitacoes);
+
         this.loading = false;
       },
-      error: (error) => {
+      error: (_error) => {
         // Set default values to prevent empty dashboard
         this.stats = {
           totalUsers: 0,
@@ -456,7 +477,7 @@ export class AdminDashboardComponent implements OnInit {
     // Instead of searching for each status individually, let's get all solicitations
     // and group them by status to avoid mismatches
     this.solicitacaoService.getSolicitacoes().pipe(
-      catchError((error) => {
+      catchError((_error) => {
         return of([]);
       })
     ).subscribe({
@@ -493,7 +514,7 @@ export class AdminDashboardComponent implements OnInit {
           colors: colors
         };
       },
-      error: (error) => {
+      error: (_error) => {
         // Fallback: search for each status individually
         this.loadSolicitacoesPorStatusDataFallback(statuses);
       }
@@ -515,7 +536,7 @@ export class AdminDashboardComponent implements OnInit {
       const cleanStatus = status.status.trim();
       
       return this.solicitacaoService.searchByStatus(cleanStatus).pipe(
-        catchError((error) => {
+        catchError((_error) => {
           return of([]);
         })
       );
@@ -554,7 +575,7 @@ export class AdminDashboardComponent implements OnInit {
           colors: colors
         };
       },
-      error: (error) => {
+      error: (_error) => {
         // Initialize with error data
         this.solicitacoesPorStatusChart = {
           labels: ['Erro ao carregar dados'],
@@ -582,6 +603,42 @@ export class AdminDashboardComponent implements OnInit {
       this.stats.processosEmAndamento,
       this.stats.solicitacoesPendentes
     ];
+  }
+
+  private processSolicitacoesAtrasadas(solicitacoes: Solicitacao[]): void {
+    const counts = {
+      ate5: 0,
+      ate10: 0,      
+      maisDe10: 0
+    };
+
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    solicitacoes.forEach(solicitacao => {
+      // A regra de cor do prazo só se aplica a status específicos.
+      const status = solicitacao.statusSolicitacao?.status?.toLowerCase();
+      const statusPermitidos = ['em andamento', 'em_andamento', 'aguardando confirmação', 'aguardando confirmacao', 'em producao', 'em_producao', 'em produção'];
+      if (!solicitacao.dataprazo || !status || !statusPermitidos.includes(status)) {
+        return; // Ignora se não tem prazo ou o status não é permitido
+      }
+
+      const prazo = new Date(solicitacao.dataprazo);
+      prazo.setHours(0, 0, 0, 0);
+
+      if (prazo.getTime() >= hoje.getTime()) {
+        return; // Ignora se não está atrasada
+      }
+
+      const diffTime = hoje.getTime() - prazo.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays > 10) counts.maisDe10++;
+      else if (diffDays > 5) counts.ate10++;
+      else if (diffDays >= 1) counts.ate5++;
+    });
+
+    this.solicitacoesAtrasadasChart.values = [counts.ate5, counts.ate10, counts.maisDe10];
   }
 
   // Helper method to get color for a status with fallback to generated colors
@@ -654,5 +711,39 @@ export class AdminDashboardComponent implements OnInit {
   // Method to calculate total solicitacoes for pie chart center
   getTotalSolicitacoes(): number {
     return this.solicitacoesPorStatusChart.values.reduce((sum, value) => sum + value, 0);
+  }
+
+  // Method to navigate to request list with overdue filter
+  navigateToOverdueRequests(period: string): void {
+    const hoje = new Date();
+    let dataPrazoTo: Date | null = new Date();
+    let dataPrazoFrom: Date | null = new Date();
+
+    switch (period) {
+      case '1-5 dias':
+        dataPrazoTo.setDate(hoje.getDate() - 1);
+        dataPrazoFrom.setDate(hoje.getDate() - 5);
+        break;
+      case '6-10 dias':
+        dataPrazoTo.setDate(hoje.getDate() - 6);
+        dataPrazoFrom.setDate(hoje.getDate() - 10);
+        break;
+      case '11-20 dias':
+        dataPrazoTo.setDate(hoje.getDate() - 11);
+        dataPrazoFrom.setDate(hoje.getDate() - 20);
+        break;
+      case '> 20 dias':
+        dataPrazoTo.setDate(hoje.getDate() - 21);
+        dataPrazoFrom = null; // No start date for "> 20 days"
+        break;
+    }
+
+    this.router.navigate(['/solicitacoes'], {
+      queryParams: {
+        dataPrazoFrom: dataPrazoFrom ? dataPrazoFrom.toISOString().split('T')[0] : null,
+        dataPrazoTo: dataPrazoTo ? dataPrazoTo.toISOString().split('T')[0] : null,
+        status: 'Atrasada' // A custom filter key to indicate overdue
+      }
+    });
   }
 }

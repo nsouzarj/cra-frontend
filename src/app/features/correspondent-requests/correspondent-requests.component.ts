@@ -59,6 +59,7 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
   dataSource = new MatTableDataSource<Solicitacao>();
   displayedColumns: string[] = ['id', 'datasolicitacao', 'dataprazo', 'tipoSolicitacao', 'processo', 'correspondente', 'status', 'actions'];
   loading = true;
+  pdfLoading = new Set<number>();
   
   // Current filter criteria
   currentFilter: RequestFilterCriteria = {
@@ -446,6 +447,41 @@ export class CorrespondentRequestsComponent implements OnInit, AfterViewInit {
     
     const status = this.statuses.find(s => s.status === statusName);
     return status ? status.idstatus : null;
+  }
+  
+  /**
+   * Generate and download PDF report for a solicitation
+   * @param solicitacaoId The ID of the solicitation to generate PDF for
+   */
+  generatePdfReport(solicitacaoId: number): void {
+    this.pdfLoading.add(solicitacaoId);
+    this.solicitacaoService.generatePdfReport(solicitacaoId).subscribe({
+      next: (blob: Blob) => {
+        // Create a download link
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `solicitacao-${solicitacaoId}.pdf`;
+        
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        
+        // Clean up
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+      },
+      error: (error) => {
+        console.error('Error generating PDF report:', error);
+        this.snackBar.open('Erro ao gerar relatório PDF', 'Fechar', {
+          duration: 5000,
+          panelClass: ['error-snackbar']
+        });
+      },
+      complete: () => {
+        this.pdfLoading.delete(solicitacaoId);
+      }
+    });
   }
   
   // Updated method to show confirmation dialog before updating status
