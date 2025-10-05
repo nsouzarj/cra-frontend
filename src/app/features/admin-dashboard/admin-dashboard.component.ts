@@ -249,6 +249,28 @@ export class AdminDashboardComponent implements OnInit {
           diligencia: mappedData.diligenciaCount
         };
         
+        // Fallback logic to calculate top comarcas from all solicitations if not provided by main endpoint
+        if ((!this.topComarcas || this.topComarcas.length === 0) && Array.isArray(allSolicitacoes) && allSolicitacoes.length > 0) {
+          const comarcaCounts: Record<string, { comarcaId: number, comarcaNome: string, uf: string, count: number }> = {};
+          allSolicitacoes.forEach(s => {
+            if (s.processo?.comarca && typeof s.processo.comarca.id === 'number') {
+              const comarca = s.processo.comarca;
+              if (!comarcaCounts[comarca.nome]) {
+                comarcaCounts[comarca.nome] = {
+                  comarcaId: s.processo.comarca.id, // Use the narrowed type directly
+                  comarcaNome: comarca.nome,
+                  uf: comarca.uf.sigla, // Correct property for the state abbreviation
+                  count: 0
+                };
+              }
+              comarcaCounts[comarca.nome].count++;
+            }
+          });
+          this.topComarcas = Object.values(comarcaCounts)
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 10); // Get top 10
+        }
+
         // Update chart data
         this.updateChartData();
         
@@ -357,9 +379,8 @@ export class AdminDashboardComponent implements OnInit {
           allProcessos, processosEmAndamento,
           allSolicitacoes, solicitacoesPendentes,
           solicitacaoStatuses,
-          tipoSolicitacoes,
-          totalComarcas // Add this
-        ] = results as [User[], User[], Correspondente[], Correspondente[], Processo[], Processo[], Solicitacao[], Solicitacao[], SolicitacaoStatus[], TipoSolicitacao[], number];
+          tipoSolicitacoes, totalComarcas
+        ] = results;
 
         // Validate that all arrays are actually arrays
         if (!Array.isArray(allUsers)) {
@@ -743,6 +764,18 @@ export class AdminDashboardComponent implements OnInit {
         dataPrazoFrom: dataPrazoFrom ? dataPrazoFrom.toISOString().split('T')[0] : null,
         dataPrazoTo: dataPrazoTo ? dataPrazoTo.toISOString().split('T')[0] : null,
         status: 'Atrasada' // A custom filter key to indicate overdue
+      }
+    });
+  }
+
+  // Method to navigate to request list with comarca filter
+  navigateToComarcaRequests(comarcaId: number): void {
+    if (!comarcaId) {
+      return;
+    }
+    this.router.navigate(['/solicitacoes'], {
+      queryParams: {
+        comarca: comarcaId
       }
     });
   }

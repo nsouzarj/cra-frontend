@@ -16,7 +16,9 @@
             <div class="stat-details">
               <h3>Audiências</h3>
               <div class="stat-numbers">
-                <span class="primary-number">{{ tipoSolicitacaoCounts.audiencia }}</span>
+                <span class="primary-number">{{
+                  tipoSolicitacaoCounts.audiencia
+                }}</span>
                 <span class="secondary-number">solicitações</span>
               </div>
             </div>
@@ -33,7 +35,9 @@
             <div class="stat-details">
               <h3>Diligências</h3>
               <div class="stat-numbers">
-                <span class="primary-number">{{ tipoSolicitacaoCounts.diligencia }}</span>
+                <span class="primary-number">{{
+                  tipoSolicitacaoCounts.diligencia
+                }}</span>
                 <span class="secondary-number">solicitações</span>
               </div>
             </div>
@@ -50,7 +54,9 @@
             <div class="stat-details">
               <h3>Total</h3>
               <div class="stat-numbers">
-                <span class="primary-number">{{ stats.totalSolicitacoes }}</span>
+                <span class="primary-number">{{
+                  stats.totalSolicitacoes
+                }}</span>
                 <span class="secondary-number">solicitações</span>
               </div>
             </div>
@@ -72,7 +78,9 @@
             <h3>Usuários</h3>
             <div class="stat-numbers">
               <span class="primary-number">{{ stats.totalUsers }}</span>
-              <span class="secondary-number">{{ stats.activeUsers }} ativos</span>
+              <span class="secondary-number"
+                >{{ stats.activeUsers }} ativos</span
+              >
             </div>
           </div>
         </div>
@@ -89,8 +97,12 @@
           <div class="stat-details">
             <h3>Correspondentes</h3>
             <div class="stat-numbers">
-              <span class="primary-number">{{ stats.totalCorrespondentes }}</span>
-              <span class="secondary-number">{{ stats.activeCorrespondentes }} ativos</span>
+              <span class="primary-number">{{
+                stats.totalCorrespondentes
+              }}</span>
+              <span class="secondary-number"
+                >{{ stats.activeCorrespondentes }} ativos</span
+              >
             </div>
           </div>
         </div>
@@ -108,7 +120,9 @@
             <h3>Processos</h3>
             <div class="stat-numbers">
               <span class="primary-number">{{ stats.totalProcessos }}</span>
-              <span class="secondary-number">{{ stats.processosEmAndamento }} em andamento</span>
+              <span class="secondary-number"
+                >{{ stats.processosEmAndamento }} em andamento</span
+              >
             </div>
           </div>
         </div>
@@ -126,8 +140,15 @@
             <h3>Comarcas</h3>
             <div class="stat-numbers">
               <span class="primary-number">{{ stats.totalComarcas }}</span>
-              <span class="secondary-number" *ngIf="stats.comarcasAtivas !== undefined && stats.comarcasInativas !== undefined">
-                {{ stats.comarcasAtivas }} ativas, {{ stats.comarcasInativas }} inativas
+              <span
+                class="secondary-number"
+                *ngIf="
+                  stats.comarcasAtivas !== undefined &&
+                  stats.comarcasInativas !== undefined
+                "
+              >
+                {{ stats.comarcasAtivas }} ativas,
+                {{ stats.comarcasInativas }} inativas
               </span>
             </div>
           </div>
@@ -150,72 +171,28 @@
           <div class="chart-container horizontal-scroll-container">
             <div class="bar-chart responsive-bar-chart">
               <div class="chart-bars">
-                <div 
-                  *ngFor="let value of entityTypeChart.values; let i = index" 
+                <div
+                  *ngFor="let value of entityTypeChart.values; let i = index"
                   class="bar-container"
                   [attr.data-index]="i"
                   [attr.data-value]="value"
                 >
-                  <div 
-                    class="bar" 
+                  <div
+                    class="bar"
                     [ngStyle]="{
-                      'height': getBarHeight(value, getMaxValue(entityTypeChart.values)),
+                      height: getBarHeight(
+                        value,
+                        getMaxValue(entityTypeChart.values)
+                      ),
                       'background-color': entityTypeChart.colors[i]
                     }"
                     [attr.data-color]="entityTypeChart.colors[i]"
-                    [attr.data-height]="getBarHeight(value, getMaxValue(entityTypeChart.values))"
+                    [attr.data-height]="
+                      getBarHeight(value, getMaxValue(entityTypeChart.values))
+                    "
                   ></div>
                   <div class="bar-label">{{ entityTypeChart.labels[i] }}</div>
                   <div class="bar-value">{{ value }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Entity Status Chart -->
-      <mat-card class="chart-card">
-        <mat-card-header>
-          <mat-card-title>Status das Entidades</mat-card-title>
-          <mat-card-subtitle>Ativos, inativos, em andamento e pendentes</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="chart-container">
-            <div class="pie-chart">
-              <div class="pie-chart-container">
-                <svg viewBox="0 0 100 100" class="pie-svg">
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="#eee" stroke-width="20" />
-                  <ng-container *ngFor="let value of entityStatusChart.values; let i = index">
-                    <circle 
-                      *ngIf="value > 0"
-                      cx="50" 
-                      cy="50" 
-                      r="40" 
-                      fill="none" 
-                      [attr.stroke]="entityStatusChart.colors[i]"
-                      stroke-width="20"
-                      [attr.stroke-dasharray]="getPieStrokeDasharray(value, entityStatusChart.values)"
-                      [attr.stroke-dashoffset]="getPieStrokeDashoffset(i, entityStatusChart.values)"
-                      class="pie-segment"
-                    />
-                  </ng-container>
-                </svg>
-                <div class="pie-center">
-                  <div class="pie-total">{{ getTotalEntities() }}</div>
-                  <div class="pie-label">Total</div>
-                </div>
-              </div>
-              <div class="pie-legend">
-                <div 
-                  *ngFor="let label of entityStatusChart.labels; let i = index" 
-                  class="legend-item"
-                >
-                  <div 
-                    class="legend-color" 
-                    [ngStyle]="{'background-color': entityStatusChart.colors[i]}"
-                  ></div>
-                  <div class="legend-label">{{ label }}: {{ entityStatusChart.values[i] }}</div>
                 </div>
               </div>
             </div>
@@ -227,26 +204,41 @@
       <mat-card class="chart-card">
         <mat-card-header>
           <mat-card-title>Solicitações por Status</mat-card-title>
-          <mat-card-subtitle>Distribuição das solicitações por status</mat-card-subtitle>
+          <mat-card-subtitle
+            >Distribuição das solicitações por status</mat-card-subtitle
+          >
         </mat-card-header>
         <mat-card-content>
           <div class="chart-container horizontal-scroll-container">
             <div class="bar-chart responsive-bar-chart">
               <div class="chart-bars">
-                <div 
-                  *ngFor="let value of solicitacoesPorStatusChart.values; let i = index" 
+                <div
+                  *ngFor="
+                    let value of solicitacoesPorStatusChart.values;
+                    let i = index
+                  "
                   class="bar-container"
                 >
-                  <div 
-                    class="bar" 
+                  <div
+                    class="bar"
                     [ngStyle]="{
-                      'height': getBarHeight(value, getMaxValue(solicitacoesPorStatusChart.values)),
+                      height: getBarHeight(
+                        value,
+                        getMaxValue(solicitacoesPorStatusChart.values)
+                      ),
                       'background-color': solicitacoesPorStatusChart.colors[i]
                     }"
                     [attr.data-color]="solicitacoesPorStatusChart.colors[i]"
-                    [attr.data-height]="getBarHeight(value, getMaxValue(solicitacoesPorStatusChart.values))"
+                    [attr.data-height]="
+                      getBarHeight(
+                        value,
+                        getMaxValue(solicitacoesPorStatusChart.values)
+                      )
+                    "
                   ></div>
-                  <div class="bar-label">{{ solicitacoesPorStatusChart.labels[i] }}</div>
+                  <div class="bar-label">
+                    {{ solicitacoesPorStatusChart.labels[i] }}
+                  </div>
                   <div class="bar-value">{{ value }}</div>
                 </div>
               </div>
@@ -259,25 +251,39 @@
       <mat-card class="chart-card">
         <mat-card-header>
           <mat-card-title>Solicitações Atrasadas por Período</mat-card-title>
-          <mat-card-subtitle>Contagem de solicitações com prazo vencido</mat-card-subtitle>
+          <mat-card-subtitle
+            >Contagem de solicitações com prazo vencido</mat-card-subtitle
+          >
         </mat-card-header>
         <mat-card-content>
           <div class="chart-container horizontal-scroll-container">
             <div class="bar-chart responsive-bar-chart">
               <div class="chart-bars">
                 <div
-                  *ngFor="let value of solicitacoesAtrasadasChart.values; let i = index"
+                  *ngFor="
+                    let value of solicitacoesAtrasadasChart.values;
+                    let i = index
+                  "
                   class="bar-container"
-                  (click)="navigateToOverdueRequests(solicitacoesAtrasadasChart.labels[i])"
+                  (click)="
+                    navigateToOverdueRequests(
+                      solicitacoesAtrasadasChart.labels[i]
+                    )
+                  "
                 >
                   <div
                     class="bar"
                     [ngStyle]="{
-                      'height': getBarHeight(value, getMaxValue(solicitacoesAtrasadasChart.values)),
+                      height: getBarHeight(
+                        value,
+                        getMaxValue(solicitacoesAtrasadasChart.values)
+                      ),
                       'background-color': solicitacoesAtrasadasChart.colors[i]
                     }"
                   ></div>
-                  <div class="bar-label">{{ solicitacoesAtrasadasChart.labels[i] }}</div>
+                  <div class="bar-label">
+                    {{ solicitacoesAtrasadasChart.labels[i] }}
+                  </div>
                   <div class="bar-value">{{ value }}</div>
                 </div>
               </div>
@@ -290,25 +296,49 @@
       <mat-card class="chart-card">
         <mat-card-header>
           <mat-card-title>Distribuição de Solicitações</mat-card-title>
-          <mat-card-subtitle>Proporção de solicitações por status</mat-card-subtitle>
+          <mat-card-subtitle
+            >Proporção de solicitações por status</mat-card-subtitle
+          >
         </mat-card-header>
         <mat-card-content>
           <div class="chart-container horizontal-scroll-container">
             <div class="pie-chart">
               <div class="pie-chart-container">
                 <svg viewBox="0 0 100 100" class="pie-svg">
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="#eee" stroke-width="20" />
-                  <ng-container *ngFor="let value of solicitacoesPorStatusChart.values; let i = index">
-                    <circle 
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    fill="none"
+                    stroke="#eee"
+                    stroke-width="20"
+                  />
+                  <ng-container
+                    *ngFor="
+                      let value of solicitacoesPorStatusChart.values;
+                      let i = index
+                    "
+                  >
+                    <circle
                       *ngIf="value > 0"
-                      cx="50" 
-                      cy="50" 
-                      r="40" 
-                      fill="none" 
+                      cx="50"
+                      cy="50"
+                      r="40"
+                      fill="none"
                       [attr.stroke]="solicitacoesPorStatusChart.colors[i]"
                       stroke-width="20"
-                      [attr.stroke-dasharray]="getPieStrokeDasharray(value, solicitacoesPorStatusChart.values)"
-                      [attr.stroke-dashoffset]="getPieStrokeDashoffset(i, solicitacoesPorStatusChart.values)"
+                      [attr.stroke-dasharray]="
+                        getPieStrokeDasharray(
+                          value,
+                          solicitacoesPorStatusChart.values
+                        )
+                      "
+                      [attr.stroke-dashoffset]="
+                        getPieStrokeDashoffset(
+                          i,
+                          solicitacoesPorStatusChart.values
+                        )
+                      "
                       class="pie-segment"
                     />
                   </ng-container>
@@ -319,15 +349,92 @@
                 </div>
               </div>
               <div class="pie-legend">
-                <div 
-                  *ngFor="let label of solicitacoesPorStatusChart.labels; let i = index" 
+                <div
+                  *ngFor="
+                    let label of solicitacoesPorStatusChart.labels;
+                    let i = index
+                  "
                   class="legend-item"
                 >
-                  <div 
-                    class="legend-color" 
-                    [ngStyle]="{'background-color': solicitacoesPorStatusChart.colors[i]}"
+                  <div
+                    class="legend-color"
+                    [ngStyle]="{
+                      'background-color': solicitacoesPorStatusChart.colors[i]
+                    }"
                   ></div>
-                  <div class="legend-label">{{ label }}: {{ solicitacoesPorStatusChart.values[i] }}</div>
+                  <div class="legend-label">
+                    {{ label }}: {{ solicitacoesPorStatusChart.values[i] }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <!-- Entity Status Chart -->
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Status das Entidades</mat-card-title>
+          <mat-card-subtitle
+            >Ativos, inativos, em andamento e pendentes</mat-card-subtitle
+          >
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container">
+            <div class="pie-chart">
+              <div class="pie-chart-container">
+                <svg viewBox="0 0 100 100" class="pie-svg">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    fill="none"
+                    stroke="#eee"
+                    stroke-width="20"
+                  />
+                  <ng-container
+                    *ngFor="
+                      let value of entityStatusChart.values;
+                      let i = index
+                    "
+                  >
+                    <circle
+                      *ngIf="value > 0"
+                      cx="50"
+                      cy="50"
+                      r="40"
+                      fill="none"
+                      [attr.stroke]="entityStatusChart.colors[i]"
+                      stroke-width="20"
+                      [attr.stroke-dasharray]="
+                        getPieStrokeDasharray(value, entityStatusChart.values)
+                      "
+                      [attr.stroke-dashoffset]="
+                        getPieStrokeDashoffset(i, entityStatusChart.values)
+                      "
+                      class="pie-segment"
+                    />
+                  </ng-container>
+                </svg>
+                <div class="pie-center">
+                  <div class="pie-total">{{ getTotalEntities() }}</div>
+                  <div class="pie-label">Total</div>
+                </div>
+              </div>
+              <div class="pie-legend">
+                <div
+                  *ngFor="let label of entityStatusChart.labels; let i = index"
+                  class="legend-item"
+                >
+                  <div
+                    class="legend-color"
+                    [ngStyle]="{
+                      'background-color': entityStatusChart.colors[i]
+                    }"
+                  ></div>
+                  <div class="legend-label">
+                    {{ label }}: {{ entityStatusChart.values[i] }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -335,8 +442,10 @@
         </mat-card-content>
       </mat-card>
 
-      <!-- Top Comarcas Chart -->
-      <mat-card class="chart-card" *ngIf="topComarcas && topComarcas.length > 0">
+      <mat-card
+        class="chart-card"
+        *ngIf="topComarcas && topComarcas.length > 0"
+      >
         <mat-card-header>
           <mat-card-title>Principais Comarcas</mat-card-title>
           <mat-card-subtitle>Comarcas com mais solicitações</mat-card-subtitle>
@@ -345,24 +454,28 @@
           <div class="chart-container horizontal-scroll-container">
             <div class="bar-chart responsive-bar-chart">
               <div class="chart-bars">
-                <div 
-                  *ngFor="let comarca of topComarcas; let i = index" 
+                <div
+                  *ngFor="let comarca of topComarcas; let i = index"
                   class="bar-container"
+                  (click)="navigateToComarcaRequests(comarca.comarcaId)"
                 >
-                  <div 
-                    class="bar" 
+                  <div
+                    class="bar"
                     [ngStyle]="{
-                      'height': getComarcaBarHeight(comarca.count),
+                      height: getComarcaBarHeight(comarca.count),
                       'background-color': getStatusColor(comarca.comarcaNome, i)
                     }"
                   ></div>
-                  <div class="bar-label">{{ comarca.comarcaNome }} ({{ comarca.uf }})</div>
+                  <div class="bar-label">
+                    {{ comarca.comarcaNome }} ({{ comarca.uf }})
+                  </div>
                   <div class="bar-value">{{ comarca.count }}</div>
                 </div>
               </div>
             </div>
           </div>
         </mat-card-content>
+        <!-- Top Comarcas Chart -->
       </mat-card>
     </div>
   </div>
@@ -377,7 +490,11 @@
   <div class="quick-actions" *ngIf="!loading">
     <h2>Ações Rápidas</h2>
     <div class="actions-grid clickable">
-      <mat-card class="action-card" *ngIf="authService.isAdmin()" routerLink="/register">
+      <mat-card
+        class="action-card"
+        *ngIf="authService.isAdmin()"
+        routerLink="/register"
+      >
         <mat-card-content>
           <mat-icon>person_add</mat-icon>
           <h3>Cadastrar Usuário</h3>
@@ -408,9 +525,13 @@
           <p>Criar uma nova solicitação de serviço</p>
         </mat-card-content>
       </mat-card>
-      
+
       <!-- Correspondent Dashboard Action -->
-      <mat-card class="action-card" *ngIf="authService.isCorrespondente()" routerLink="/correspondent-dashboard">
+      <mat-card
+        class="action-card"
+        *ngIf="authService.isCorrespondente()"
+        routerLink="/correspondent-dashboard"
+      >
         <mat-card-content>
           <mat-icon>dashboard</mat-icon>
           <h3>Meu Dashboard</h3>
