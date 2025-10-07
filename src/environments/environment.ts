@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8081/cra-api'  // Development API URL
+  apiUrl: 'http://192.168.1.106:8081/cra-api'  // Development API URL
 };
 
 /*
