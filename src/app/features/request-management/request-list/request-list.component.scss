@@ -175,24 +175,20 @@
   background-color: rgba(244, 67, 54, 0.1) !important;
 }
 
-/* Estilos para o prazo de vencimento na célula da tabela (apenas texto) */
-:host ::ng-deep .mat-mdc-cell.prazo-aviso {
-  font-weight: bold;
-  color: #f3c10e !important; /* Amarelo forte */
+.prazo-aviso {
+  background-color: #fff3cd; // Light yellow
+  color: #856404; // Dark yellow
+  font-weight: 500;
 }
 
-:host ::ng-deep .mat-mdc-cell.prazo-alerta {
-  font-weight: bold;
-  color: #e65100 !important; /* Laranja forte */
+.prazo-alerta {
+  background-color: #f8d7da; // Light red
+  color: #721c24; // Dark red
+  font-weight: 600;
 }
 
-:host ::ng-deep .mat-mdc-cell.prazo-critico {
-  font-weight: bold;
-  color: #c62828 !important; /* Vermelho forte */
-}
-
-/* Remove a cor de fundo que estava sendo aplicada anteriormente */
-:host ::ng-deep .mat-mdc-cell.prazo-vencido,
-:host ::ng-deep .mat-mdc-cell.prazo-proximo {
-  background-color: transparent !important;
+.prazo-critico {
+  background-color: #dc3545; // Red
+  color: white;
+  font-weight: 700;
 }

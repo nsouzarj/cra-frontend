@@ -232,3 +232,21 @@
 .pdf-action:hover {
   background-color: rgba(244, 67, 54, 0.1) !important;
 }
+
+.prazo-aviso {
+  background-color: #fff3cd; // Light yellow
+  color: #856404; // Dark yellow
+  font-weight: 500;
+}
+
+.prazo-alerta {
+  background-color: #f8d7da; // Light red
+  color: #721c24; // Dark red
+  font-weight: 600;
+}
+
+.prazo-critico {
+  background-color: #dc3545; // Red
+  color: white;
+  font-weight: 700;
+}
