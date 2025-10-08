@@ -58,7 +58,11 @@ import { RequestFilterComponent } from '@/app/shared/components/request-filter/r
 })
 export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+    @ViewChild(MatSort) set sort(sort: MatSort) {
+    if (sort) {
+      this.dataSource.sort = sort;
+    }
+  }
 
   dataSource = new MatTableDataSource<Solicitacao>();
   displayedColumns: string[] = ['id', 'datasolicitacao', 'dataprazo', 'tipoSolicitacao', 'processo', 'correspondente', 'status', 'actions'];
@@ -92,8 +96,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
   pageSizeOptions: number[] = [5, 10, 20, 50, 100];
   totalElements = 0;
   currentPage = 0;
-  sortBy = 'id';
-  sortDirection = 'ASC';
+
 
   private themeSubscription: Subscription | null = null;
 
@@ -114,19 +117,22 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadStatuses();
     this.loadFilterOptions();
     this.setupThemeListener();
+
+    this.dataSource.sortingDataAccessor = (item, property) => {
+      switch (property) {
+        case 'processo': return item.processo?.numeroprocesso || '';
+        case 'correspondente': return item.correspondente?.nome || '';
+        case 'status': return item.statusSolicitacao?.status || '';
+        case 'tipoSolicitacao': return item.tipoSolicitacao?.especie || '';
+        case 'id': return item.id || 0;
+        case 'datasolicitacao': return item.datasolicitacao ? new Date(item.datasolicitacao).getTime() : 0;
+        case 'dataprazo': return item.dataprazo ? new Date(item.dataprazo).getTime() : 0;
+        default: return '';
+      }
+    };
   }
 
   ngAfterViewInit(): void {
-    // Set up sort
-    if (this.sort) {
-      this.sort.sortChange.subscribe(() => {
-        this.sortBy = this.sort.active;
-        this.sortDirection = this.sort.direction.toUpperCase() || 'ASC';
-        this.currentPage = 0;
-        this.loadRequests();
-      });
-    }
-    
     // Load initial data
     this.loadRequests();
   }
@@ -159,9 +165,7 @@ export class RequestListComponent implements OnInit, AfterViewInit, OnDestroy {
     // Prepare the filter object for the advanced search endpoint
     const filtro: SolicitacaoFiltro = {
       page: this.currentPage,
-      size: this.pageSize,
-      sortBy: this.sortBy,
-      direction: this.sortDirection
+      size: this.pageSize
     };
     
     // Add filter criteria if they exist

@@ -9,7 +9,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  background-color: var(--header-background, #3f51b5);
+  background-color: var(--header-background, #303f9f);
   color: var(--header-color, #ffffff);
   border-radius: 4px;
   box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
@@ -191,4 +191,8 @@
   background-color: #dc3545; // Red
   color: white;
   font-weight: 700;
+}
+
+:host ::ng-deep .mat-mdc-header-cell {
+  background-color: #efe6e6b7 !important;
 }
