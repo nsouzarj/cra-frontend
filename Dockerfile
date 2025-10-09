@@ -14,8 +14,8 @@ RUN npm install
 COPY . .
 
 # Build the Angular application with production configuration
-#RUN npm run build -- --configuration=production --aot --build-optimizer
-RUN npm run build
+RUN npm run build -- --configuration=production --aot --build-optimizer
+#RUN npm run build
 # Stage 2: Serve the application using nginx
 FROM nginx:alpine
 
