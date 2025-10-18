@@ -4,7 +4,9 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://192.168.1.107:8081/cra-api'  // Development API URL
+ // apiUrl: 'http://192.168.1.103:8081/cra-api'
+ // 
+    apiUrl: 'https://cra-backend-rf76.onrender.com/cra-api'
 };
 
 /*
